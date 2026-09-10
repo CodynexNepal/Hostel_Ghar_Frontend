@@ -2,6 +2,8 @@
 
 import { Star } from 'lucide-react';
 import Carousel from '@/components/ui/Carousel';
+import { Section, SectionHeader } from '@/components/ui/Section';
+import { HostelImage } from '@/components/ui/Media';
 
 const testimonials = [
   {
@@ -50,20 +52,13 @@ const testimonials = [
 
 const Testimonials = () => {
   return (
-    <section className="py-16 md:py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <Section tone="white">
         {/* Section Header */}
-        <div className="text-center mb-14">
-          <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
-            Testimonials
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-brand-black tracking-tight">
-            What Our Clients Say
-          </h2>
-          <p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-            Hear from hostel owners and travelers who have experienced our services
-          </p>
-        </div>
+        <SectionHeader
+          eyebrow="Testimonials"
+          title="What Our Clients Say"
+          description="Hear from hostel owners and travelers who have experienced our services"
+        />
 
         {/* Testimonials Carousel */}
         <Carousel
@@ -93,14 +88,24 @@ const Testimonials = () => {
 
               {/* Author */}
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-brand-lime/20 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-bold text-brand-black">
-                    {testimonial.name
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')}
-                  </span>
-                </div>
+                <HostelImage
+                  src="/images/static/hostel.jpg"
+                  alt={`${testimonial.name} — happy Hostel Ghar guest`}
+                  aspect="square"
+                  rounded="full"
+                  objectPosition="center 40%"
+                  className="w-12 h-12 shrink-0 ring-2 ring-brand-lime/60"
+                  sizes="48px"
+                >
+                  <div className="flex h-full items-center justify-center bg-brand-black/35">
+                    <span className="text-xs font-bold text-white">
+                      {testimonial.name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')}
+                    </span>
+                  </div>
+                </HostelImage>
                 <div>
                   <p className="font-semibold text-brand-black">{testimonial.name}</p>
                   <p className="text-sm text-neutral-500">{testimonial.role}</p>
@@ -109,8 +114,7 @@ const Testimonials = () => {
             </div>
           ))}
         </Carousel>
-      </div>
-    </section>
+    </Section>
   );
 };
 

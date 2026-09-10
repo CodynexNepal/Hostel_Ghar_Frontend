@@ -307,3 +307,96 @@
     box-shadow: 0 0 20px 10px rgba(185, 255, 102, 0.2);
   }
 }
+
+/* ---- Hostel Ghar unique loader ---- */
+@keyframes loader-bounce-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes loader-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes loader-orbit {
+  0% {
+    transform: rotate(0deg) translateX(34px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(34px) rotate(-360deg);
+  }
+}
+@keyframes loader-orbit-reverse {
+  0% {
+    transform: rotate(360deg) translateX(30px) rotate(-360deg);
+  }
+  100% {
+    transform: rotate(0deg) translateX(30px) rotate(0deg);
+  }
+}
+@keyframes loader-door {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+@keyframes loader-dot {
+  0%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+}
+.animate-loader-bounce-soft {
+  animation: loader-bounce-soft 1.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.animate-loader-shine {
+  animation: loader-shine 1.8s ease-in-out infinite;
+}
+.animate-loader-orbit {
+  animation: loader-orbit 2.2s linear infinite;
+  transform-origin: center;
+}
+.animate-loader-orbit-reverse {
+  animation: loader-orbit-reverse 2.8s linear infinite;
+}
+.animate-loader-door {
+  animation: loader-door 1.2s ease-in-out infinite;
+}
+.animate-loader-bed {
+  animation: loader-bed 1s ease-in-out infinite;
+  transform-origin: bottom;
+}
+.animate-loader-dot {
+  animation: loader-dot 0.9s ease-in-out infinite;
+}
+@keyframes loader-bed {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+

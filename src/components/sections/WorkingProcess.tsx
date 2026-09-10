@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import gsap from 'gsap';
 import { ChevronDown } from 'lucide-react';
+import { Section, SectionHeader } from '@/components/ui/Section';
 
 const steps = [
   {
@@ -138,20 +139,13 @@ const WorkingProcess = () => {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <Section tone="white" container="md">
         {/* Section Header */}
-        <div className="text-center mb-14">
-          <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
-            Our Process
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-brand-black tracking-tight">
-            How We Work
-          </h2>
-          <p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-            Step-by-step guide to achieving your hostel business goals
-          </p>
-        </div>
+        <SectionHeader
+          eyebrow="Our Process"
+          title="How We Work"
+          description="Step-by-step guide to achieving your hostel business goals"
+        />
 
         {/* Accordion Steps */}
         <div className="space-y-4">
@@ -164,8 +158,7 @@ const WorkingProcess = () => {
             />
           ))}
         </div>
-      </div>
-    </section>
+    </Section>
   );
 };
 

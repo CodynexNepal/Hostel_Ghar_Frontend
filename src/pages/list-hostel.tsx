@@ -4,6 +4,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
+import { HostelImage } from '@/components/ui/Media';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Building2, MapPin, Wallet, Sparkles, BadgeCheck, ArrowRight, ArrowLeft, Check, Star, Users, Wifi, Coffee, Utensils, Dumbbell, Car, Tv, Wind, PawPrint, ShieldCheck, Clock, TrendingUp, Phone, Mail, Camera, Plus, X, Send, PartyPopper, HandCoins, CalendarCheck, ChevronDown, PenLine, Eye } from 'lucide-react';
@@ -207,13 +208,21 @@ const ListHostelPage = () => {
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-black px-3 py-1 text-[11px] font-bold text-white"><span className="h-1.5 w-1.5 rounded-full bg-brand-lime" /> LIVE PREVIEW</span>
                       <span className="inline-flex items-center gap-1 text-[12px] font-bold"><Star size={13} fill="#f59e0b" className="text-amber-500" /> 4.9 (189)</span>
                     </div>
-                    <svg viewBox="0 0 420 260" className="h-auto w-full" role="img" aria-label="Hostel illustration">
-                      <ellipse cx="210" cy="228" rx="150" ry="18" fill="#B9FF66" opacity="0.5" />
-                      <g stroke="#010101" strokeWidth="3" strokeLinejoin="round"><rect x="110" y="95" width="200" height="125" rx="10" fill="#fff" /><path d="M95 100 L210 40 L325 100 Z" fill="#010101" /><rect x="190" y="150" width="40" height="70" rx="6" fill="#B9FF66" /><rect x="130" y="125" width="38" height="34" rx="6" fill="#dcffb0" /><rect x="252" y="125" width="38" height="34" rx="6" fill="#dcffb0" /></g>
-                      <g stroke="#010101" strokeWidth="2.5"><path d="M60 220 L95 170 L130 220 Z" fill="#B9FF66" opacity="0.7" /><path d="M290 220 L330 165 L370 220 Z" fill="#B9FF66" opacity="0.7" /></g>
-                      <g className="lh-float"><rect x="298" y="52" width="86" height="40" rx="12" fill="#fff" stroke="#010101" strokeWidth="2.5" /><text x="341" y="70" textAnchor="middle" fontSize="11" fontWeight="800" fill="#010101">+NPR 42k</text><text x="341" y="83" textAnchor="middle" fontSize="9" fill="#525252">this month</text></g>
-                    </svg>
-                    <div className="flex items-center justify-between px-4 pb-3">
+                    <div className="relative">
+                      <HostelImage
+                        src="/images/static/hostel.jpeg"
+                        alt="Hostel showcase"
+                        aspect="wide"
+                        rounded="none"
+                        priority
+                        className="border-b-2 border-brand-black"
+                        imgClassName="object-cover"
+                      />
+                      <div className="lh-float absolute right-4 top-4 rounded-xl border-2 border-brand-black bg-white px-2.5 py-1.5 text-xs font-extrabold shadow-[3px_3px_0_#010101]">
+                        +NPR 42k
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between px-4 pb-3 pt-3">
                       <div><p className="font-extrabold leading-none">{form.hostelName || 'Your Hostel Name'}</p><p className="mt-1 flex items-center gap-1 text-xs text-neutral-500"><MapPin size={12} /> {form.area || 'Thamel'}, {form.city}</p></div>
                       <p className="rounded-lg border-2 border-brand-black bg-brand-lime px-2.5 py-1 text-sm font-extrabold">NPR {Number(form.priceFrom || 0).toLocaleString('en-IN')}<span className="text-[11px] font-bold">/mo</span></p>
                     </div>

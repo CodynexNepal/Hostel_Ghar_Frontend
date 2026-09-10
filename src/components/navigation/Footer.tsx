@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -280,8 +281,14 @@ const Footer = () => {
         <div className="grid gap-10 py-12 sm:py-16 lg:grid-cols-[1.3fr_0.8fr_0.8fr_0.8fr_1.2fr]">
           <div ref={(el) => { colsRef.current[0] = el; }}>
             <Link href="/" className="group inline-flex items-center gap-3">
-              <span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-lime shadow-lime transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105">
-                <Building2 size={24} strokeWidth={2.4} className="text-brand-black" />
+              <span className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border-2 border-brand-lime bg-white shadow-lime transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105">
+                <Image
+                  src="/images/logo/hostel_ghar_logo.jpg"
+                  alt="Hostel Ghar logo"
+                  width={48}
+                  height={48}
+                  className="h-full w-full object-cover"
+                />
                 <span className="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full border-2 border-brand-black bg-white" />
               </span>
               <span className="leading-tight">

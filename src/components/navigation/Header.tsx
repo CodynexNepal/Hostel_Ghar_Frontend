@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
@@ -194,10 +195,15 @@ const Header = () => {
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link href="/" ref={logoRef} className="flex items-center gap-3 group">
-              <div className="relative w-10 h-10 md:w-11 md:h-11 bg-brand-lime rounded-xl flex items-center justify-center shadow-lime group-hover:shadow-lime-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                <span className="text-brand-black font-extrabold text-xl md:text-2xl tracking-tight">
-                  H
-                </span>
+              <div className="relative overflow-hidden rounded-xl border-2 border-brand-black bg-white shadow-lime transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 md:w-11 md:h-11 w-10 h-10">
+                <Image
+                  src="/images/logo/hostel_ghar_logo.jpg"
+                  alt="Hostel Ghar logo"
+                  width={44}
+                  height={44}
+                  className="h-full w-full object-cover"
+                  priority
+                />
                 <Sparkles
                   size={10}
                   strokeWidth={2.5}

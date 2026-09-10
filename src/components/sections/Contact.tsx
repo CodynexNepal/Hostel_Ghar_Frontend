@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Send, MessageSquare, Mail, MapPin, CheckCircle } from 'lucide-react';
+import { Section, SectionHeader } from '@/components/ui/Section';
+import { HostelImage } from '@/components/ui/Media';
 
 const schema = yup.object({
   name: yup
@@ -42,19 +44,12 @@ const Contact = () => {
   };
 
   return (
-    <section className="py-16 md:py-20 bg-[#f8f8f8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
-            Contact Us
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-brand-black tracking-tight">
-            Get In Touch
-          </h2>
-          <p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-            Connect with us: Let&apos;s discuss how we can help your hostel grow
-          </p>
-        </div>
+    <Section tone="gray" spacing="md">
+        <SectionHeader
+          eyebrow="Contact Us"
+          title="Get In Touch"
+          description="Connect with us: Let's discuss how we can help your hostel grow"
+        />
 
         <div className="grid lg:grid-cols-2 gap-10">
           <div className="bg-white p-8 rounded-2xl border border-neutral-100">
@@ -178,20 +173,37 @@ const Contact = () => {
                   <p className="text-neutral-600">Nepal</p>
                 </div>
               </div>
+              <HostelImage
+                src="/images/static/hostel.jpg"
+                alt="Hostel Ghar office area in Thamel, Kathmandu"
+                aspect="video"
+                rounded="xl"
+                objectPosition="center 60%"
+                className="mt-5"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              >
+                <div className="flex h-full items-end bg-gradient-to-t from-brand-black/70 via-brand-black/10 to-transparent p-4">
+                  <span className="px-3 py-1.5 rounded-full bg-brand-lime text-brand-black text-xs font-bold">
+                    Thamel, Kathmandu
+                  </span>
+                </div>
+              </HostelImage>
             </div>
             <div className="bg-brand-black p-6 rounded-2xl">
               <h3 className="text-lg font-bold text-white mb-2">Get a Free Quote</h3>
               <p className="text-neutral-300 mb-4">
                 Ready to grow your hostel business? Let&apos;s discuss your goals.
               </p>
-              <button className="px-6 py-3 bg-brand-lime text-brand-black font-bold rounded-xl hover:bg-brand-lime/85 transition-all duration-300">
+              <a
+                href="/contact"
+                className="inline-block px-6 py-3 bg-brand-lime text-brand-black font-bold rounded-xl hover:bg-brand-lime/85 transition-all duration-300"
+              >
                 Get your free proposal
-              </button>
+              </a>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+    </Section>
   );
 };
 

@@ -2,6 +2,8 @@
 
 import { Link } from 'lucide-react';
 import Carousel from '@/components/ui/Carousel';
+import { Section, SectionHeader } from '@/components/ui/Section';
+import { HostelImage } from '@/components/ui/Media';
 
 const teamMembers = [
   {
@@ -44,20 +46,13 @@ const teamMembers = [
 
 const Team = () => {
   return (
-    <section className="py-16 md:py-24 bg-[#f8f8f8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <Section tone="gray">
         {/* Section Header */}
-        <div className="text-center mb-14">
-          <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
-            Our Team
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-brand-black tracking-tight">
-            Meet Our Experts
-          </h2>
-          <p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-            The skilled and experienced team behind our successful hostel marketing strategies
-          </p>
-        </div>
+        <SectionHeader
+          eyebrow="Our Team"
+          title="Meet Our Experts"
+          description="The skilled and experienced team behind our successful hostel marketing strategies"
+        />
 
         {/* Team Carousel */}
         <Carousel
@@ -72,9 +67,19 @@ const Team = () => {
               className="p-6 bg-white rounded-2xl border border-neutral-100 hover:border-brand-lime/50 transition-all duration-300 h-full"
             >
               <div className="flex items-center gap-4 mb-5">
-                <div className="w-16 h-16 bg-brand-lime/20 rounded-2xl flex items-center justify-center">
-                  <span className="text-xl font-bold text-brand-black">{member.avatar}</span>
-                </div>
+                <HostelImage
+                  src="/images/static/hostel.jpg"
+                  alt={`${member.name} — ${member.role} at Hostel Ghar`}
+                  aspect="square"
+                  rounded="2xl"
+                  objectPosition="center 20%"
+                  className="w-16 h-16 shrink-0"
+                  sizes="64px"
+                >
+                  <div className="flex h-full items-end justify-center pb-1.5 bg-gradient-to-t from-brand-black/60 to-transparent">
+                    <span className="text-xs font-bold text-white">{member.avatar}</span>
+                  </div>
+                </HostelImage>
                 <div>
                   <h3 className="text-lg font-bold text-brand-black">{member.name}</h3>
                   <p className="text-sm text-neutral-500 font-medium">{member.role}</p>
@@ -102,8 +107,7 @@ const Team = () => {
             See all team members
           </button>
         </div>
-      </div>
-    </section>
+    </Section>
   );
 };
 

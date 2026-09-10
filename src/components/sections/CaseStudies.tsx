@@ -2,6 +2,8 @@
 
 import { ArrowUpRight } from 'lucide-react';
 import Carousel from '@/components/ui/Carousel';
+import { Section, SectionHeader } from '@/components/ui/Section';
+import { HostelImage } from '@/components/ui/Media';
 
 const caseStudies = [
   {
@@ -62,20 +64,13 @@ const caseStudies = [
 
 const CaseStudies = () => {
   return (
-    <section className="py-16 md:py-24 bg-[#f8f8f8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <Section tone="gray">
         {/* Section Header */}
-        <div className="text-center mb-14">
-          <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
-            Case Studies
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-brand-black tracking-tight">
-            Real Success Stories
-          </h2>
-          <p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-            Explore real-life examples of how we&apos;ve helped hostels grow their online presence
-          </p>
-        </div>
+        <SectionHeader
+          eyebrow="Case Studies"
+          title="Real Success Stories"
+          description="Explore real-life examples of how we've helped hostels grow their online presence"
+        />
 
         {/* Case Studies Carousel */}
         <Carousel
@@ -87,13 +82,27 @@ const CaseStudies = () => {
           {caseStudies.map((study, index) => (
             <div
               key={index}
-              className="p-6 bg-white rounded-2xl border border-neutral-100 hover:border-brand-lime/50 transition-all duration-300 h-full"
+              className="group overflow-hidden bg-white rounded-2xl border border-neutral-100 hover:border-brand-lime/50 transition-all duration-300 h-full"
             >
-              <div className="w-12 h-12 bg-brand-lime/20 rounded-xl flex items-center justify-center mb-5">
-                <span className="text-lg font-bold text-brand-black">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-              </div>
+              <HostelImage
+                src="/images/static/hostel.jpg"
+                alt={`${study.title} — hostel listed on Hostel Ghar`}
+                aspect="video"
+                rounded="none"
+                zoomOnHover
+                objectPosition={index % 2 === 0 ? 'center 30%' : 'center 70%'}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              >
+                <div className="flex items-start justify-between p-4">
+                  <span className="px-3 py-1.5 rounded-full bg-brand-black/80 backdrop-blur text-white text-xs font-bold">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span className="px-3 py-1.5 rounded-full bg-brand-lime text-brand-black text-xs font-bold">
+                    {study.stats[0]?.value} {study.stats[0]?.label}
+                  </span>
+                </div>
+              </HostelImage>
+              <div className="p-6">
               <h3 className="text-xl font-bold text-brand-black mb-3">{study.title}</h3>
               <p className="text-neutral-600 leading-relaxed mb-5">{study.description}</p>
 
@@ -110,11 +119,11 @@ const CaseStudies = () => {
                 Read More
                 <ArrowUpRight size={16} strokeWidth={2.5} />
               </button>
+              </div>
             </div>
           ))}
         </Carousel>
-      </div>
-    </section>
+    </Section>
   );
 };
 

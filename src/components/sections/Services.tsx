@@ -1,5 +1,6 @@
 'use client';
 
+import { Section, SectionHeader, CTABanner } from '@/components/ui/Section';
 import {
   Search,
   MousePointerClick,
@@ -90,8 +91,7 @@ const logos = [
 
 const Services = () => {
   return (
-    <section className="py-16 md:py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <Section tone="white">
         {/* Trusted By Logos */}
         <div className="mb-16">
           <p className="text-center text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-8">
@@ -113,17 +113,11 @@ const Services = () => {
         </div>
 
         {/* Section Header */}
-        <div className="text-center mb-14">
-          <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
-            Services
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-brand-black tracking-tight">
-            What We Offer
-          </h2>
-          <p className="mt-4 text-lg text-neutral-600 max-w-2xl mx-auto">
-            Comprehensive solutions to help your hostel stand out and attract more guests
-          </p>
-        </div>
+        <SectionHeader
+          eyebrow="Services"
+          title="What We Offer"
+          description="Comprehensive solutions to help your hostel stand out and attract more guests"
+        />
 
         {/* Services Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -148,20 +142,17 @@ const Services = () => {
         </div>
 
         {/* CTA Banner */}
-        <div className="mt-14 p-8 md:p-12 bg-brand-black rounded-3xl text-center">
-          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            Let&apos;s make things happen
-          </h3>
-          <p className="text-neutral-300 max-w-xl mx-auto mb-6">
-            Contact us today to learn more about how our services can help your hostel grow and
-            succeed online.
-          </p>
-          <button className="px-8 py-3.5 bg-brand-lime text-brand-black font-bold rounded-xl hover:bg-brand-lime/85 shadow-lime hover:shadow-lime-lg transition-all duration-300">
-            Get your free proposal
-          </button>
-        </div>
-      </div>
-    </section>
+        <CTABanner
+          className="mt-14"
+          variant="image"
+          imageSrc="/images/static/hostel.jpg"
+          imageAlt="Cozy hostel dormitory listed on Hostel Ghar"
+          title="Let's make things happen"
+          description="Contact us today to learn more about how our services can help your hostel grow and succeed online."
+          primaryLabel="Get your free proposal"
+          primaryHref="/contact"
+        />
+    </Section>
   );
 };
 

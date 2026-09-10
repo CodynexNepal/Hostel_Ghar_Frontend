@@ -69,6 +69,7 @@ const hostels = [
     roomType: 'Dormitory',
     discount: 33,
     featured: true,
+    image: '/images/static/hostel.jpeg',
   },
   {
     id: 2,
@@ -82,6 +83,7 @@ const hostels = [
     roomType: 'Private Room',
     discount: null,
     featured: true,
+    image: '/images/static/hostel.jpeg',
   },
   {
     id: 3,
@@ -95,6 +97,7 @@ const hostels = [
     roomType: 'Double Room',
     discount: 20,
     featured: false,
+    image: '/images/static/hostel.jpeg',
   },
   {
     id: 4,
@@ -108,6 +111,7 @@ const hostels = [
     roomType: 'Dormitory',
     discount: null,
     featured: false,
+    image: '/images/static/hostel.jpeg',
   },
   {
     id: 5,
@@ -121,6 +125,7 @@ const hostels = [
     roomType: 'Twin Room',
     discount: 18,
     featured: true,
+    image: '/images/static/hostel.jpeg',
   },
   {
     id: 6,
@@ -134,6 +139,7 @@ const hostels = [
     roomType: 'Private Room',
     discount: null,
     featured: false,
+    image: '/images/static/hostel.jpeg',
   },
 ];
 
@@ -142,12 +148,13 @@ const HostelCard = ({ hostel }: { hostel: (typeof hostels)[0] }) => {
 
   return (
     <div className="group bg-white rounded-2xl border border-neutral-100 overflow-hidden hover:border-brand-lime/50 hover:shadow-medium transition-all duration-300">
-      <div className="relative h-48 bg-gradient-to-br from-brand-lime/20 to-brand-lime/5 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-20 h-20 bg-brand-lime/30 rounded-full flex items-center justify-center">
-            <MapPin size={32} strokeWidth={1.5} className="text-brand-black/40" />
-          </div>
-        </div>
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={hostel.image}
+          alt={hostel.name}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
         <div className="absolute top-3 left-3 flex gap-2">
           {hostel.discount && (
             <span className="px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-lg">
