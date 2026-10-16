@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
 import {
@@ -149,10 +150,12 @@ const HostelCard = ({ hostel }: { hostel: (typeof hostels)[0] }) => {
   return (
     <div className="group bg-white rounded-2xl border border-neutral-100 overflow-hidden hover:border-brand-lime/50 hover:shadow-medium transition-all duration-300">
       <div className="relative h-48 overflow-hidden">
-        <img
+        <Image
           src={hostel.image}
           alt={hostel.name}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
         <div className="absolute top-3 left-3 flex gap-2">

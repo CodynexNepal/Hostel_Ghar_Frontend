@@ -1,27 +1,12 @@
 'use client';
 
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import { Send, MessageSquare, Mail, MapPin, CheckCircle } from 'lucide-react';
 import { Section, SectionHeader } from '@/components/ui/Section';
 import { HostelImage } from '@/components/ui/Media';
-
-const schema = yup.object({
-  name: yup
-    .string()
-    .required('Name is required')
-    .min(2, 'Name must be at least 2 characters')
-    .max(50, 'Name must be less than 50 characters'),
-  email: yup.string().required('Email is required').email('Please enter a valid email address'),
-  message: yup
-    .string()
-    .required('Message is required')
-    .min(10, 'Message must be at least 10 characters')
-    .max(500, 'Message must be less than 500 characters'),
-});
-
-type FormData = yup.InferType<typeof schema>;
+import { contactSchema, type ContactFormData } from '@/lib/validation';
 
 const InputError = ({ message }: { message?: string }) => {
   if (!message) return null;
@@ -34,11 +19,11 @@ const Contact = () => {
     handleSubmit,
     formState: { errors, isSubmitSuccessful },
     reset,
-  } = useForm<FormData>({
-    resolver: yupResolver(schema),
+  } = useForm<ContactFormData>({
+    resolver: yupResolver(contactSchema),
   });
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = (data: ContactFormData) => {
     console.log('Form submitted:', data);
     reset();
   };
@@ -194,12 +179,12 @@ const Contact = () => {
               <p className="text-neutral-300 mb-4">
                 Ready to grow your hostel business? Let&apos;s discuss your goals.
               </p>
-              <a
+              <Link
                 href="/contact"
                 className="inline-block px-6 py-3 bg-brand-lime text-brand-black font-bold rounded-xl hover:bg-brand-lime/85 transition-all duration-300"
               >
                 Get your free proposal
-              </a>
+              </Link>
             </div>
           </div>
         </div>

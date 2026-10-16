@@ -1,0 +1,14 @@
+{
+  "name": "Hostel Ghar",
+  "short_name": "HostelGhar",
+  "description": "Find and book verified hostels across Nepal.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#B9FF66",
+  "lang": "en",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }
+  ]
+}

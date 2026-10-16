@@ -1,6 +1,15 @@
-import Head from 'next/head';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
+import Seo from '@/components/seo/Seo';
+import JsonLd from '@/components/seo/JsonLd';
+import Breadcrumbs from '@/components/seo/Breadcrumbs';
+import FaqAccordion from '@/components/aeo/FaqAccordion';
+import DirectAnswer from '@/components/aeo/DirectAnswer';
+import HowTo from '@/components/aeo/HowTo';
+import TrustSignals from '@/components/geo/TrustSignals';
+import { FAQS } from '@/data/faqs';
+import { faqJsonLd, breadcrumbJsonLd, howToJsonLd } from '@/lib/seo/jsonLd';
+import { getPageMeta } from '@/lib/seo/metadata';
 import Services from '@/components/sections/Services';
 import CaseStudies from '@/components/sections/CaseStudies';
 import WorkingProcess from '@/components/sections/WorkingProcess';
@@ -10,18 +19,37 @@ import Contact from '@/components/sections/Contact';
 import { Section, CTAButton } from '@/components/ui/Section';
 import { HostelImage } from '@/components/ui/Media';
 
+const HOME_FAQS = FAQS.filter((f) =>
+  ['cost-per-night', 'is-hostel-ghar-free', 'how-to-book', 'safe-for-solo-female'].includes(f.id),
+);
+
 export default function Home() {
+  const meta = getPageMeta('/');
   return (
     <>
-      <Head>
-        <title>Hostel Ghar - Find Your Perfect Hostel in Nepal</title>
-        <meta
-          name="description"
-          content="Discover and book the best hostels across Nepal. Find affordable, comfortable, and safe accommodations for your journey."
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Seo
+        title={meta.title}
+        description={meta.description}
+        path="/"
+        keywords={meta.keywords}
+      />
+      <JsonLd
+        data={[
+          breadcrumbJsonLd([{ name: 'Home', path: '/' }]),
+          faqJsonLd(HOME_FAQS.map((f) => ({ question: f.question, answer: f.answer }))),
+          howToJsonLd({
+            path: '/',
+            name: 'How to book a hostel on Hostel Ghar',
+            description: 'Book a verified hostel in Nepal in under 2 minutes.',
+            steps: [
+              { name: 'Search by city', text: 'Enter Kathmandu, Pokhara, Chitwan or any of 50+ cities and pick your dates.' },
+              { name: 'Compare verified stays', text: 'Filter by price (NPR 600+), dorm or private room, amenities and real traveler reviews.' },
+              { name: 'Confirm instantly', text: 'One-click booking with instant SMS + email confirmation. Pay at the property on most listings.' },
+            ],
+          }),
+        ]}
+        id="ld-home"
+      />
 
       <main className="min-h-screen bg-white">
         <Header />

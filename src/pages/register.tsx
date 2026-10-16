@@ -8,18 +8,9 @@ import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Loader2, User, Phone, UserPlus } from 'lucide-react';
 import AuthLayout from '@/components/auth/AuthLayout';
-
-const schema = yup.object({
-  fullName: yup.string().required('Full name is required').min(2, 'Name must be at least 2 characters').max(50, 'Name must be less than 50 characters'),
-  email: yup.string().required('Email is required').email('Please enter a valid email address'),
-  phone: yup.string().required('Phone number is required').matches(/^[0-9+\-\s()]{7,15}$/, 'Please enter a valid phone number'),
-  password: yup.string().required('Password is required').min(8, 'Password must be at least 8 characters').matches(/[A-Z]/, 'Password must contain at least one uppercase letter').matches(/[a-z]/, 'Password must contain at least one lowercase letter').matches(/[0-9]/, 'Password must contain at least one number'),
-});
-
-type FormData = yup.InferType<typeof schema>;
+import { registerSchema, type RegisterFormData } from '@/lib/validation';
 
 const inputBase = 'w-full rounded-xl border bg-neutral-50/50 py-3 pl-11 pr-4 text-sm text-brand-black outline-none transition-all duration-200 placeholder:text-neutral-400 sm:text-[15px]';
 const inputOk = 'border-neutral-200 hover:border-neutral-300 focus:border-brand-lime focus:bg-white focus:ring-4 focus:ring-brand-lime/20';
@@ -32,7 +23,7 @@ const Register = () => {
   const router = useRouter();
   const errRef = useRef<HTMLDivElement>(null);
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({ resolver: yupResolver(schema) });
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormData>({ resolver: yupResolver(registerSchema) });
   const password = watch('password') || '';
 
   const getPasswordStrength = (pass: string) => {
@@ -49,7 +40,7 @@ const Register = () => {
   const strengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Excellent'][passwordStrength] || '';
   const strengthColor = ['', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-lime-500', 'bg-emerald-500'][passwordStrength] || '';
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     setRegisterError('');
     try {

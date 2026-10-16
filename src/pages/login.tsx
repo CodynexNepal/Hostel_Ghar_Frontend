@@ -8,16 +8,9 @@ import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import { Mail, Lock, Eye, EyeOff, LogIn, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import AuthLayout from '@/components/auth/AuthLayout';
-
-const schema = yup.object({
-  email: yup.string().required('Email is required').email('Please enter a valid email address'),
-  password: yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
-});
-
-type FormData = yup.InferType<typeof schema>;
+import { loginSchema, type LoginFormData } from '@/lib/validation';
 
 const inputBase = 'w-full rounded-xl border bg-neutral-50/50 py-3 pl-11 pr-4 text-sm text-brand-black outline-none transition-all duration-200 placeholder:text-neutral-400 sm:text-[15px]';
 const inputOk = 'border-neutral-200 hover:border-neutral-300 focus:border-brand-lime focus:bg-white focus:ring-4 focus:ring-brand-lime/20';
@@ -31,13 +24,13 @@ const Login = () => {
   const router = useRouter();
   const errRef = useRef<HTMLDivElement>(null);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: yupResolver(schema) });
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
 
   useEffect(() => {
     if (localStorage.getItem('rememberEmail')) setRememberMe(true);
   }, []);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setLoginError('');
     try {

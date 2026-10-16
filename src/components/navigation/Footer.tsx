@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
 import {
   Building2,
   Mail,
@@ -309,9 +310,9 @@ const Footer = () => {
             </div>
             <div className="mt-6 flex items-center gap-3">
               {socials.map(({ label, href, Icon }) => (
-                <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition-all duration-300 hover:-translate-y-1 hover:border-brand-lime hover:bg-brand-lime hover:text-brand-black hover:shadow-lime">
+                <Link key={label} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition-all duration-300 hover:-translate-y-1 hover:border-brand-lime hover:bg-brand-lime hover:text-brand-black hover:shadow-lime">
                   <Icon />
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -359,16 +360,16 @@ const Footer = () => {
             </form>
             <ul className="mt-2 space-y-3 text-sm text-white/60">
               <li>
-                <a href={`mailto:${siteConfig.contact.email}`} className="flex items-center gap-2.5 transition-colors hover:text-brand-lime">
+                <Link href={`mailto:${siteConfig.contact.email}`} className="flex items-center gap-2.5 transition-colors hover:text-brand-lime">
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5"><Mail size={15} /></span>
                   {siteConfig.contact.email}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href={`tel:${siteConfig.contact.phone}`} className="flex items-center gap-2.5 transition-colors hover:text-brand-lime">
+                <Link href={`tel:${siteConfig.contact.phone}`} className="flex items-center gap-2.5 transition-colors hover:text-brand-lime">
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5"><Phone size={15} /></span>
                   {siteConfig.contact.phone}
-                </a>
+                </Link >
               </li>
               <li className="flex items-center gap-2.5">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5"><MapPin size={15} /></span>
