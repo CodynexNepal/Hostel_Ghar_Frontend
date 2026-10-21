@@ -11,6 +11,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Loader2, User, Phone, UserPlus } from 'lucide-react';
 import AuthLayout from '@/components/auth/AuthLayout';
 import { registerSchema, type RegisterFormData } from '@/lib/validation';
+import { register as apiRegister } from '@/lib/api/auth';
 
 const inputBase = 'w-full rounded-xl border bg-neutral-50/50 py-3 pl-11 pr-4 text-sm text-brand-black outline-none transition-all duration-200 placeholder:text-neutral-400 sm:text-[15px]';
 const inputOk = 'border-neutral-200 hover:border-neutral-300 focus:border-brand-lime focus:bg-white focus:ring-4 focus:ring-brand-lime/20';
@@ -44,10 +45,15 @@ const Register = () => {
     setIsLoading(true);
     setRegisterError('');
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      router.push('/login');
-    } catch {
-      setRegisterError('Something went wrong. Please try again.');
+      await apiRegister({
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+      });
+      router.push('/login?registered=1');
+    } catch (err: any) {
+      setRegisterError(err.message || 'Something went wrong. Please try again.');
       errRef.current?.focus();
     } finally {
       setIsLoading(false);

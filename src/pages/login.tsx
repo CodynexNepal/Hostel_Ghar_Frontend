@@ -11,6 +11,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Mail, Lock, Eye, EyeOff, LogIn, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import AuthLayout from '@/components/auth/AuthLayout';
 import { loginSchema, type LoginFormData } from '@/lib/validation';
+import { login } from '@/lib/api/auth';
 
 const inputBase = 'w-full rounded-xl border bg-neutral-50/50 py-3 pl-11 pr-4 text-sm text-brand-black outline-none transition-all duration-200 placeholder:text-neutral-400 sm:text-[15px]';
 const inputOk = 'border-neutral-200 hover:border-neutral-300 focus:border-brand-lime focus:bg-white focus:ring-4 focus:ring-brand-lime/20';
@@ -34,12 +35,12 @@ const Login = () => {
     setIsLoading(true);
     setLoginError('');
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      await login({ email: data.email, password: data.password });
       if (rememberMe) localStorage.setItem('rememberEmail', data.email);
       else localStorage.removeItem('rememberEmail');
       router.push('/');
-    } catch {
-      setLoginError('Invalid email or password. Please try again.');
+    } catch (err: any) {
+      setLoginError(err.message || 'Invalid email or password. Please try again.');
       errRef.current?.focus();
     } finally {
       setIsLoading(false);

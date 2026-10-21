@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
+import { listHostels, Hostel, ListHostelsResponse } from '@/lib/api/hostels';
 import {
   Search,
   MapPin,
@@ -57,94 +58,42 @@ const sortOptions = [
   { value: 'reviews', label: 'Most Reviewed' },
 ];
 
-const hostels = [
-  {
-    id: 1,
-    name: 'Himalayan Backpackers',
-    location: 'Thamel, Kathmandu',
-    price: 800,
-    originalPrice: 1200,
-    rating: 4.8,
-    reviews: 256,
-    amenities: ['wifi', 'breakfast', 'kitchen', 'tv'],
-    roomType: 'Dormitory',
-    discount: 33,
-    featured: true,
-    image: '/images/static/hostel.jpeg',
-  },
-  {
-    id: 2,
-    name: 'Pokhara Lake View Hostel',
-    location: 'Lakeside, Pokhara',
-    price: 1500,
-    originalPrice: null,
-    rating: 4.9,
-    reviews: 189,
-    amenities: ['wifi', 'breakfast', 'ac', 'parking'],
-    roomType: 'Private Room',
-    discount: null,
-    featured: true,
-    image: '/images/static/hostel.jpeg',
-  },
-  {
-    id: 3,
-    name: 'Chitwan Jungle Lodge',
-    location: 'Sauraha, Chitwan',
-    price: 2000,
-    originalPrice: 2500,
-    rating: 4.7,
-    reviews: 142,
-    amenities: ['wifi', 'breakfast', 'kitchen', 'parking', 'pet'],
-    roomType: 'Double Room',
-    discount: 20,
-    featured: false,
-    image: '/images/static/hostel.jpeg',
-  },
-  {
-    id: 4,
-    name: 'Lumbini Peace Hostel',
-    location: 'Lumbini',
-    price: 600,
-    originalPrice: null,
-    rating: 4.5,
-    reviews: 98,
-    amenities: ['wifi', 'breakfast', 'kitchen'],
-    roomType: 'Dormitory',
-    discount: null,
-    featured: false,
-    image: '/images/static/hostel.jpeg',
-  },
-  {
-    id: 5,
-    name: 'Nagarkot Sunrise Inn',
-    location: 'Nagarkot',
-    price: 1800,
-    originalPrice: 2200,
-    rating: 4.6,
-    reviews: 167,
-    amenities: ['wifi', 'breakfast', 'parking', 'tv'],
-    roomType: 'Twin Room',
-    discount: 18,
-    featured: true,
-    image: '/images/static/hostel.jpeg',
-  },
-  {
-    id: 6,
-    name: 'Bhaktapur Heritage Stay',
-    location: 'Bhaktapur',
-    price: 1200,
-    originalPrice: null,
-    rating: 4.8,
-    reviews: 203,
-    amenities: ['wifi', 'breakfast', 'kitchen', 'gym'],
-    roomType: 'Private Room',
-    discount: null,
-    featured: false,
-    image: '/images/static/hostel.jpeg',
-  },
-];
+// Default placeholder image when the API does not return a logoUrl
+const DEFAULT_HOSTEL_IMAGE = '/images/static/hostel.jpeg';
 
-const HostelCard = ({ hostel }: { hostel: (typeof hostels)[0] }) => {
+// UI card shape derived from the API Hostel response
+interface HostelCardData {
+  id: string;
+  name: string;
+  location: string;
+  price: number;
+  originalPrice: number | null;
+  rating: number;
+  reviews: number;
+  amenities: string[];
+  roomType: string;
+  discount: number | null;
+  featured: boolean;
+  image: string;
+}
+
+// Map the API Hostel shape to the UI card fields
+const mapHostelToCard = (hostel: Hostel): HostelCardData => ({
+  id: hostel.id,
+  name: hostel.name,
+  location: hostel.city || hostel.address || 'Nepal',
+  price: 1200,
+  originalPrice: null,
+  rating: 4.5,
+  reviews: 0,
+  amenities: ['wifi'],
+  roomType: hostel.type || 'Private Room',
+  discount: null,
+  featured: false,
+  image: hostel.logoUrl || DEFAULT_HOSTEL_IMAGE,
+});
+
+const HostelCard = ({ hostel }: { hostel: HostelCardData }) => {
   const [isLiked, setIsLiked] = useState(false);
 
   return (
@@ -255,6 +204,13 @@ const HostelsPage = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
+  // Pagination + API state
+  const [page, setPage] = useState(1);
+  const [hostels, setHostels] = useState<HostelCardData[]>([]);
+  const [pagination, setPagination] = useState<ListHostelsResponse['pagination'] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const toggleAmenity = (amenityId: string) => {
     setSelectedAmenities((prev) =>
       prev.includes(amenityId) ? prev.filter((id) => id !== amenityId) : [...prev, amenityId]
@@ -268,6 +224,7 @@ const HostelsPage = () => {
     setSelectedAmenities([]);
     setPriceRange([0, 5000]);
     setMinRating(0);
+    setPage(1);
   };
 
   const activeFiltersCount = [
@@ -277,6 +234,43 @@ const HostelsPage = () => {
     priceRange[0] > 0 || priceRange[1] < 5000,
     minRating > 0,
   ].filter(Boolean).length;
+
+  // Fetch hostels from the production API whenever filters or page change
+  useEffect(() => {
+    let cancelled = false;
+    const fetchHostels = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response: ListHostelsResponse = await listHostels({
+          page,
+          limit: 12,
+        });
+        if (!cancelled) {
+          setHostels(response.data.map(mapHostelToCard));
+          setPagination(response.pagination);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to load hostels');
+          setHostels([]);
+          setPagination(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+    fetchHostels();
+    return () => {
+      cancelled = true;
+    };
+  }, [page, searchQuery, selectedLocation, selectedRoomType, selectedAmenities, priceRange, minRating, sortBy]);
+
+  const totalItems = pagination?.totalItems ?? 0;
+  const totalPages = pagination?.totalPages ?? 1;
+  const currentPage = pagination?.currentPage ?? page;
 
   return (
     <>
@@ -294,7 +288,7 @@ const HostelsPage = () => {
               Find Your Perfect Hostel
             </h1>
             <p className="text-neutral-600 mb-6">
-              Discover {hostels.length}+ hostels across Nepal at the best prices
+              Discover {totalItems}+ hostels across Nepal at the best prices
             </p>
             <div className="bg-white rounded-2xl shadow-medium p-4 border border-neutral-100">
               <div className="grid md:grid-cols-4 gap-4">
@@ -318,7 +312,10 @@ const HostelsPage = () => {
                   />
                   <select
                     value={selectedLocation}
-                    onChange={(e) => setSelectedLocation(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedLocation(e.target.value);
+                      setPage(1);
+                    }}
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-neutral-200 focus:border-brand-lime outline-none appearance-none bg-white"
                   >
                     {locations.map((loc) => (
@@ -356,9 +353,9 @@ const HostelsPage = () => {
                     </span>
                   )}
                 </button>
-                <span className="text-neutral-600 text-sm">
-                  <span className="font-bold text-brand-black">{hostels.length}</span> hostels found
-                </span>
+                  <span className="text-neutral-600 text-sm">
+                    <span className="font-bold text-brand-black">{totalItems}</span> hostels found
+                  </span>
               </div>
               <div className="relative">
                 <button
@@ -378,6 +375,7 @@ const HostelsPage = () => {
                         onClick={() => {
                           setSortBy(option.value);
                           setShowSortDropdown(false);
+                          setPage(1);
                         }}
                         className={`w-full px-4 py-2 text-left text-sm hover:bg-brand-lime/10 transition-colors ${sortBy === option.value ? 'text-brand-black font-bold' : 'text-neutral-600'}`}
                       >
@@ -487,22 +485,48 @@ const HostelsPage = () => {
                   ))}
                 </div>
                 <div className="flex justify-center mt-10">
-                  <div className="flex items-center gap-2">
-                    <button className="w-10 h-10 rounded-xl border border-neutral-200 flex items-center justify-center text-neutral-600 hover:border-brand-lime hover:text-brand-black transition-colors">
-                      <ChevronDown size={18} className="rotate-90" strokeWidth={2} />
-                    </button>
-                    {[1, 2, 3, 4, 5].map((page) => (
+                  {totalPages > 1 && (
+                    <div className="flex items-center gap-2">
                       <button
-                        key={page}
-                        className={`w-10 h-10 rounded-xl font-semibold text-sm transition-colors ${page === 1 ? 'bg-brand-lime text-brand-black' : 'border border-neutral-200 text-neutral-600 hover:border-brand-lime hover:text-brand-black'}`}
+                        onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                        disabled={currentPage <= 1}
+                        className={`w-10 h-10 rounded-xl border flex items-center justify-center text-sm font-medium transition-colors ${
+                          currentPage <= 1
+                            ? 'border-neutral-200 text-neutral-400'
+                            : 'border-brand-lime text-brand-black hover:bg-brand-lime/10'
+                        }`}
                       >
-                        {page}
+                        <ChevronDown size={18} className="rotate-90" strokeWidth={2} />
                       </button>
-                    ))}
-                    <button className="w-10 h-10 rounded-xl border border-neutral-200 flex items-center justify-center text-neutral-600 hover:border-brand-lime hover:text-brand-black transition-colors">
-                      <ChevronDown size={18} className="-rotate-90" strokeWidth={2} />
-                    </button>
-                  </div>
+                      {[...Array(totalPages)].map((_, i) => {
+                        const p = i + 1;
+                        return (
+                          <button
+                            key={p}
+                            onClick={() => setPage(p)}
+                            className={`w-10 h-10 rounded-xl font-semibold text-sm transition-colors ${
+                              p === currentPage
+                                ? 'bg-brand-lime text-brand-black'
+                                : 'border border-neutral-200 text-neutral-600 hover:border-brand-lime hover:text-brand-black'
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        );
+                      })}
+                      <button
+                        onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                        disabled={currentPage >= totalPages}
+                        className={`w-10 h-10 rounded-xl border flex items-center justify-center text-sm font-medium transition-colors ${
+                          currentPage >= totalPages
+                            ? 'border-neutral-200 text-neutral-400'
+                            : 'border-brand-lime text-brand-black hover:bg-brand-lime/10'
+                        }`}
+                      >
+                        <ChevronDown size={18} className="-rotate-90" strokeWidth={2} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
