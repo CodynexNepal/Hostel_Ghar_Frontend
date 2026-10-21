@@ -67,3 +67,4 @@ elif command -v selectorctl >/dev/null 2>&1; then
 fi
 
 echo "Deployment files synchronized and restart signal sent."
+

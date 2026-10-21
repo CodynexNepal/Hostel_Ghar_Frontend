@@ -21,3 +21,4 @@ if [ -n "$LATEST_BACKUP" ] && [ -f "$LATEST_BACKUP" ]; then
 else
   echo "No backup archive found in $BACKUP_DIR."
 fi
+
