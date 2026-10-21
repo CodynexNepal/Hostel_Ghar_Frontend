@@ -81,11 +81,9 @@ jobs:
           if [ -f "app.js" ]; then
             cp app.js .next/standalone/app.js
           else
-            cat << 'EOF' > .next/standalone/app.js
-            process.env.NODE_ENV = process.env.NODE_ENV || 'production';
-            process.env.PORT = process.env.PORT || 3000;
-            require('./server.js');
-            EOF
+            echo "process.env.NODE_ENV = process.env.NODE_ENV || 'production';" > .next/standalone/app.js
+            echo "process.env.PORT = process.env.PORT || 3000;" >> .next/standalone/app.js
+            echo "require('./server.js');" >> .next/standalone/app.js
           fi
 
           # Create standalone tarball
@@ -110,6 +108,9 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download deployment artifact
         uses: actions/download-artifact@v4
         with:
@@ -164,80 +165,13 @@ jobs:
           BACKUP_DIR="/home/hostelgh/hostelghar_backups"
           TMP_DIR="/home/hostelgh/tmp_ci_deploy"
 
-          echo "1. Uploading deployment bundle to cPanel..."
+          echo "1. Uploading deployment bundle and scripts to cPanel..."
           ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "mkdir -p $TMP_DIR $BACKUP_DIR $APP_DIR"
           scp -P "$CPANEL_PORT" -i "$SSH_KEY_PATH" deploy-bundle.tar.gz "$CPANEL_USER@$CPANEL_HOST:$TMP_DIR/deploy-bundle.tar.gz"
+          scp -P "$CPANEL_PORT" -i "$SSH_KEY_PATH" scripts/remote-deploy.sh "$CPANEL_USER@$CPANEL_HOST:$TMP_DIR/remote-deploy.sh"
 
           echo "2. Executing safe atomic deployment on cPanel..."
-          ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "bash -s" << 'REMOTE_SCRIPT'
-          set -euo pipefail
-
-          APP_DIR="/home/hostelgh/hostelghar"
-          BACKUP_DIR="/home/hostelgh/hostelghar_backups"
-          TMP_DIR="/home/hostelgh/tmp_ci_deploy"
-
-          # ── A. Backup Current Active Release ──────────────────────────
-          if [ -f "$APP_DIR/server.js" ] || [ -d "$APP_DIR/.next" ]; then
-            TIMESTAMP=$(date +%Y%m%d%H%M%S)
-            BACKUP_FILE="$BACKUP_DIR/backup-${TIMESTAMP}.tar.gz"
-            echo "Creating backup of current active deployment: $BACKUP_FILE"
-            tar -czf "$BACKUP_FILE" -C "$APP_DIR" \
-              --exclude="./tmp" \
-              --exclude="./.env*" \
-              --exclude="./uploads" \
-              --exclude="*.log" \
-              server.js app.js package.json .next node_modules public 2>/dev/null || true
-
-            # Retain only the last 3 backups to conserve disk quota and inodes
-            cd "$BACKUP_DIR"
-            ls -1t backup-*.tar.gz 2>/dev/null | tail -n +4 | xargs -r rm -f
-            cd - >/dev/null
-          fi
-
-          # ── B. Extract New Build in Isolated Directory ────────────────
-          echo "Extracting new standalone build..."
-          mkdir -p "$TMP_DIR/extracted"
-          tar -xzf "$TMP_DIR/deploy-bundle.tar.gz" -C "$TMP_DIR/extracted"
-
-          # ── C. Safe Component Synchronization ────────────────────────
-          # We selectively sync application assets, NEVER wiping .env, logs, or uploads.
-          echo "Syncing standalone runtime..."
-          mkdir -p "$APP_DIR/.next"
-          rsync -a --delete "$TMP_DIR/extracted/.next/" "$APP_DIR/.next/"
-
-          mkdir -p "$APP_DIR/node_modules"
-          rsync -a --delete "$TMP_DIR/extracted/node_modules/" "$APP_DIR/node_modules/"
-
-          if [ -d "$TMP_DIR/extracted/public" ]; then
-            mkdir -p "$APP_DIR/public"
-            rsync -a "$TMP_DIR/extracted/public/" "$APP_DIR/public/"
-          fi
-
-          cp "$TMP_DIR/extracted/server.js" "$APP_DIR/server.js"
-          cp "$TMP_DIR/extracted/package.json" "$APP_DIR/package.json"
-          if [ -f "$TMP_DIR/extracted/app.js" ]; then
-            cp "$TMP_DIR/extracted/app.js" "$APP_DIR/app.js"
-          fi
-
-          # Clean up temporary upload files
-          rm -rf "$TMP_DIR"
-
-          # ── D. Restart Application ────────────────────────────────────
-          echo "Triggering cPanel application restart..."
-          mkdir -p "$APP_DIR/tmp"
-          touch "$APP_DIR/tmp/restart.txt"
-
-          # Also invoke CloudLinux selectorctl / cloudlinux-selector if available
-          if command -v cloudlinux-selector >/dev/null 2>&1; then
-            cloudlinux-selector restart --json --interpreter nodejs --app-root "$APP_DIR" || true
-          elif [ -x /usr/sbin/cloudlinux-selector ]; then
-            /usr/sbin/cloudlinux-selector restart --json --interpreter nodejs --app-root "$APP_DIR" || true
-          elif command -v selectorctl >/dev/null 2>&1; then
-            selectorctl --interpreter=nodejs --user=hostelgh --restart-app --app-root="$APP_DIR" || true
-          fi
-
-          echo "Deployment files synchronized and restart signal sent."
-          REMOTE_SCRIPT
+          ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "bash $TMP_DIR/remote-deploy.sh"
 
       - name: Verify production deployment (Health Check)
         env:
@@ -266,25 +200,7 @@ jobs:
             echo "::error::Production health check failed after $MAX_ATTEMPTS attempts."
             echo "Triggering automated rollback to previous working release..."
 
-            ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "bash -s" <<-'ROLLBACK_SCRIPT'
-            APP_DIR="/home/hostelgh/hostelghar"
-            BACKUP_DIR="/home/hostelgh/hostelghar_backups"
-
-            LATEST_BACKUP=$(ls -1t "$BACKUP_DIR"/backup-*.tar.gz 2>/dev/null | head -n 1 || echo "")
-            if [ -n "$LATEST_BACKUP" ] && [ -f "$LATEST_BACKUP" ]; then
-              echo "Restoring previous release from $LATEST_BACKUP..."
-              tar -xzf "$LATEST_BACKUP" -C "$APP_DIR"
-              mkdir -p "$APP_DIR/tmp"
-              touch "$APP_DIR/tmp/restart.txt"
-              if command -v cloudlinux-selector >/dev/null 2>&1; then
-                cloudlinux-selector restart --json --interpreter nodejs --app-root "$APP_DIR" || true
-              fi
-              echo "Rollback restored successfully."
-            else
-              echo "No backup archive found in $BACKUP_DIR."
-            fi
-            ROLLBACK_SCRIPT
-
+            ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "bash -s" < scripts/remote-rollback.sh
             exit 1
           fi
 
