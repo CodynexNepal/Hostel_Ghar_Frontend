@@ -10,6 +10,42 @@ export interface Hostel {
   createdAt: string;
 }
 
+export interface HostelFacilityItem {
+  id: string;
+  facilityId: string;
+  facility?: {
+    id: string;
+    name: string;
+    icon?: string;
+    description?: string;
+  };
+}
+
+export interface HostelOwner {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  avatarUrl?: string;
+}
+
+export interface HostelDetail extends Hostel {
+  phone?: string | null;
+  email?: string | null;
+  isActive?: boolean;
+  updatedAt?: string;
+  owner?: HostelOwner;
+  hostelFacilities?: HostelFacilityItem[];
+}
+
+export interface SingleHostelResponse {
+  success: boolean;
+  data: HostelDetail;
+  isCached?: boolean;
+  cacheLevel?: string;
+}
+
 export interface ListHostelsResponse {
   success: boolean;
   data: Hostel[];
@@ -41,5 +77,16 @@ export const listHostels = async (
   const response = await apiClient.get<ListHostelsResponse>('/hostels', {
     params: { page, limit },
   });
+  return response.data;
+};
+
+/**
+ * Gets a single hostel by its UUID.
+ * GET /api/v1/hostel-ghar/hostels/:id
+ */
+export const getHostelById = async (
+  id: string
+): Promise<SingleHostelResponse> => {
+  const response = await apiClient.get<SingleHostelResponse>(`/hostels/${id}`);
   return response.data;
 };

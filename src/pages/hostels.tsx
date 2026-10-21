@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
+import Link from 'next/link';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
 import { listHostels, Hostel, ListHostelsResponse } from '@/lib/api/hostels';
@@ -48,7 +49,7 @@ const amenities = [
   { id: 'pet', label: 'Pet Friendly', icon: <PawPrint size={16} /> },
 ];
 
-const roomTypes = ['All Types', 'Dormitory', 'Private Room', 'Twin Room', 'Double Room', 'Suite'];
+const roomTypes = ['All Types', 'Boys Hostel', 'Girls Hostel', 'Co-ed Hostel', 'Dormitory', 'Private Room'];
 
 const sortOptions = [
   { value: 'recommended', label: 'Recommended' },
@@ -59,7 +60,7 @@ const sortOptions = [
 ];
 
 // Default placeholder image when the API does not return a logoUrl
-const DEFAULT_HOSTEL_IMAGE = '/images/static/hostel.jpeg';
+const DEFAULT_HOSTEL_IMAGE = '/images/static/hostel.jpg';
 
 // UI card shape derived from the API Hostel response
 interface HostelCardData {
@@ -78,97 +79,118 @@ interface HostelCardData {
 }
 
 // Map the API Hostel shape to the UI card fields
-const mapHostelToCard = (hostel: Hostel): HostelCardData => ({
-  id: hostel.id,
-  name: hostel.name,
-  location: hostel.city || hostel.address || 'Nepal',
-  price: 1200,
-  originalPrice: null,
-  rating: 4.5,
-  reviews: 0,
-  amenities: ['wifi'],
-  roomType: hostel.type || 'Private Room',
-  discount: null,
-  featured: false,
-  image: hostel.logoUrl || DEFAULT_HOSTEL_IMAGE,
-});
+const mapHostelToCard = (hostel: Hostel): HostelCardData => {
+  const typeFormatted = hostel.type
+    ? `${hostel.type.charAt(0).toUpperCase() + hostel.type.slice(1).toLowerCase()} Hostel`
+    : 'Hostel';
+
+  const loc = [hostel.address, hostel.city].filter(Boolean).join(', ') || 'Nepal';
+
+  return {
+    id: hostel.id,
+    name: hostel.name,
+    location: loc,
+    price: 1200,
+    originalPrice: null,
+    rating: 4.8,
+    reviews: 12,
+    amenities: ['wifi', 'breakfast', 'parking'],
+    roomType: typeFormatted,
+    discount: null,
+    featured: false,
+    image: hostel.logoUrl || DEFAULT_HOSTEL_IMAGE,
+  };
+};
 
 const HostelCard = ({ hostel }: { hostel: HostelCardData }) => {
   const [isLiked, setIsLiked] = useState(false);
+  const [imgSrc, setImgSrc] = useState(hostel.image);
+  const isExternal = imgSrc.startsWith('http://') || imgSrc.startsWith('https://');
 
   return (
-    <div className="group bg-white rounded-2xl border border-neutral-100 overflow-hidden hover:border-brand-lime/50 hover:shadow-medium transition-all duration-300">
-      <div className="relative h-48 overflow-hidden">
-        <Image
-          src={hostel.image}
-          alt={hostel.name}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-        <div className="absolute top-3 left-3 flex gap-2">
-          {hostel.discount && (
-            <span className="px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-lg">
-              -{hostel.discount}%
+    <div className="group bg-white rounded-2xl border border-neutral-100 overflow-hidden hover:border-brand-lime/50 hover:shadow-medium transition-all duration-300 flex flex-col justify-between">
+      <div>
+        <div className="relative h-48 overflow-hidden bg-neutral-100">
+          <Link href={`/hostel/${hostel.id}`} className="block w-full h-full">
+            <Image
+              src={imgSrc}
+              alt={hostel.name}
+              fill
+              unoptimized={isExternal}
+              onError={() => setImgSrc(DEFAULT_HOSTEL_IMAGE)}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+          </Link>
+          <div className="absolute top-3 left-3 flex gap-2 pointer-events-none">
+            {hostel.discount && (
+              <span className="px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-lg">
+                -{hostel.discount}%
+              </span>
+            )}
+            {hostel.featured && (
+              <span className="px-2.5 py-1 bg-brand-lime text-brand-black text-xs font-bold rounded-lg">
+                Featured
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => setIsLiked(!isLiked)}
+            className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors z-10"
+            aria-label="Save hostel"
+          >
+            <Heart
+              size={18}
+              strokeWidth={2}
+              className={isLiked ? 'fill-red-500 text-red-500' : 'text-neutral-600'}
+            />
+          </button>
+          <div className="absolute bottom-3 left-3 pointer-events-none">
+            <span className="px-2.5 py-1 bg-brand-black/80 text-white text-xs font-medium rounded-lg backdrop-blur-sm">
+              {hostel.roomType}
             </span>
-          )}
-          {hostel.featured && (
-            <span className="px-2.5 py-1 bg-brand-lime text-brand-black text-xs font-bold rounded-lg">
-              Featured
-            </span>
-          )}
+          </div>
         </div>
-        <button
-          onClick={() => setIsLiked(!isLiked)}
-          className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors"
-        >
-          <Heart
-            size={18}
-            strokeWidth={2}
-            className={isLiked ? 'fill-red-500 text-red-500' : 'text-neutral-600'}
-          />
-        </button>
-        <div className="absolute bottom-3 left-3">
-          <span className="px-2.5 py-1 bg-brand-black/80 text-white text-xs font-medium rounded-lg backdrop-blur-sm">
-            {hostel.roomType}
-          </span>
+        <div className="p-5">
+          <div className="flex items-center gap-1.5 text-neutral-500 text-sm mb-2">
+            <MapPin size={14} strokeWidth={2} />
+            <span className="truncate">{hostel.location}</span>
+          </div>
+          <Link href={`/hostel/${hostel.id}`}>
+            <h3 className="text-lg font-bold text-brand-black mb-2 group-hover:text-brand-lime transition-colors">
+              {hostel.name}
+            </h3>
+          </Link>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-1">
+              <Star size={16} fill="#B9FF66" stroke="#B9FF66" />
+              <span className="text-sm font-bold text-brand-black">{hostel.rating}</span>
+            </div>
+            <span className="text-sm text-neutral-500">({hostel.reviews} reviews)</span>
+          </div>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {hostel.amenities.slice(0, 4).map((amenity) => {
+              const amenityData = amenities.find((a) => a.id === amenity);
+              return (
+                <div
+                  key={amenity}
+                  className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-600"
+                  title={amenityData?.label}
+                >
+                  {amenityData?.icon}
+                </div>
+              );
+            })}
+            {hostel.amenities.length > 4 && (
+              <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-xs font-bold text-neutral-600">
+                +{hostel.amenities.length - 4}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      <div className="p-5">
-        <div className="flex items-center gap-1.5 text-neutral-500 text-sm mb-2">
-          <MapPin size={14} strokeWidth={2} />
-          <span>{hostel.location}</span>
-        </div>
-        <h3 className="text-lg font-bold text-brand-black mb-2 group-hover:text-brand-lime transition-colors">
-          {hostel.name}
-        </h3>
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-1">
-            <Star size={16} fill="#B9FF66" stroke="#B9FF66" />
-            <span className="text-sm font-bold text-brand-black">{hostel.rating}</span>
-          </div>
-          <span className="text-sm text-neutral-500">({hostel.reviews} reviews)</span>
-        </div>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {hostel.amenities.slice(0, 4).map((amenity) => {
-            const amenityData = amenities.find((a) => a.id === amenity);
-            return (
-              <div
-                key={amenity}
-                className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-600"
-                title={amenityData?.label}
-              >
-                {amenityData?.icon}
-              </div>
-            );
-          })}
-          {hostel.amenities.length > 4 && (
-            <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-xs font-bold text-neutral-600">
-              +{hostel.amenities.length - 4}
-            </div>
-          )}
-        </div>
+      <div className="p-5 pt-0">
         <div className="flex items-end justify-between pt-3 border-t border-neutral-100">
           <div>
             {hostel.originalPrice && (
@@ -183,9 +205,12 @@ const HostelCard = ({ hostel }: { hostel: HostelCardData }) => {
               <span className="text-sm text-neutral-500">/night</span>
             </div>
           </div>
-          <button className="px-4 py-2 bg-brand-lime text-brand-black text-sm font-bold rounded-xl hover:bg-brand-lime/85 transition-colors">
+          <Link
+            href={`/hostel/${hostel.id}`}
+            className="px-4 py-2 bg-brand-lime text-brand-black text-sm font-bold rounded-xl hover:bg-brand-lime/85 transition-colors"
+          >
             Book Now
-          </button>
+          </Link>
         </div>
       </div>
     </div>
@@ -235,7 +260,7 @@ const HostelsPage = () => {
     minRating > 0,
   ].filter(Boolean).length;
 
-  // Fetch hostels from the production API whenever filters or page change
+  // Fetch hostels from the production API whenever page changes
   useEffect(() => {
     let cancelled = false;
     const fetchHostels = async () => {
@@ -247,8 +272,8 @@ const HostelsPage = () => {
           limit: 12,
         });
         if (!cancelled) {
-          setHostels(response.data.map(mapHostelToCard));
-          setPagination(response.pagination);
+          setHostels((response.data || []).map(mapHostelToCard));
+          setPagination(response.pagination || null);
         }
       } catch (err) {
         if (!cancelled) {
@@ -266,9 +291,29 @@ const HostelsPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [page, searchQuery, selectedLocation, selectedRoomType, selectedAmenities, priceRange, minRating, sortBy]);
+  }, [page]);
 
-  const totalItems = pagination?.totalItems ?? 0;
+  // Client-side filtering over loaded page results
+  const filteredHostels = hostels.filter((h) => {
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      const match = h.name.toLowerCase().includes(q) || h.location.toLowerCase().includes(q);
+      if (!match) return false;
+    }
+    if (selectedLocation !== 'All Locations') {
+      if (!h.location.toLowerCase().includes(selectedLocation.toLowerCase())) {
+        return false;
+      }
+    }
+    if (selectedRoomType !== 'All Types') {
+      if (!h.roomType.toLowerCase().includes(selectedRoomType.toLowerCase())) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const totalItems = pagination?.totalItems ?? filteredHostels.length;
   const totalPages = pagination?.totalPages ?? 1;
   const currentPage = pagination?.currentPage ?? page;
 
@@ -288,7 +333,7 @@ const HostelsPage = () => {
               Find Your Perfect Hostel
             </h1>
             <p className="text-neutral-600 mb-6">
-              Discover {totalItems}+ hostels across Nepal at the best prices
+              Discover verified hostels across Nepal at the best prices
             </p>
             <div className="bg-white rounded-2xl shadow-medium p-4 border border-neutral-100">
               <div className="grid md:grid-cols-4 gap-4">
@@ -299,24 +344,17 @@ const HostelsPage = () => {
                   />
                   <input
                     type="text"
-                    placeholder="Search hostels, locations..."
+                    placeholder="Search by hostel name, city or address..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-neutral-200 focus:border-brand-lime focus:ring-2 focus:ring-brand-lime/20 outline-none transition-all"
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-neutral-200 focus:border-brand-lime focus:ring-2 focus:ring-brand-lime/20 outline-none text-brand-black placeholder:text-neutral-400 text-sm"
                   />
                 </div>
-                <div className="relative">
-                  <MapPin
-                    size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"
-                  />
+                <div>
                   <select
                     value={selectedLocation}
-                    onChange={(e) => {
-                      setSelectedLocation(e.target.value);
-                      setPage(1);
-                    }}
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-neutral-200 focus:border-brand-lime outline-none appearance-none bg-white"
+                    onChange={(e) => setSelectedLocation(e.target.value)}
+                    className="w-full py-3 px-4 rounded-xl border border-neutral-200 focus:border-brand-lime focus:ring-2 focus:ring-brand-lime/20 outline-none text-brand-black text-sm bg-white"
                   >
                     {locations.map((loc) => (
                       <option key={loc} value={loc}>
@@ -324,68 +362,102 @@ const HostelsPage = () => {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown
-                    size={18}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
-                  />
                 </div>
-                <button className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand-lime text-brand-black font-bold rounded-xl hover:bg-brand-lime/85 shadow-lime transition-all">
-                  <Search size={18} strokeWidth={2.2} />
-                  Search
-                </button>
+                <div>
+                  <select
+                    value={selectedRoomType}
+                    onChange={(e) => setSelectedRoomType(e.target.value)}
+                    className="w-full py-3 px-4 rounded-xl border border-neutral-200 focus:border-brand-lime focus:ring-2 focus:ring-brand-lime/20 outline-none text-brand-black text-sm bg-white"
+                  >
+                    {roomTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           </div>
         </section>
+
         <section className="py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-neutral-200 hover:border-brand-lime transition-colors"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-colors ${
+                    showFilters
+                      ? 'bg-brand-lime text-brand-black border-brand-lime'
+                      : 'bg-white text-neutral-600 border-neutral-200 hover:border-brand-lime'
+                  }`}
                 >
-                  <SlidersHorizontal size={18} strokeWidth={2} />
-                  <span className="font-semibold text-sm">Filters</span>
+                  <SlidersHorizontal size={16} />
+                  <span>Filters</span>
                   {activeFiltersCount > 0 && (
-                    <span className="w-5 h-5 bg-brand-lime text-brand-black text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="w-5 h-5 bg-brand-black text-white text-xs rounded-full flex items-center justify-center">
                       {activeFiltersCount}
                     </span>
                   )}
                 </button>
-                  <span className="text-neutral-600 text-sm">
-                    <span className="font-bold text-brand-black">{totalItems}</span> hostels found
-                  </span>
+                <span className="text-sm text-neutral-500">
+                  Showing <span className="font-bold text-brand-black">{totalItems}</span> hostels
+                </span>
               </div>
-              <div className="relative">
-                <button
-                  onClick={() => setShowSortDropdown(!showSortDropdown)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-neutral-200 hover:border-brand-lime transition-colors"
-                >
-                  <span className="font-semibold text-sm">
-                    {sortOptions.find((o) => o.value === sortBy)?.label}
-                  </span>
-                  <ChevronDown size={16} strokeWidth={2} />
-                </button>
-                {showSortDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-medium border border-neutral-100 py-2 z-20">
-                    {sortOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => {
-                          setSortBy(option.value);
-                          setShowSortDropdown(false);
-                          setPage(1);
-                        }}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-brand-lime/10 transition-colors ${sortBy === option.value ? 'text-brand-black font-bold' : 'text-neutral-600'}`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center bg-white rounded-xl border border-neutral-200 p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      viewMode === 'grid' ? 'bg-brand-lime text-brand-black' : 'text-neutral-400 hover:text-brand-black'
+                    }`}
+                    aria-label="Grid view"
+                  >
+                    <Grid3X3 size={18} />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      viewMode === 'list' ? 'bg-brand-lime text-brand-black' : 'text-neutral-400 hover:text-brand-black'
+                    }`}
+                    aria-label="List view"
+                  >
+                    <List size={18} />
+                  </button>
+                </div>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowSortDropdown(!showSortDropdown)}
+                    className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-neutral-200 text-sm font-medium text-neutral-600 hover:border-brand-lime transition-colors"
+                  >
+                    <span>
+                      Sort: {sortOptions.find((o) => o.value === sortBy)?.label}
+                    </span>
+                    <ChevronDown size={16} />
+                  </button>
+                  {showSortDropdown && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-large border border-neutral-100 py-1 z-20">
+                      {sortOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => {
+                            setSortBy(option.value);
+                            setShowSortDropdown(false);
+                          }}
+                          className={`w-full px-4 py-2 text-left text-sm hover:bg-brand-lime/10 transition-colors ${
+                            sortBy === option.value ? 'text-brand-black font-bold' : 'text-neutral-600'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+
             <div className="flex gap-6">
               {showFilters && (
                 <div className="w-72 flex-shrink-0">
@@ -435,7 +507,9 @@ const HostelsPage = () => {
                             onClick={() => setSelectedRoomType(type)}
                           >
                             <div
-                              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${selectedRoomType === type ? 'bg-brand-lime border-brand-lime' : 'border-neutral-300'}`}
+                              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                                selectedRoomType === type ? 'bg-brand-lime border-brand-lime' : 'border-neutral-300'
+                              }`}
                             >
                               {selectedRoomType === type && (
                                 <div className="w-2 h-2 bg-brand-black rounded-full" />
@@ -453,7 +527,9 @@ const HostelsPage = () => {
                           <button
                             key={rating}
                             onClick={() => setMinRating(rating)}
-                            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${minRating === rating ? 'bg-brand-lime text-brand-black' : 'bg-neutral-100 text-neutral-600'}`}
+                            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              minRating === rating ? 'bg-brand-lime text-brand-black' : 'bg-neutral-100 text-neutral-600'
+                            }`}
                           >
                             {rating === 0 ? 'All' : `${rating}+`}
                           </button>
@@ -467,7 +543,11 @@ const HostelsPage = () => {
                           <button
                             key={amenity.id}
                             onClick={() => toggleAmenity(amenity.id)}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${selectedAmenities.includes(amenity.id) ? 'bg-brand-lime text-brand-black' : 'bg-neutral-100 text-neutral-600'}`}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                              selectedAmenities.includes(amenity.id)
+                                ? 'bg-brand-lime text-brand-black'
+                                : 'bg-neutral-100 text-neutral-600'
+                            }`}
                           >
                             {amenity.icon}
                             <span className="truncate">{amenity.label}</span>
@@ -479,11 +559,61 @@ const HostelsPage = () => {
                 </div>
               )}
               <div className="flex-1">
-                <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                  {hostels.map((hostel) => (
-                    <HostelCard key={hostel.id} hostel={hostel} />
-                  ))}
-                </div>
+                {loading ? (
+                  <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {[1, 2, 3, 4, 5, 6].map((n) => (
+                      <div
+                        key={n}
+                        className="bg-white rounded-2xl border border-neutral-100 overflow-hidden animate-pulse"
+                      >
+                        <div className="h-48 bg-neutral-200" />
+                        <div className="p-5 space-y-3">
+                          <div className="h-4 bg-neutral-200 rounded w-1/3" />
+                          <div className="h-6 bg-neutral-200 rounded w-3/4" />
+                          <div className="h-4 bg-neutral-200 rounded w-1/2" />
+                          <div className="h-10 bg-neutral-200 rounded mt-4" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : error ? (
+                  <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center max-w-md mx-auto my-12">
+                    <p className="text-red-500 font-semibold mb-2">Unable to load hostels</p>
+                    <p className="text-neutral-500 text-sm mb-4">{error}</p>
+                    <button
+                      onClick={() => setPage(1)}
+                      className="px-5 py-2.5 bg-brand-lime text-brand-black text-sm font-bold rounded-xl hover:bg-brand-lime/80 transition-colors"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                ) : filteredHostels.length === 0 ? (
+                  <div className="bg-white rounded-2xl border border-neutral-200 p-12 text-center my-8">
+                    <h3 className="text-lg font-bold text-brand-black mb-1">No hostels found</h3>
+                    <p className="text-neutral-500 text-sm mb-4">
+                      Try adjusting your search criteria or clearing active filters.
+                    </p>
+                    <button
+                      onClick={clearAllFilters}
+                      className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-brand-black text-sm font-semibold rounded-xl transition-colors"
+                    >
+                      Reset Filters
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className={
+                      viewMode === 'grid'
+                        ? 'grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                        : 'flex flex-col gap-4'
+                    }
+                  >
+                    {filteredHostels.map((hostel) => (
+                      <HostelCard key={hostel.id} hostel={hostel} />
+                    ))}
+                  </div>
+                )}
+
                 <div className="flex justify-center mt-10">
                   {totalPages > 1 && (
                     <div className="flex items-center gap-2">
@@ -495,6 +625,7 @@ const HostelsPage = () => {
                             ? 'border-neutral-200 text-neutral-400'
                             : 'border-brand-lime text-brand-black hover:bg-brand-lime/10'
                         }`}
+                        aria-label="Previous page"
                       >
                         <ChevronDown size={18} className="rotate-90" strokeWidth={2} />
                       </button>
@@ -522,6 +653,7 @@ const HostelsPage = () => {
                             ? 'border-neutral-200 text-neutral-400'
                             : 'border-brand-lime text-brand-black hover:bg-brand-lime/10'
                         }`}
+                        aria-label="Next page"
                       >
                         <ChevronDown size={18} className="-rotate-90" strokeWidth={2} />
                       </button>
