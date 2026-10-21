@@ -1,0 +1,297 @@
+name: CI/CD Pipeline - Hostel Ghar Frontend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip lint & tests for emergency deployment'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-cpanel-frontend
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build & Package Next.js Standalone
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install dependencies (reproducible)
+        run: npm ci
+
+      - name: Run code linter
+        if: ${{ !inputs.skip_tests }}
+        run: npm run lint
+
+      - name: Run unit tests
+        if: ${{ !inputs.skip_tests }}
+        run: npm test
+
+      - name: Build Next.js application
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'https://api.hostelghar.com/api' }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL || 'https://hostelghar.com' }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://hostelghar.com' }}
+        run: npm run build
+
+      - name: Validate standalone output
+        run: |
+          echo "Verifying standalone build artifacts..."
+          if [ ! -f ".next/standalone/server.js" ]; then
+            echo "::error::Build verification failed: .next/standalone/server.js was not generated."
+            exit 1
+          fi
+          if [ ! -d ".next/static" ]; then
+            echo "::error::Build verification failed: .next/static directory is missing."
+            exit 1
+          fi
+          echo "Standalone server.js and static directory verified successfully."
+
+      - name: Assemble standalone distribution bundle
+        run: |
+          echo "Assembling production bundle for deployment..."
+          # Next.js standalone requires .next/static inside .next/standalone/.next/static
+          mkdir -p .next/standalone/.next
+          cp -r .next/static .next/standalone/.next/
+
+          # Next.js standalone requires public directory inside .next/standalone/public
+          if [ -d "public" ]; then
+            cp -r public .next/standalone/
+          fi
+
+          # Ensure cPanel entrypoint app.js exists inside standalone root
+          if [ -f "app.js" ]; then
+            cp app.js .next/standalone/app.js
+          else
+            cat << 'EOF' > .next/standalone/app.js
+          process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+          process.env.PORT = process.env.PORT || 3000;
+          require('./server.js');
+          EOF
+          fi
+
+          # Create standalone tarball
+          cd .next/standalone
+          tar -czf ../../deploy-bundle.tar.gz .
+          cd ../..
+          echo "Created deploy-bundle.tar.gz ($(du -h deploy-bundle.tar.gz | cut -f1))"
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-deploy-bundle
+          path: deploy-bundle.tar.gz
+          retention-days: 1
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy to cPanel Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 15
+
+    steps:
+      - name: Download deployment artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-deploy-bundle
+
+      - name: Validate secrets & configure SSH
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_PORT: ${{ secrets.CPANEL_PORT || '22' }}
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY || secrets.HOSTELGHAR_FRONTEND }}
+        run: |
+          ERRORS=0
+          if [ -z "$CPANEL_HOST" ]; then
+            echo "::error::Required secret CPANEL_HOST is not configured in repository secrets."
+            ERRORS=$((ERRORS + 1))
+          fi
+          if [ -z "$CPANEL_USER" ]; then
+            echo "::error::Required secret CPANEL_USER is not configured in repository secrets."
+            ERRORS=$((ERRORS + 1))
+          fi
+          if [ -z "$SSH_KEY" ]; then
+            echo "::error::Required secret CPANEL_SSH_KEY (or HOSTELGHAR_FRONTEND) is not configured in repository secrets."
+            ERRORS=$((ERRORS + 1))
+          fi
+
+          if [ $ERRORS -gt 0 ]; then
+            echo "Please configure the missing GitHub Secrets under: Settings -> Secrets and variables -> Actions"
+            exit 1
+          fi
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          SSH_KEY_FILE="$RUNNER_TEMP/cpanel_deploy_key"
+          echo "$SSH_KEY" | tr -d '\r' > "$SSH_KEY_FILE"
+          chmod 600 "$SSH_KEY_FILE"
+
+          echo "Scanning SSH host keys for $CPANEL_HOST on port $CPANEL_PORT..."
+          ssh-keyscan -p "$CPANEL_PORT" -H "$CPANEL_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          # Export key path for subsequent steps
+          echo "SSH_KEY_PATH=$SSH_KEY_FILE" >> $GITHUB_ENV
+          echo "CPANEL_PORT=$CPANEL_PORT" >> $GITHUB_ENV
+
+      - name: Transfer bundle and deploy on cPanel
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+        run: |
+          APP_DIR="/home/hostelgh/hostelghar"
+          BACKUP_DIR="/home/hostelgh/hostelghar_backups"
+          TMP_DIR="/home/hostelgh/tmp_ci_deploy"
+
+          echo "1. Uploading deployment bundle to cPanel..."
+          ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "mkdir -p $TMP_DIR $BACKUP_DIR $APP_DIR"
+          scp -P "$CPANEL_PORT" -i "$SSH_KEY_PATH" deploy-bundle.tar.gz "$CPANEL_USER@$CPANEL_HOST:$TMP_DIR/deploy-bundle.tar.gz"
+
+          echo "2. Executing safe atomic deployment on cPanel..."
+          ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "bash -s" << 'REMOTE_SCRIPT'
+          set -euo pipefail
+
+          APP_DIR="/home/hostelgh/hostelghar"
+          BACKUP_DIR="/home/hostelgh/hostelghar_backups"
+          TMP_DIR="/home/hostelgh/tmp_ci_deploy"
+
+          # ── A. Backup Current Active Release ──────────────────────────
+          if [ -f "$APP_DIR/server.js" ] || [ -d "$APP_DIR/.next" ]; then
+            TIMESTAMP=$(date +%Y%m%d%H%M%S)
+            BACKUP_FILE="$BACKUP_DIR/backup-${TIMESTAMP}.tar.gz"
+            echo "Creating backup of current active deployment: $BACKUP_FILE"
+            tar -czf "$BACKUP_FILE" -C "$APP_DIR" \
+              --exclude="./tmp" \
+              --exclude="./.env*" \
+              --exclude="./uploads" \
+              --exclude="*.log" \
+              server.js app.js package.json .next node_modules public 2>/dev/null || true
+
+            # Retain only the last 3 backups to conserve disk quota and inodes
+            cd "$BACKUP_DIR"
+            ls -1t backup-*.tar.gz 2>/dev/null | tail -n +4 | xargs -r rm -f
+            cd - >/dev/null
+          fi
+
+          # ── B. Extract New Build in Isolated Directory ────────────────
+          echo "Extracting new standalone build..."
+          mkdir -p "$TMP_DIR/extracted"
+          tar -xzf "$TMP_DIR/deploy-bundle.tar.gz" -C "$TMP_DIR/extracted"
+
+          # ── C. Safe Component Synchronization ────────────────────────
+          # We selectively sync application assets, NEVER wiping .env, logs, or uploads.
+          echo "Syncing standalone runtime..."
+          mkdir -p "$APP_DIR/.next"
+          rsync -a --delete "$TMP_DIR/extracted/.next/" "$APP_DIR/.next/"
+
+          mkdir -p "$APP_DIR/node_modules"
+          rsync -a --delete "$TMP_DIR/extracted/node_modules/" "$APP_DIR/node_modules/"
+
+          if [ -d "$TMP_DIR/extracted/public" ]; then
+            mkdir -p "$APP_DIR/public"
+            rsync -a "$TMP_DIR/extracted/public/" "$APP_DIR/public/"
+          fi
+
+          cp "$TMP_DIR/extracted/server.js" "$APP_DIR/server.js"
+          cp "$TMP_DIR/extracted/package.json" "$APP_DIR/package.json"
+          if [ -f "$TMP_DIR/extracted/app.js" ]; then
+            cp "$TMP_DIR/extracted/app.js" "$APP_DIR/app.js"
+          fi
+
+          # Clean up temporary upload files
+          rm -rf "$TMP_DIR"
+
+          # ── D. Restart Application ────────────────────────────────────
+          echo "Triggering cPanel application restart..."
+          mkdir -p "$APP_DIR/tmp"
+          touch "$APP_DIR/tmp/restart.txt"
+
+          # Also invoke CloudLinux selectorctl / cloudlinux-selector if available
+          if command -v cloudlinux-selector >/dev/null 2>&1; then
+            cloudlinux-selector restart --json --interpreter nodejs --app-root "$APP_DIR" || true
+          elif [ -x /usr/sbin/cloudlinux-selector ]; then
+            /usr/sbin/cloudlinux-selector restart --json --interpreter nodejs --app-root "$APP_DIR" || true
+          elif command -v selectorctl >/dev/null 2>&1; then
+            selectorctl --interpreter=nodejs --user=hostelgh --restart-app --app-root="$APP_DIR" || true
+          fi
+
+          echo "Deployment files synchronized and restart signal sent."
+          REMOTE_SCRIPT
+
+      - name: Verify production deployment (Health Check)
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+        run: |
+          HEALTH_URL="https://hostelghar.com"
+          MAX_ATTEMPTS=12
+          SLEEP_SECONDS=5
+          SUCCESS=0
+
+          echo "Starting health check on $HEALTH_URL (max attempts: $MAX_ATTEMPTS)..."
+          for ((i=1; i<=MAX_ATTEMPTS; i++)); do
+            STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" -L "$HEALTH_URL" || echo "000")
+            echo "Attempt $i/$MAX_ATTEMPTS: HTTP response code $STATUS"
+
+            if [[ "$STATUS" =~ ^(200|301|302|307|308)$ ]]; then
+              echo "✅ Health check passed! Frontend is active (HTTP $STATUS)."
+              SUCCESS=1
+              break
+            fi
+            sleep $SLEEP_SECONDS
+          done
+
+          if [ $SUCCESS -ne 1 ]; then
+            echo "::error::Production health check failed after $MAX_ATTEMPTS attempts."
+            echo "Triggering automated rollback to previous working release..."
+
+            ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "bash -s" << 'ROLLBACK_SCRIPT'
+            APP_DIR="/home/hostelgh/hostelghar"
+            BACKUP_DIR="/home/hostelgh/hostelghar_backups"
+
+            LATEST_BACKUP=$(ls -1t "$BACKUP_DIR"/backup-*.tar.gz 2>/dev/null | head -n 1 || echo "")
+            if [ -n "$LATEST_BACKUP" ] && [ -f "$LATEST_BACKUP" ]; then
+              echo "Restoring previous release from $LATEST_BACKUP..."
+              tar -xzf "$LATEST_BACKUP" -C "$APP_DIR"
+              mkdir -p "$APP_DIR/tmp"
+              touch "$APP_DIR/tmp/restart.txt"
+              if command -v cloudlinux-selector >/dev/null 2>&1; then
+                cloudlinux-selector restart --json --interpreter nodejs --app-root "$APP_DIR" || true
+              fi
+              echo "Rollback restored successfully."
+            else
+              echo "No backup archive found in $BACKUP_DIR."
+            fi
+            ROLLBACK_SCRIPT
+
+            exit 1
+          fi
+
+      - name: Cleanup SSH credentials
+        if: always()
+        run: |
+          if [ -n "${SSH_KEY_PATH:-}" ] && [ -f "$SSH_KEY_PATH" ]; then
+            shred -u "$SSH_KEY_PATH" 2>/dev/null || rm -f "$SSH_KEY_PATH"
+            echo "Deployment SSH key securely removed."
+          fi
