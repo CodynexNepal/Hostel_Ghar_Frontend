@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,6 +9,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import Breadcrumbs from '@/components/seo/Breadcrumbs';
 import DirectAnswer from '@/components/aeo/DirectAnswer';
 import FaqAccordion from '@/components/aeo/FaqAccordion';
+import BookingModal from '@/components/booking/BookingModal';
 import { HOSTELS, getHostelBySlug, type Hostel } from '@/data/hostels';
 import { getHostelById } from '@/lib/api/hostels';
 import { FAQS } from '@/data/faqs';
@@ -15,6 +17,7 @@ import { hostelJsonLd, faqJsonLd } from '@/lib/seo/jsonLd';
 import { MapPin, Star, BadgeCheck, ArrowRight, Phone } from 'lucide-react';
 
 export default function HostelDetail({ hostel }: { hostel: Hostel }) {
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
   const faqs = FAQS.filter((f) => ['cancellation', 'payment-methods'].includes(f.id));
   const isExternal = hostel.image.startsWith('http://') || hostel.image.startsWith('https://');
 
@@ -93,12 +96,13 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
                 <span className="text-neutral-500 font-medium">/ night</span>
               </div>
               <div className="flex flex-wrap gap-3">
-                <Link
-                  href="/hostels"
-                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-brand-lime text-brand-black font-bold rounded-xl hover:bg-brand-lime/85 transition-colors"
+                <button
+                  type="button"
+                  onClick={() => setIsBookingOpen(true)}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-brand-lime text-brand-black font-bold rounded-xl hover:bg-brand-lime/85 transition-colors cursor-pointer"
                 >
                   Book this hostel <ArrowRight size={17} aria-hidden />
-                </Link>
+                </button>
                 <a
                   href="tel:+97711234567"
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-brand-black text-white font-semibold rounded-xl hover:bg-brand-black/85 transition-colors"
@@ -122,6 +126,12 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
           </section>
         </div>
         <Footer />
+        <BookingModal
+          isOpen={isBookingOpen}
+          onClose={() => setIsBookingOpen(false)}
+          hostelId={hostel.slug}
+          hostelName={hostel.name}
+        />
       </main>
     </>
   );
@@ -153,11 +163,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         originalPrice: null,
         rating: 4.8,
         reviews: 0,
-        roomType: data.type ? `${data.type.charAt(0).toUpperCase() + data.type.slice(1).toLowerCase()} Hostel` : 'Hostel',
-        amenities:
-          (data.hostelFacilities?.map((f) => f.facility?.name).filter(Boolean) as string[]) || [
-            'Free WiFi',
-          ],
+        roomType: data.type
+          ? `${data.type.charAt(0).toUpperCase() + data.type.slice(1).toLowerCase()} Hostel`
+          : 'Hostel',
+        amenities: (data.hostelFacilities
+          ?.map((f) => f.facility?.name)
+          .filter(Boolean) as string[]) || ['Free WiFi'],
         image: data.logoUrl || '/images/static/hostel.jpg',
         description: `${data.name} is a verified hostel located in ${data.address || data.city}. Contact phone: ${data.phone || 'N/A'}.`,
       };

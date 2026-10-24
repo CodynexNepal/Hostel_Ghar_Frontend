@@ -70,9 +70,7 @@ export interface ListHostelsParams {
  * Lists hostels with pagination from the production API.
  * GET /api/v1/hostel-ghar/hostels
  */
-export const listHostels = async (
-  params: ListHostelsParams = {}
-): Promise<ListHostelsResponse> => {
+export const listHostels = async (params: ListHostelsParams = {}): Promise<ListHostelsResponse> => {
   const { page = 1, limit = 12 } = params;
   const response = await apiClient.get<ListHostelsResponse>('/hostels', {
     params: { page, limit },
@@ -84,9 +82,62 @@ export const listHostels = async (
  * Gets a single hostel by its UUID.
  * GET /api/v1/hostel-ghar/hostels/:id
  */
-export const getHostelById = async (
-  id: string
-): Promise<SingleHostelResponse> => {
+export const getHostelById = async (id: string): Promise<SingleHostelResponse> => {
   const response = await apiClient.get<SingleHostelResponse>(`/hostels/${id}`);
+  return response.data;
+};
+
+export interface ResidentFee {
+  billingMonth: number;
+  billingYear: number;
+  amount: number;
+  dueAmount: number;
+  totalPayable: number;
+  paidAmount: number;
+  dueDate: string;
+  status: string;
+}
+
+export interface ResidentHostelInfo {
+  id: string;
+  name: string | null;
+  type: string | null;
+  city: string | null;
+  address: string | null;
+}
+
+export interface HostelResident {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  emergencyContact: string | null;
+  status: string;
+  hostel: ResidentHostelInfo;
+  joinedDate: string | null;
+  monthlyRent: number | null;
+  roomNumber: string | null;
+  bedNumber: string | null;
+  roomType: string | null;
+  floor: number | null;
+  flat: number | null;
+  fee: ResidentFee | null;
+}
+
+export interface HostelResidentsResponse {
+  success: boolean;
+  data: HostelResident[];
+  isCached?: boolean;
+  cacheLevel?: string;
+  scope?: string;
+}
+
+/**
+ * Gets the residents living in a specific hostel.
+ * GET /api/v1/hostel-ghar/hostels/:id/residents
+ * Requires role: admin, owner, or resident.
+ */
+export const getHostelResidents = async (id: string): Promise<HostelResidentsResponse> => {
+  const response = await apiClient.get<HostelResidentsResponse>(`/hostels/${id}/residents`);
   return response.data;
 };

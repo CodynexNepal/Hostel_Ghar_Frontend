@@ -1,9 +1,23 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!envUrl) {
+    return 'https://api.hostelghar.com/api/v1/hostel-ghar';
+  }
+  // If env URL is the root domain without /api, ensure the API version prefix is present
+  if (
+    envUrl.startsWith('http') &&
+    !envUrl.includes('/api/v1/hostel-ghar') &&
+    !envUrl.endsWith('/api')
+  ) {
+    return `${envUrl.replace(/\/+$/, '')}/api/v1/hostel-ghar`;
+  }
+  return envUrl;
+};
+
 const apiClient = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_URL ||
-    'https://api.hostelghar.com',
+  baseURL: getBaseURL(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
