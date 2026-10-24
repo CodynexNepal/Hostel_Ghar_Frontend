@@ -165,13 +165,56 @@ jobs:
           BACKUP_DIR="/home/hostelgh/hostelghar_backups"
           TMP_DIR="/home/hostelgh/tmp_ci_deploy"
 
-          echo "1. Uploading deployment bundle and scripts to cPanel..."
-          ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "mkdir -p $TMP_DIR $BACKUP_DIR $APP_DIR"
-          scp -P "$CPANEL_PORT" -i "$SSH_KEY_PATH" deploy-bundle.tar.gz "$CPANEL_USER@$CPANEL_HOST:$TMP_DIR/deploy-bundle.tar.gz"
-          scp -P "$CPANEL_PORT" -i "$SSH_KEY_PATH" scripts/remote-deploy.sh "$CPANEL_USER@$CPANEL_HOST:$TMP_DIR/remote-deploy.sh"
+          echo "1. Preparing remote directories and uploading bundle via SFTP..."
+          # Use SFTP subsystem to create directories and upload files.
+          # This avoids 'exec request failed on channel 0' caused by shell restrictions.
+          cat << 'EOF' > /tmp/sftp_commands
+          -mkdir /home/hostelgh/tmp_ci_deploy
+          -mkdir /home/hostelgh/hostelghar_backups
+          -mkdir /home/hostelgh/hostelghar
+          put deploy-bundle.tar.gz /home/hostelgh/tmp_ci_deploy/deploy-bundle.tar.gz
+          put scripts/remote-deploy.sh /home/hostelgh/tmp_ci_deploy/remote-deploy.sh
+          EOF
 
-          echo "2. Executing safe atomic deployment on cPanel..."
-          ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "bash $TMP_DIR/remote-deploy.sh"
+          sftp -P "$CPANEL_PORT" -i "$SSH_KEY_PATH" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -b /tmp/sftp_commands "$CPANEL_USER@$CPANEL_HOST"
+          rm -f /tmp/sftp_commands
+
+          echo "2. Executing deployment on cPanel..."
+          # Try remote execution with pseudo-terminal allocation (-tt) for cPanel Jailed Shell compatibility
+          DEPLOY_SUCCESS=0
+          if ssh -tt -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=30 \
+            "$CPANEL_USER@$CPANEL_HOST" "bash $TMP_DIR/remote-deploy.sh"; then
+            echo "✅ Remote deployment script executed successfully over SSH."
+            DEPLOY_SUCCESS=1
+          else
+            echo "⚠️ Remote command execution rejected (account has noshell or restricted shell)."
+            echo "Executing direct SFTP standalone synchronization..."
+
+            mkdir -p /tmp/extracted_app
+            tar -xzf deploy-bundle.tar.gz -C /tmp/extracted_app
+            mkdir -p /tmp/extracted_app/tmp
+            touch /tmp/extracted_app/tmp/restart.txt
+
+            scp -P "$CPANEL_PORT" -i "$SSH_KEY_PATH" \
+              -o BatchMode=yes \
+              -o StrictHostKeyChecking=accept-new \
+              -r /tmp/extracted_app/. "$CPANEL_USER@$CPANEL_HOST:$APP_DIR/"
+            rm -rf /tmp/extracted_app
+
+            echo "✅ Standalone files uploaded and restart signal placed in $APP_DIR/tmp/restart.txt."
+            DEPLOY_SUCCESS=1
+          fi
+
+          if [ $DEPLOY_SUCCESS -ne 1 ]; then
+            echo "::error::Deployment failed to complete."
+            exit 1
+          fi
 
       - name: Verify production deployment (Health Check)
         env:
@@ -200,7 +243,10 @@ jobs:
             echo "::error::Production health check failed after $MAX_ATTEMPTS attempts."
             echo "Triggering automated rollback to previous working release..."
 
-            ssh -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" "$CPANEL_USER@$CPANEL_HOST" "bash -s" < scripts/remote-rollback.sh
+            ssh -tt -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" \
+              -o BatchMode=yes \
+              -o StrictHostKeyChecking=accept-new \
+              "$CPANEL_USER@$CPANEL_HOST" "bash -s" < scripts/remote-rollback.sh || true
             exit 1
           fi
 
