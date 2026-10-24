@@ -60,7 +60,8 @@ export const FAQS: Faq[] = [
     question: 'What does the Verified badge mean?',
     answer:
       'Verified means our team physically visited or video-verified the hostel: real photos, working amenities, correct location and legal registration. Only about 60% of applicants pass verification.',
-    details: 'Verification is re-checked every 6 months. Report a mismatch and we re-audit within 72 hours.',
+    details:
+      'Verification is re-checked every 6 months. Report a mismatch and we re-audit within 72 hours.',
     lastUpdated: '2026-09-01',
   },
   {
@@ -78,7 +79,8 @@ export const FAQS: Faq[] = [
     question: 'Can I cancel or change my hostel booking?',
     answer:
       'Yes — most bookings cancel free up to 24-48 hours before check-in from your dashboard. Long-stay monthly bookings need 7 days notice. Refunds for advance payments land in 3-5 working days.',
-    details: 'Festival periods (Dashain, Tihar) may have stricter policies — check the House rules tab.',
+    details:
+      'Festival periods (Dashain, Tihar) may have stricter policies — check the House rules tab.',
     lastUpdated: '2026-09-01',
   },
   {
@@ -105,7 +107,8 @@ export const FAQS: Faq[] = [
     question: 'Do hostels in Nepal have fast WiFi for remote work?',
     answer:
       'Yes — 85% of verified listings offer 30+ Mbps fiber WiFi, and 40+ hostels have dedicated co-working corners. Filter by Free WiFi on the hostels page. Pokhara Lakeside averages the fastest speeds.',
-    details: 'Ask the hostel for a speed-test screenshot before long stays, and carry a data backup.',
+    details:
+      'Ask the hostel for a speed-test screenshot before long stays, and carry a data backup.',
     lastUpdated: '2026-09-01',
   },
   {
@@ -114,7 +117,8 @@ export const FAQS: Faq[] = [
     question: 'Can I stay monthly in a Nepali hostel?',
     answer:
       'Yes — most Kathmandu student hostels offer monthly rates of NPR 8,000-15,000 including 2 meals. Book 1 night online, then ask the owner for the monthly tariff.',
-    details: 'Monthly deals are cheapest in Kirtipur, Baneshwor and Kumaripati — 20-40% below Thamel.',
+    details:
+      'Monthly deals are cheapest in Kirtipur, Baneshwor and Kumaripati — 20-40% below Thamel.',
     lastUpdated: '2026-09-01',
   },
   {
@@ -123,7 +127,8 @@ export const FAQS: Faq[] = [
     question: 'Why book on Hostel Ghar instead of walk-in?',
     answer:
       'You see real prices, verified photos and 10,000+ traveler reviews before paying — walk-ins overpay 15-30% in peak season. Instant confirmation and free cancellation make arrival stress-free.',
-    details: 'Owners also prefer confirmed guests: your bed is actually held for your arrival time.',
+    details:
+      'Owners also prefer confirmed guests: your bed is actually held for your arrival time.',
     lastUpdated: '2026-09-01',
   },
 ];

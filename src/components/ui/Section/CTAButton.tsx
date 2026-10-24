@@ -23,8 +23,7 @@ type CTAButtonProps =
 const variantStyles = {
   lime: 'bg-brand-lime text-brand-black font-bold hover:bg-brand-lime/85 shadow-lime hover:shadow-lime-lg',
   dark: 'bg-brand-black text-white font-semibold hover:bg-brand-black/90 shadow-lg shadow-brand-black/20',
-  'dark-outline':
-    'bg-white/10 text-white font-semibold hover:bg-white/20 border border-white/10',
+  'dark-outline': 'bg-white/10 text-white font-semibold hover:bg-white/20 border border-white/10',
   'light-outline':
     'bg-white text-brand-black font-semibold border border-neutral-200 hover:border-brand-lime hover:shadow-lime',
 } as const;

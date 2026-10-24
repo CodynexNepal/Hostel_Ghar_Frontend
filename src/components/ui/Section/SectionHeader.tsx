@@ -29,11 +29,7 @@ const SectionHeader = ({
 }: SectionHeaderProps) => {
   return (
     <div
-      className={cn(
-        'mb-12 md:mb-14',
-        align === 'center' ? 'text-center' : 'text-left',
-        className
-      )}
+      className={cn('mb-12 md:mb-14', align === 'center' ? 'text-center' : 'text-left', className)}
     >
       <span
         className={cn(

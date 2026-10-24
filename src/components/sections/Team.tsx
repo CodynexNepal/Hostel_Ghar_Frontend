@@ -47,66 +47,66 @@ const teamMembers = [
 const Team = () => {
   return (
     <Section tone="gray">
-        {/* Section Header */}
-        <SectionHeader
-          eyebrow="Our Team"
-          title="Meet Our Experts"
-          description="The skilled and experienced team behind our successful hostel marketing strategies"
-        />
+      {/* Section Header */}
+      <SectionHeader
+        eyebrow="Our Team"
+        title="Meet Our Experts"
+        description="The skilled and experienced team behind our successful hostel marketing strategies"
+      />
 
-        {/* Team Carousel */}
-        <Carousel
-          itemsPerView={{ mobile: 1, tablet: 2, desktop: 3 }}
-          gap={24}
-          showDots={true}
-          showArrows={true}
-        >
-          {teamMembers.map((member, index) => (
-            <div
-              key={index}
-              className="p-6 bg-white rounded-2xl border border-neutral-100 hover:border-brand-lime/50 transition-all duration-300 h-full"
-            >
-              <div className="flex items-center gap-4 mb-5">
-                <HostelImage
-                  src="/images/static/hostel.jpg"
-                  alt={`${member.name} — ${member.role} at Hostel Ghar`}
-                  aspect="square"
-                  rounded="2xl"
-                  objectPosition="center 20%"
-                  className="w-16 h-16 shrink-0"
-                  sizes="64px"
-                >
-                  <div className="flex h-full items-end justify-center pb-1.5 bg-gradient-to-t from-brand-black/60 to-transparent">
-                    <span className="text-xs font-bold text-white">{member.avatar}</span>
-                  </div>
-                </HostelImage>
-                <div>
-                  <h3 className="text-lg font-bold text-brand-black">{member.name}</h3>
-                  <p className="text-sm text-neutral-500 font-medium">{member.role}</p>
-                </div>
-              </div>
-              <p className="text-neutral-600 leading-relaxed mb-5">{member.bio}</p>
-              <a
-                href="#"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-500 hover:text-brand-black transition-colors group"
+      {/* Team Carousel */}
+      <Carousel
+        itemsPerView={{ mobile: 1, tablet: 2, desktop: 3 }}
+        gap={24}
+        showDots={true}
+        showArrows={true}
+      >
+        {teamMembers.map((member, index) => (
+          <div
+            key={index}
+            className="p-6 bg-white rounded-2xl border border-neutral-100 hover:border-brand-lime/50 transition-all duration-300 h-full"
+          >
+            <div className="flex items-center gap-4 mb-5">
+              <HostelImage
+                src="/images/static/hostel.jpg"
+                alt={`${member.name} — ${member.role} at Hostel Ghar`}
+                aspect="square"
+                rounded="2xl"
+                objectPosition="center 20%"
+                className="w-16 h-16 shrink-0"
+                sizes="64px"
               >
-                <Link
-                  size={18}
-                  strokeWidth={2}
-                  className="group-hover:text-brand-lime transition-colors"
-                />
-                LinkedIn
-              </a>
+                <div className="flex h-full items-end justify-center pb-1.5 bg-gradient-to-t from-brand-black/60 to-transparent">
+                  <span className="text-xs font-bold text-white">{member.avatar}</span>
+                </div>
+              </HostelImage>
+              <div>
+                <h3 className="text-lg font-bold text-brand-black">{member.name}</h3>
+                <p className="text-sm text-neutral-500 font-medium">{member.role}</p>
+              </div>
             </div>
-          ))}
-        </Carousel>
+            <p className="text-neutral-600 leading-relaxed mb-5">{member.bio}</p>
+            <a
+              href="#"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-500 hover:text-brand-black transition-colors group"
+            >
+              <Link
+                size={18}
+                strokeWidth={2}
+                className="group-hover:text-brand-lime transition-colors"
+              />
+              LinkedIn
+            </a>
+          </div>
+        ))}
+      </Carousel>
 
-        {/* CTA */}
-        <div className="mt-10 text-center">
-          <button className="px-8 py-3.5 bg-brand-black text-white font-semibold rounded-xl hover:bg-brand-black/90 transition-all duration-300 hover:-translate-y-0.5">
-            See all team members
-          </button>
-        </div>
+      {/* CTA */}
+      <div className="mt-10 text-center">
+        <button className="px-8 py-3.5 bg-brand-black text-white font-semibold rounded-xl hover:bg-brand-black/90 transition-all duration-300 hover:-translate-y-0.5">
+          See all team members
+        </button>
+      </div>
     </Section>
   );
 };

@@ -6,8 +6,12 @@ export interface Hostel {
   type: string;
   city: string;
   address: string;
+  phone?: string | null;
+  email?: string | null;
   logoUrl: string | null;
+  isActive?: boolean;
   createdAt: string;
+  owner?: HostelOwner | null;
 }
 
 export interface HostelFacilityItem {

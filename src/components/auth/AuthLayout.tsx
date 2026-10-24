@@ -20,7 +20,15 @@ const stats = [
   { big: '4.9', small: 'Average rating' },
 ];
 
-const AuthLayout = ({ badge, title, subtitle, benefits, trust, mobileBrand, children }: AuthLayoutProps) => {
+const AuthLayout = ({
+  badge,
+  title,
+  subtitle,
+  benefits,
+  trust,
+  mobileBrand,
+  children,
+}: AuthLayoutProps) => {
   const leftRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const artRef = useRef<HTMLDivElement>(null);
@@ -29,8 +37,18 @@ const AuthLayout = ({ badge, title, subtitle, benefits, trust, mobileBrand, chil
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
       tl.fromTo(leftRef.current, { x: -48, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7 });
-      tl.fromTo(cardRef.current, { x: 48, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7 }, '-=0.45');
-      tl.fromTo(artRef.current, { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.6)' }, '-=0.4');
+      tl.fromTo(
+        cardRef.current,
+        { x: 48, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.7 },
+        '-=0.45'
+      );
+      tl.fromTo(
+        artRef.current,
+        { scale: 0.92, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.6)' },
+        '-=0.4'
+      );
     });
     return () => ctx.revert();
   }, []);
@@ -43,7 +61,10 @@ const AuthLayout = ({ badge, title, subtitle, benefits, trust, mobileBrand, chil
       </div>
       <div className="relative mx-auto flex min-h-screen w-full max-w-6xl items-center px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <div className="grid w-full items-stretch overflow-hidden rounded-[24px] border border-neutral-100 bg-white shadow-hard sm:rounded-[28px] lg:grid-cols-2">
-          <div ref={leftRef} className="relative hidden flex-col justify-between overflow-hidden bg-brand-black p-10 text-white lg:flex lg:min-h-[660px] xl:p-12">
+          <div
+            ref={leftRef}
+            className="relative hidden flex-col justify-between overflow-hidden bg-brand-black p-10 text-white lg:flex lg:min-h-[660px] xl:p-12"
+          >
             <div aria-hidden className="pointer-events-none absolute inset-0">
               <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-brand-lime/20 blur-3xl" />
               <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-brand-lime/10 blur-3xl" />
@@ -54,20 +75,71 @@ const AuthLayout = ({ badge, title, subtitle, benefits, trust, mobileBrand, chil
               </span>
               <span className="leading-tight">
                 <span className="block text-lg font-extrabold tracking-tight">Hostel Ghar</span>
-                <span className="block text-[11px] font-bold uppercase tracking-[0.24em] text-brand-lime">Find • Book • Stay</span>
+                <span className="block text-[11px] font-bold uppercase tracking-[0.24em] text-brand-lime">
+                  Find • Book • Stay
+                </span>
               </span>
             </div>
             <div className="relative mt-10">
-              <p className="inline-flex items-center rounded-full bg-brand-lime px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-brand-black">{badge}</p>
-              <h2 className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-tight xl:text-[2.75rem]">{title}</h2>
+              <p className="inline-flex items-center rounded-full bg-brand-lime px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-brand-black">
+                {badge}
+              </p>
+              <h2 className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-tight xl:text-[2.75rem]">
+                {title}
+              </h2>
               <p className="mt-3 max-w-md text-[15px] leading-relaxed text-white/65">{subtitle}</p>
-              <div ref={artRef} className="relative mt-8 rounded-2xl border border-white/10 bg-white/[0.05] p-5 backdrop-blur">
-                <svg viewBox="0 0 400 220" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-auto w-full" role="img" aria-label="Hostel illustration">
-                  <path d="M50 180 L150 80 L250 180 Z" fill="#B9FF66" fillOpacity="0.25" stroke="#B9FF66" strokeWidth="2" />
-                  <path d="M120 180 L240 45 L360 180 Z" fill="#B9FF66" fillOpacity="0.4" stroke="#B9FF66" strokeWidth="2" />
-                  <rect x="130" y="135" width="140" height="65" fill="#FFFFFF" stroke="#B9FF66" strokeWidth="2.5" rx="6" />
-                  <path d="M120 135 L200 100 L280 135 Z" fill="#B9FF66" stroke="#B9FF66" strokeWidth="2" />
-                  <rect x="180" y="155" width="40" height="45" fill="#B9FF66" stroke="#010101" strokeWidth="2" rx="3" />
+              <div
+                ref={artRef}
+                className="relative mt-8 rounded-2xl border border-white/10 bg-white/[0.05] p-5 backdrop-blur"
+              >
+                <svg
+                  viewBox="0 0 400 220"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-auto w-full"
+                  role="img"
+                  aria-label="Hostel illustration"
+                >
+                  <path
+                    d="M50 180 L150 80 L250 180 Z"
+                    fill="#B9FF66"
+                    fillOpacity="0.25"
+                    stroke="#B9FF66"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M120 180 L240 45 L360 180 Z"
+                    fill="#B9FF66"
+                    fillOpacity="0.4"
+                    stroke="#B9FF66"
+                    strokeWidth="2"
+                  />
+                  <rect
+                    x="130"
+                    y="135"
+                    width="140"
+                    height="65"
+                    fill="#FFFFFF"
+                    stroke="#B9FF66"
+                    strokeWidth="2.5"
+                    rx="6"
+                  />
+                  <path
+                    d="M120 135 L200 100 L280 135 Z"
+                    fill="#B9FF66"
+                    stroke="#B9FF66"
+                    strokeWidth="2"
+                  />
+                  <rect
+                    x="180"
+                    y="155"
+                    width="40"
+                    height="45"
+                    fill="#B9FF66"
+                    stroke="#010101"
+                    strokeWidth="2"
+                    rx="3"
+                  />
                 </svg>
                 <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                   {stats.map((s) => (
@@ -94,7 +166,10 @@ const AuthLayout = ({ badge, title, subtitle, benefits, trust, mobileBrand, chil
               {trust}
             </p>
           </div>
-          <div ref={cardRef} className="flex min-h-[660px] flex-col justify-center bg-white p-6 sm:p-10 lg:p-12">
+          <div
+            ref={cardRef}
+            className="flex min-h-[660px] flex-col justify-center bg-white p-6 sm:p-10 lg:p-12"
+          >
             <div className="mb-6 flex items-center gap-2 lg:hidden">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-lime">
                 <Building2 size={20} strokeWidth={2} className="text-brand-black" />

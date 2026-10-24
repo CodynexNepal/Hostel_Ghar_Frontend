@@ -32,7 +32,15 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={17} height={17} {...props}>
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    width={17}
+    height={17}
+    {...props}
+  >
     <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
     <circle cx="12" cy="12" r="4" />
     <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" stroke="none" />
@@ -145,10 +153,24 @@ const Footer = () => {
         }
       );
       if (orbARef.current) {
-        gsap.to(orbARef.current, { y: -24, x: 16, duration: 5, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+        gsap.to(orbARef.current, {
+          y: -24,
+          x: 16,
+          duration: 5,
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut',
+        });
       }
       if (orbBRef.current) {
-        gsap.to(orbBRef.current, { y: 22, x: -18, duration: 6.5, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+        gsap.to(orbBRef.current, {
+          y: 22,
+          x: -18,
+          duration: 6.5,
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut',
+        });
       }
     }, rootRef);
     const onScroll = () => setShowTop(window.scrollY > 600);
@@ -179,7 +201,12 @@ const Footer = () => {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     gsap.to(light, { opacity: 1, duration: 0.3, ease: 'power2.out' });
-    gsap.to(el, { '--glow-x': `${x}%`, '--glow-y': `${y}%`, duration: 0.4, ease: 'power2.out' } as gsap.TweenVars);
+    gsap.to(el, {
+      '--glow-x': `${x}%`,
+      '--glow-y': `${y}%`,
+      duration: 0.4,
+      ease: 'power2.out',
+    } as gsap.TweenVars);
   };
 
   const hideWatermarkGlow = () => {
@@ -192,13 +219,23 @@ const Footer = () => {
     <footer ref={rootRef} className="relative overflow-hidden bg-brand-black text-white">
       {/* ambient orbs + grid */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div ref={orbARef} className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-brand-lime/15 blur-3xl" />
-        <div ref={orbBRef} className="absolute top-1/3 -right-28 h-[28rem] w-[28rem] rounded-full bg-brand-lime/10 blur-3xl" />
+        <div
+          ref={orbARef}
+          className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-brand-lime/15 blur-3xl"
+        />
+        <div
+          ref={orbBRef}
+          className="absolute top-1/3 -right-28 h-[28rem] w-[28rem] rounded-full bg-brand-lime/10 blur-3xl"
+        />
         <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)]" />
       </div>
       {/* top wave divider */}
       <div aria-hidden className="relative z-10 -mb-px">
-        <svg viewBox="0 0 1440 70" preserveAspectRatio="none" className="block h-[46px] w-full sm:h-[70px]">
+        <svg
+          viewBox="0 0 1440 70"
+          preserveAspectRatio="none"
+          className="block h-[46px] w-full sm:h-[70px]"
+        >
           <path
             d="M0,40 C240,75 480,5 720,30 C960,55 1200,70 1440,25 L1440,70 L0,70 Z"
             className="fill-neutral-50"
@@ -211,15 +248,24 @@ const Footer = () => {
         <div className="group relative flex overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
           <div className="flex min-w-full shrink-0 animate-[footer-marquee_28s_linear_infinite] items-center gap-8 pr-8 group-hover:[animation-play-state:paused] motion-reduce:animate-none">
             {[...tickerItems, ...tickerItems].map((item, i) => (
-              <span key={`a-${i}`} className="flex items-center gap-8 whitespace-nowrap text-[13px] font-semibold uppercase tracking-[0.22em] text-white/70">
+              <span
+                key={`a-${i}`}
+                className="flex items-center gap-8 whitespace-nowrap text-[13px] font-semibold uppercase tracking-[0.22em] text-white/70"
+              >
                 {item}
                 <Sparkles size={14} className="text-brand-lime" />
               </span>
             ))}
           </div>
-          <div aria-hidden className="flex min-w-full shrink-0 animate-[footer-marquee_28s_linear_infinite] items-center gap-8 pr-8 group-hover:[animation-play-state:paused] motion-reduce:animate-none">
+          <div
+            aria-hidden
+            className="flex min-w-full shrink-0 animate-[footer-marquee_28s_linear_infinite] items-center gap-8 pr-8 group-hover:[animation-play-state:paused] motion-reduce:animate-none"
+          >
             {[...tickerItems, ...tickerItems].map((item, i) => (
-              <span key={`b-${i}`} className="flex items-center gap-8 whitespace-nowrap text-[13px] font-semibold uppercase tracking-[0.22em] text-white/70">
+              <span
+                key={`b-${i}`}
+                className="flex items-center gap-8 whitespace-nowrap text-[13px] font-semibold uppercase tracking-[0.22em] text-white/70"
+              >
                 {item}
                 <Sparkles size={14} className="text-brand-lime" />
               </span>
@@ -247,16 +293,26 @@ const Footer = () => {
                   Turn empty beds into
                   <span className="relative ml-3 inline-block">
                     <span className="relative z-10">bookings.</span>
-                    <span aria-hidden className="absolute -bottom-1 left-0 z-0 h-3 w-full -rotate-1 rounded bg-brand-black/15" />
+                    <span
+                      aria-hidden
+                      className="absolute -bottom-1 left-0 z-0 h-3 w-full -rotate-1 rounded bg-brand-black/15"
+                    />
                   </span>
                 </h2>
                 <p className="mt-4 max-w-xl text-sm font-medium text-brand-black/70 sm:text-base">
-                  Join 500+ owners getting verified listings, instant inquiries and zero commission for the first 3 months.
+                  Join 500+ owners getting verified listings, instant inquiries and zero commission
+                  for the first 3 months.
                 </p>
                 <div className="mt-6 flex flex-wrap items-center gap-4 text-[13px] font-semibold text-brand-black/80">
-                  <span className="inline-flex items-center gap-1.5"><BadgeCheck size={16} /> Verified badge</span>
-                  <span className="inline-flex items-center gap-1.5"><Clock size={16} /> Live in 24 hrs</span>
-                  <span className="inline-flex items-center gap-1.5"><ShieldCheck size={16} /> Secure payouts</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <BadgeCheck size={16} /> Verified badge
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock size={16} /> Live in 24 hrs
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <ShieldCheck size={16} /> Secure payouts
+                  </span>
                 </div>
               </div>
               <div className="flex w-full max-w-sm flex-col gap-3">
@@ -265,7 +321,10 @@ const Footer = () => {
                   className="group/btn inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-black px-7 py-4 text-base font-bold text-white shadow-hard transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lime-lg"
                 >
                   List Your Hostel — It&apos;s Free
-                  <ArrowRight size={18} className="transition-transform duration-300 group-hover/btn:translate-x-1.5" />
+                  <ArrowRight
+                    size={18}
+                    className="transition-transform duration-300 group-hover/btn:translate-x-1.5"
+                  />
                 </Link>
                 <Link
                   href="/pricing"
@@ -273,14 +332,20 @@ const Footer = () => {
                 >
                   View pricing plans
                 </Link>
-                <p className="text-center text-xs font-medium text-brand-black/60">No credit card required • Cancel anytime</p>
+                <p className="text-center text-xs font-medium text-brand-black/60">
+                  No credit card required • Cancel anytime
+                </p>
               </div>
             </div>
           </div>
         </div>
         {/* main columns */}
         <div className="grid gap-10 py-12 sm:py-16 lg:grid-cols-[1.3fr_0.8fr_0.8fr_0.8fr_1.2fr]">
-          <div ref={(el) => { colsRef.current[0] = el; }}>
+          <div
+            ref={(el) => {
+              colsRef.current[0] = el;
+            }}
+          >
             <Link href="/" className="group inline-flex items-center gap-3">
               <span className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border-2 border-brand-lime bg-white shadow-lime transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105">
                 <Image
@@ -294,11 +359,14 @@ const Footer = () => {
               </span>
               <span className="leading-tight">
                 <span className="block text-xl font-extrabold tracking-tight">Hostel Ghar</span>
-                <span className="block text-xs font-semibold uppercase tracking-[0.24em] text-brand-lime">Find • Book • Stay</span>
+                <span className="block text-xs font-semibold uppercase tracking-[0.24em] text-brand-lime">
+                  Find • Book • Stay
+                </span>
               </span>
             </Link>
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/60">
-              Nepal&apos;s most loved hostel marketplace. Verified stays, honest reviews and instant booking.
+              Nepal&apos;s most loved hostel marketplace. Verified stays, honest reviews and instant
+              booking.
             </p>
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80">
               <span className="flex text-brand-lime">
@@ -310,7 +378,14 @@ const Footer = () => {
             </div>
             <div className="mt-6 flex items-center gap-3">
               {socials.map(({ label, href, Icon }) => (
-                <Link key={label} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition-all duration-300 hover:-translate-y-1 hover:border-brand-lime hover:bg-brand-lime hover:text-brand-black hover:shadow-lime">
+                <Link
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={label}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition-all duration-300 hover:-translate-y-1 hover:border-brand-lime hover:bg-brand-lime hover:text-brand-black hover:shadow-lime"
+                >
                   <Icon />
                 </Link>
               ))}
@@ -322,7 +397,13 @@ const Footer = () => {
             { title: 'Company', links: companyLinks },
             { title: 'Support', links: supportLinks },
           ].map((col, idx) => (
-            <nav key={col.title} ref={(el) => { colsRef.current[idx + 1] = el; }} aria-label={col.title}>
+            <nav
+              key={col.title}
+              ref={(el) => {
+                colsRef.current[idx + 1] = el;
+              }}
+              aria-label={col.title}
+            >
               <h3 className="mb-5 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-white/90">
                 <span className="h-1.5 w-6 rounded-full bg-brand-lime" />
                 {col.title}
@@ -330,8 +411,14 @@ const Footer = () => {
               <ul className="space-y-1">
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <Link href={l.href} className="group inline-flex items-center gap-1.5 rounded-lg px-1 py-1.5 text-sm text-white/60 transition-all duration-200 hover:translate-x-1 hover:text-brand-lime">
-                      <ChevronRight size={14} className="-ml-1 opacity-0 transition-all duration-200 group-hover:ml-0 group-hover:opacity-100" />
+                    <Link
+                      href={l.href}
+                      className="group inline-flex items-center gap-1.5 rounded-lg px-1 py-1.5 text-sm text-white/60 transition-all duration-200 hover:translate-x-1 hover:text-brand-lime"
+                    >
+                      <ChevronRight
+                        size={14}
+                        className="-ml-1 opacity-0 transition-all duration-200 group-hover:ml-0 group-hover:opacity-100"
+                      />
                       {l.label}
                     </Link>
                   </li>
@@ -340,39 +427,70 @@ const Footer = () => {
             </nav>
           ))}
 
-          <div ref={(el) => { colsRef.current[4] = el; }}>
+          <div
+            ref={(el) => {
+              colsRef.current[4] = el;
+            }}
+          >
             <h3 className="mb-5 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-white/90">
               <span className="h-1.5 w-6 rounded-full bg-brand-lime" />
               Stay in the loop
             </h3>
-            <p className="text-sm leading-relaxed text-white/60">New hostels, deals & guides. One email a week, no spam.</p>
+            <p className="text-sm leading-relaxed text-white/60">
+              New hostels, deals & guides. One email a week, no spam.
+            </p>
             <form onSubmit={handleSubscribe} className="mt-5">
               <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-1.5 backdrop-blur transition-colors focus-within:border-brand-lime/60">
                 <Mail size={17} className="ml-2.5 shrink-0 text-white/40" />
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none" />
-                <button type="submit" aria-label="Subscribe" className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-lime text-brand-black transition-all duration-300 hover:shadow-lime active:scale-95">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  aria-label="Subscribe"
+                  className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-lime text-brand-black transition-all duration-300 hover:shadow-lime active:scale-95"
+                >
                   <Send size={17} strokeWidth={2.4} />
                 </button>
               </div>
-              <p className={`mt-3 min-h-[1.25rem] text-xs font-medium transition-all ${subscribed ? 'text-brand-lime' : 'text-white/40'}`}>
+              <p
+                className={`mt-3 min-h-[1.25rem] text-xs font-medium transition-all ${subscribed ? 'text-brand-lime' : 'text-white/40'}`}
+              >
                 {subscribed ? 'You are on the list! Check your inbox.' : 'Join 8,000+ subscribers'}
               </p>
             </form>
             <ul className="mt-2 space-y-3 text-sm text-white/60">
               <li>
-                <Link href={`mailto:${siteConfig.contact.email}`} className="flex items-center gap-2.5 transition-colors hover:text-brand-lime">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5"><Mail size={15} /></span>
+                <Link
+                  href={`mailto:${siteConfig.contact.email}`}
+                  className="flex items-center gap-2.5 transition-colors hover:text-brand-lime"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5">
+                    <Mail size={15} />
+                  </span>
                   {siteConfig.contact.email}
                 </Link>
               </li>
               <li>
-                <Link href={`tel:${siteConfig.contact.phone}`} className="flex items-center gap-2.5 transition-colors hover:text-brand-lime">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5"><Phone size={15} /></span>
+                <Link
+                  href={`tel:${siteConfig.contact.phone}`}
+                  className="flex items-center gap-2.5 transition-colors hover:text-brand-lime"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5">
+                    <Phone size={15} />
+                  </span>
                   {siteConfig.contact.phone}
-                </Link >
+                </Link>
               </li>
               <li className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5"><MapPin size={15} /></span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5">
+                  <MapPin size={15} />
+                </span>
                 {siteConfig.contact.address}
               </li>
             </ul>
@@ -381,11 +499,18 @@ const Footer = () => {
         {/* trust strip */}
         <div className="grid gap-3 border-t border-white/10 py-8 sm:grid-cols-3">
           {[
-            { Icon: ShieldCheck, title: 'Verified stays only', sub: 'Every hostel is visited & checked' },
+            {
+              Icon: ShieldCheck,
+              title: 'Verified stays only',
+              sub: 'Every hostel is visited & checked',
+            },
             { Icon: BadgeCheck, title: 'Honest reviews', sub: 'Real guests, real photos' },
             { Icon: Clock, title: '24/7 support', sub: 'We reply in under 5 minutes' },
           ].map(({ Icon, title, sub }) => (
-            <div key={title} className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-lime/40 hover:bg-white/[0.07]">
+            <div
+              key={title}
+              className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-lime/40 hover:bg-white/[0.07]"
+            >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-lime/15 text-brand-lime transition-all duration-300 group-hover:bg-brand-lime group-hover:text-brand-black">
                 <Icon size={20} strokeWidth={2.2} />
               </span>
@@ -434,7 +559,9 @@ const Footer = () => {
       <div className="relative z-10 border-t border-white/10 bg-black/40 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 text-xs text-white/50 sm:px-6 md:flex-row lg:px-8">
           <p className="flex flex-wrap items-center justify-center gap-1.5 text-center md:justify-start">
-            <span>© {new Date().getFullYear()} {siteConfig.name}</span>
+            <span>
+              © {new Date().getFullYear()} {siteConfig.name}
+            </span>
             <span className="hidden h-3 w-px bg-white/20 sm:inline-block" aria-hidden />
             <span className="inline-flex items-center gap-1">
               Developed by
@@ -444,17 +571,33 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="group/dev relative inline-flex items-center gap-1 overflow-hidden rounded-md px-1 font-bold text-white/80 transition-colors duration-300 hover:text-brand-lime"
               >
-                <span className="absolute inset-0 origin-left scale-x-0 rounded-md bg-brand-lime/15 transition-transform duration-300 ease-out group-hover/dev:scale-x-100" aria-hidden />
+                <span
+                  className="absolute inset-0 origin-left scale-x-0 rounded-md bg-brand-lime/15 transition-transform duration-300 ease-out group-hover/dev:scale-x-100"
+                  aria-hidden
+                />
                 <span className="relative">CodyNex Nepal</span>
-                <ExternalLink size={12} strokeWidth={2.5} className="relative transition-transform duration-300 group-hover/dev:-translate-y-px group-hover/dev:translate-x-px" />
-                <span className="absolute -bottom-px left-1 right-1 h-px origin-left scale-x-0 bg-brand-lime shadow-[0_0_8px_rgba(185,255,102,0.9)] transition-transform duration-300 group-hover/dev:scale-x-100" aria-hidden />
+                <ExternalLink
+                  size={12}
+                  strokeWidth={2.5}
+                  className="relative transition-transform duration-300 group-hover/dev:-translate-y-px group-hover/dev:translate-x-px"
+                />
+                <span
+                  className="absolute -bottom-px left-1 right-1 h-px origin-left scale-x-0 bg-brand-lime shadow-[0_0_8px_rgba(185,255,102,0.9)] transition-transform duration-300 group-hover/dev:scale-x-100"
+                  aria-hidden
+                />
               </a>
             </span>
           </p>
           <div className="flex items-center gap-5 font-medium">
-            <Link href="/privacy-policy" className="transition-colors hover:text-brand-lime">Privacy</Link>
-            <Link href="/privacy-policy" className="transition-colors hover:text-brand-lime">Terms</Link>
-            <Link href="/contact" className="transition-colors hover:text-brand-lime">Sitemap</Link>
+            <Link href="/privacy-policy" className="transition-colors hover:text-brand-lime">
+              Privacy
+            </Link>
+            <Link href="/privacy-policy" className="transition-colors hover:text-brand-lime">
+              Terms
+            </Link>
+            <Link href="/contact" className="transition-colors hover:text-brand-lime">
+              Sitemap
+            </Link>
           </div>
         </div>
       </div>
@@ -473,4 +616,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

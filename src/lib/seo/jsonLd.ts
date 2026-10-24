@@ -128,9 +128,7 @@ export function hostelJsonLd(h: ProductSchemaInput) {
     name: h.name,
     description: h.description,
     url: canonical(`/hostel/${h.slug}`),
-    image: images.map((src) =>
-      src.startsWith('http') ? src : `${siteConfig.url}${src}`,
-    ),
+    image: images.map((src) => (src.startsWith('http') ? src : `${siteConfig.url}${src}`)),
     priceRange: `NPR ${h.priceFrom}+`,
     currenciesAccepted: h.currency || 'NPR',
     address: {

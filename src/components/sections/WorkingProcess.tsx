@@ -140,24 +140,24 @@ const WorkingProcess = () => {
 
   return (
     <Section tone="white" container="md">
-        {/* Section Header */}
-        <SectionHeader
-          eyebrow="Our Process"
-          title="How We Work"
-          description="Step-by-step guide to achieving your hostel business goals"
-        />
+      {/* Section Header */}
+      <SectionHeader
+        eyebrow="Our Process"
+        title="How We Work"
+        description="Step-by-step guide to achieving your hostel business goals"
+      />
 
-        {/* Accordion Steps */}
-        <div className="space-y-4">
-          {steps.map((step, index) => (
-            <AccordionItem
-              key={index}
-              step={step}
-              isOpen={openIndex === index}
-              onToggle={() => handleToggle(index)}
-            />
-          ))}
-        </div>
+      {/* Accordion Steps */}
+      <div className="space-y-4">
+        {steps.map((step, index) => (
+          <AccordionItem
+            key={index}
+            step={step}
+            isOpen={openIndex === index}
+            onToggle={() => handleToggle(index)}
+          />
+        ))}
+      </div>
     </Section>
   );
 };

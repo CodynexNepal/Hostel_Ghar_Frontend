@@ -92,66 +92,66 @@ const logos = [
 const Services = () => {
   return (
     <Section tone="white">
-        {/* Trusted By Logos */}
-        <div className="mb-16">
-          <p className="text-center text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-8">
-            Trusted by leading companies
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            {logos.map((logo) => (
-              <div
-                key={logo.name}
-                className="flex items-center gap-2 text-neutral-400 hover:text-brand-black transition-colors duration-300"
-              >
-                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-                  <path d={logo.path} />
-                </svg>
-                <span className="text-lg font-bold">{logo.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Section Header */}
-        <SectionHeader
-          eyebrow="Services"
-          title="What We Offer"
-          description="Comprehensive solutions to help your hostel stand out and attract more guests"
-        />
-
-        {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => (
+      {/* Trusted By Logos */}
+      <div className="mb-16">
+        <p className="text-center text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-8">
+          Trusted by leading companies
+        </p>
+        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+          {logos.map((logo) => (
             <div
-              key={index}
-              className="group p-6 rounded-2xl border border-neutral-100 hover:border-brand-lime/50 bg-white hover:bg-brand-lime/5 transition-all duration-300"
+              key={logo.name}
+              className="flex items-center gap-2 text-neutral-400 hover:text-brand-black transition-colors duration-300"
             >
-              <div
-                className={`w-14 h-14 ${service.bgColor} rounded-xl flex items-center justify-center mb-5 ${service.iconColor}`}
-              >
-                {service.icon}
-              </div>
-              <h3 className="text-xl font-bold text-brand-black mb-3">{service.title}</h3>
-              <p className="text-neutral-600 leading-relaxed mb-4">{service.description}</p>
-              <button className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-black hover:text-brand-lime transition-colors">
-                Learn More
-                <ArrowUpRight size={16} strokeWidth={2.5} />
-              </button>
+              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                <path d={logo.path} />
+              </svg>
+              <span className="text-lg font-bold">{logo.name}</span>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* CTA Banner */}
-        <CTABanner
-          className="mt-14"
-          variant="image"
-          imageSrc="/images/static/hostel.jpg"
-          imageAlt="Cozy hostel dormitory listed on Hostel Ghar"
-          title="Let's make things happen"
-          description="Contact us today to learn more about how our services can help your hostel grow and succeed online."
-          primaryLabel="Get your free proposal"
-          primaryHref="/contact"
-        />
+      {/* Section Header */}
+      <SectionHeader
+        eyebrow="Services"
+        title="What We Offer"
+        description="Comprehensive solutions to help your hostel stand out and attract more guests"
+      />
+
+      {/* Services Grid */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {services.map((service, index) => (
+          <div
+            key={index}
+            className="group p-6 rounded-2xl border border-neutral-100 hover:border-brand-lime/50 bg-white hover:bg-brand-lime/5 transition-all duration-300"
+          >
+            <div
+              className={`w-14 h-14 ${service.bgColor} rounded-xl flex items-center justify-center mb-5 ${service.iconColor}`}
+            >
+              {service.icon}
+            </div>
+            <h3 className="text-xl font-bold text-brand-black mb-3">{service.title}</h3>
+            <p className="text-neutral-600 leading-relaxed mb-4">{service.description}</p>
+            <button className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-black hover:text-brand-lime transition-colors">
+              Learn More
+              <ArrowUpRight size={16} strokeWidth={2.5} />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA Banner */}
+      <CTABanner
+        className="mt-14"
+        variant="image"
+        imageSrc="/images/static/hostel.jpg"
+        imageAlt="Cozy hostel dormitory listed on Hostel Ghar"
+        title="Let's make things happen"
+        description="Contact us today to learn more about how our services can help your hostel grow and succeed online."
+        primaryLabel="Get your free proposal"
+        primaryHref="/contact"
+      />
     </Section>
   );
 };

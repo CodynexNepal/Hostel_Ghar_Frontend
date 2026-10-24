@@ -86,10 +86,7 @@ export const forgotPassword = async (
   payload: ForgotPasswordRequest
 ): Promise<ForgotPasswordResponse> => {
   try {
-    const response = await apiClient.post<ForgotPasswordResponse>(
-      '/auth/forgot-password',
-      payload
-    );
+    const response = await apiClient.post<ForgotPasswordResponse>('/auth/forgot-password', payload);
     return response.data;
   } catch (error: any) {
     throw handleAuthError(error);

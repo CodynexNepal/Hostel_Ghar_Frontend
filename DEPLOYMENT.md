@@ -16,7 +16,9 @@ This document details the automated GitHub Actions deployment pipeline for the *
 - **Deployment Strategy:** Next.js Standalone Build (`output: 'standalone'`)
 
 ### Why Next.js Standalone for cPanel?
+
 Building directly on shared hosting often fails due to strict memory (RAM) and CPU limits. With standalone mode:
+
 1. **GitHub Actions** (`ubuntu-latest` with 16GB RAM) handles `npm ci`, linting, unit tests, and production compilation (`npm run build`).
 2. Only the standalone runtime, traced dependencies, pre-rendered pages, and `.next/static` assets are packaged and transferred over SSH.
 3. Existing `.env`, logs, and user upload directories in `/home/hostelgh/hostelghar` are never overwritten or deleted.
@@ -29,12 +31,12 @@ Building directly on shared hosting often fails due to strict memory (RAM) and C
 Configure these secrets in GitHub repository settings:
 **`Settings` → `Secrets and variables` → `Actions` → `New repository secret`**
 
-| Secret Name | Description | Example / Value |
-|-------------|-------------|-----------------|
-| `CPANEL_HOST` | cPanel hostname or server IP | `server2.bisuphost.com` |
-| `CPANEL_PORT` | SSH Port assigned by your hosting provider | `22` (or provider's custom SSH port) |
-| `CPANEL_USER` | cPanel account username | `hostelgh` |
-| `CPANEL_SSH_KEY` | Private SSH Key (ed25519 or RSA PEM) | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
+| Secret Name      | Description                                | Example / Value                          |
+| ---------------- | ------------------------------------------ | ---------------------------------------- |
+| `CPANEL_HOST`    | cPanel hostname or server IP               | `server2.bisuphost.com`                  |
+| `CPANEL_PORT`    | SSH Port assigned by your hosting provider | `22` (or provider's custom SSH port)     |
+| `CPANEL_USER`    | cPanel account username                    | `hostelgh`                               |
+| `CPANEL_SSH_KEY` | Private SSH Key (ed25519 or RSA PEM)       | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
 
 > **Note on `HOSTELGHAR_FRONTEND`:** If your repository already has the SSH key configured under the secret name `HOSTELGHAR_FRONTEND`, the workflow automatically detects and uses it as a fallback.
 
@@ -43,15 +45,20 @@ Configure these secrets in GitHub repository settings:
 ## 3. SSH Key Generation & cPanel Authorization
 
 ### Step 1: Generate an SSH Key Pair Locally
+
 Open your local terminal and generate a dedicated, unencrypted SSH key pair:
+
 ```bash
 ssh-keygen -t ed25519 -C "github-actions-hostelghar-frontend" -f ./cpanel_deploy_key -N ""
 ```
+
 This produces two files:
+
 - `cpanel_deploy_key` (Private key — goes to GitHub Secrets)
 - `cpanel_deploy_key.pub` (Public key — goes to cPanel)
 
 ### Step 2: Authorize Public Key in cPanel
+
 1. Log into cPanel (`server2.bisuphost.com:2083` or via your client area).
 2. Go to **Security** → **SSH Access**.
 3. Click **Manage SSH Keys** → **Import Key**.
@@ -61,6 +68,7 @@ This produces two files:
 7. In the Public Keys list, locate `hostelghar_deploy_key`, click **Manage**, and click **Authorize**.
 
 ### Step 3: Add Private Key to GitHub Actions
+
 1. Open the private key file `cpanel_deploy_key` in a text editor and copy the entire text (including `-----BEGIN ...-----` and `-----END ...-----`).
 2. In GitHub, go to **Settings** → **Secrets and variables** → **Actions**.
 3. Create a secret named `CPANEL_SSH_KEY` and paste the private key.
@@ -71,6 +79,7 @@ This produces two files:
 ## 4. cPanel "Setup Node.js App" Configuration
 
 In cPanel under **Software** → **Setup Node.js App**:
+
 - **Node.js version:** `22.x`
 - **Application mode:** `Production`
 - **Application root:** `hostelghar` (which corresponds to `/home/hostelgh/hostelghar`)
@@ -89,6 +98,7 @@ In cPanel under **Software** → **Setup Node.js App**:
 ## 5. Deployment Workflow Operation
 
 The GitHub Actions workflow `.github/workflows/deploy.yml`:
+
 1. **Triggers:** Automatically on every push to `main` and via manual trigger (`workflow_dispatch`).
 2. **Build Phase:**
    - Installs dependencies using `npm ci`.

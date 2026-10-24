@@ -89,7 +89,8 @@ const CTABanner = ({
         'rounded-3xl px-6 py-10 text-center md:p-12',
         variant === 'dark' && 'bg-brand-black',
         variant === 'black' && 'bg-black',
-        variant === 'tint' && 'bg-gradient-to-br from-brand-white via-[#f8ffed] to-[#e8ffcc] border border-brand-lime/30',
+        variant === 'tint' &&
+          'bg-gradient-to-br from-brand-white via-[#f8ffed] to-[#e8ffcc] border border-brand-lime/30',
         className
       )}
     >

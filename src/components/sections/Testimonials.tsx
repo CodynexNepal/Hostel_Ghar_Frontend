@@ -53,67 +53,67 @@ const testimonials = [
 const Testimonials = () => {
   return (
     <Section tone="white">
-        {/* Section Header */}
-        <SectionHeader
-          eyebrow="Testimonials"
-          title="What Our Clients Say"
-          description="Hear from hostel owners and travelers who have experienced our services"
-        />
+      {/* Section Header */}
+      <SectionHeader
+        eyebrow="Testimonials"
+        title="What Our Clients Say"
+        description="Hear from hostel owners and travelers who have experienced our services"
+      />
 
-        {/* Testimonials Carousel */}
-        <Carousel
-          itemsPerView={{ mobile: 1, tablet: 2, desktop: 3 }}
-          gap={24}
-          autoPlay={true}
-          autoPlayInterval={5000}
-          showDots={true}
-          showArrows={true}
-        >
-          {testimonials.map((testimonial, index) => (
-            <div
-              key={index}
-              className="p-6 bg-[#f8f8f8] rounded-2xl border border-neutral-100 hover:border-brand-lime/50 transition-all duration-300 h-full"
-            >
-              {/* Stars */}
-              <div className="flex gap-1 mb-5">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} size={18} fill="#B9FF66" stroke="#B9FF66" />
-                ))}
-              </div>
+      {/* Testimonials Carousel */}
+      <Carousel
+        itemsPerView={{ mobile: 1, tablet: 2, desktop: 3 }}
+        gap={24}
+        autoPlay={true}
+        autoPlayInterval={5000}
+        showDots={true}
+        showArrows={true}
+      >
+        {testimonials.map((testimonial, index) => (
+          <div
+            key={index}
+            className="p-6 bg-[#f8f8f8] rounded-2xl border border-neutral-100 hover:border-brand-lime/50 transition-all duration-300 h-full"
+          >
+            {/* Stars */}
+            <div className="flex gap-1 mb-5">
+              {[...Array(testimonial.rating)].map((_, i) => (
+                <Star key={i} size={18} fill="#B9FF66" stroke="#B9FF66" />
+              ))}
+            </div>
 
-              {/* Quote */}
-              <p className="text-neutral-600 leading-relaxed mb-6 italic">
-                &quot;{testimonial.quote}&quot;
-              </p>
+            {/* Quote */}
+            <p className="text-neutral-600 leading-relaxed mb-6 italic">
+              &quot;{testimonial.quote}&quot;
+            </p>
 
-              {/* Author */}
-              <div className="flex items-center gap-3">
-                <HostelImage
-                  src="/images/static/hostel.jpg"
-                  alt={`${testimonial.name} — happy Hostel Ghar guest`}
-                  aspect="square"
-                  rounded="full"
-                  objectPosition="center 40%"
-                  className="w-12 h-12 shrink-0 ring-2 ring-brand-lime/60"
-                  sizes="48px"
-                >
-                  <div className="flex h-full items-center justify-center bg-brand-black/35">
-                    <span className="text-xs font-bold text-white">
-                      {testimonial.name
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')}
-                    </span>
-                  </div>
-                </HostelImage>
-                <div>
-                  <p className="font-semibold text-brand-black">{testimonial.name}</p>
-                  <p className="text-sm text-neutral-500">{testimonial.role}</p>
+            {/* Author */}
+            <div className="flex items-center gap-3">
+              <HostelImage
+                src="/images/static/hostel.jpg"
+                alt={`${testimonial.name} — happy Hostel Ghar guest`}
+                aspect="square"
+                rounded="full"
+                objectPosition="center 40%"
+                className="w-12 h-12 shrink-0 ring-2 ring-brand-lime/60"
+                sizes="48px"
+              >
+                <div className="flex h-full items-center justify-center bg-brand-black/35">
+                  <span className="text-xs font-bold text-white">
+                    {testimonial.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')}
+                  </span>
                 </div>
+              </HostelImage>
+              <div>
+                <p className="font-semibold text-brand-black">{testimonial.name}</p>
+                <p className="text-sm text-neutral-500">{testimonial.role}</p>
               </div>
             </div>
-          ))}
-        </Carousel>
+          </div>
+        ))}
+      </Carousel>
     </Section>
   );
 };

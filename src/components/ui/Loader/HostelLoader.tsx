@@ -59,13 +59,35 @@ const HostelLoader = ({
               <path d="M8 44 L22 24 L36 44 Z" fill="#B9FF66" fillOpacity="0.45" />
               <path d="M24 44 L38 18 L52 44 Z" fill="#B9FF66" fillOpacity="0.7" />
               {/* building */}
-              <rect x="20" y="34" width="24" height="16" rx="2" fill="#fff" stroke="#010101" strokeWidth="2" />
+              <rect
+                x="20"
+                y="34"
+                width="24"
+                height="16"
+                rx="2"
+                fill="#fff"
+                stroke="#010101"
+                strokeWidth="2"
+              />
               <path d="M17 34 L32 25 L47 34 Z" fill="#010101" />
               {/* door with pulsing light */}
-              <rect x="29" y="39" width="6" height="11" rx="1" fill="#B9FF66" stroke="#010101" strokeWidth="1.5" className="animate-loader-door" />
+              <rect
+                x="29"
+                y="39"
+                width="6"
+                height="11"
+                rx="1"
+                fill="#B9FF66"
+                stroke="#010101"
+                strokeWidth="1.5"
+                className="animate-loader-door"
+              />
             </svg>
             {/* shine sweep */}
-            <div aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-brand-lime/40 to-transparent animate-loader-shine" />
+            <div
+              aria-hidden
+              className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-brand-lime/40 to-transparent animate-loader-shine"
+            />
           </div>
           {/* orbiting dot */}
           <span
@@ -81,8 +103,14 @@ const HostelLoader = ({
 
       {variant === 'pulse' && (
         <div className={cn('relative flex items-center justify-center', sizeStyles[size].box)}>
-          <span aria-hidden className="absolute inset-0 rounded-full bg-brand-lime/30 animate-ping" />
-          <span aria-hidden className="absolute inset-2 rounded-full bg-brand-lime/40 animate-pulse" />
+          <span
+            aria-hidden
+            className="absolute inset-0 rounded-full bg-brand-lime/30 animate-ping"
+          />
+          <span
+            aria-hidden
+            className="absolute inset-2 rounded-full bg-brand-lime/40 animate-pulse"
+          />
           <span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-black text-brand-lime font-extrabold text-xl shadow-lime animate-loader-bounce-soft">
             H
           </span>
@@ -120,7 +148,9 @@ const HostelLoader = ({
           <p className={cn('font-bold text-brand-black tracking-tight', sizeStyles[size].text)}>
             {label}
           </p>
-          <p className="mt-1 text-xs font-medium text-neutral-400">Hostel Ghar • Find • Book • Stay</p>
+          <p className="mt-1 text-xs font-medium text-neutral-400">
+            Hostel Ghar • Find • Book • Stay
+          </p>
         </div>
       )}
 
@@ -130,7 +160,12 @@ const HostelLoader = ({
 
   if (fullScreen) {
     return (
-      <div className={cn('fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md', className)}>
+      <div
+        className={cn(
+          'fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md',
+          className
+        )}
+      >
         {content}
       </div>
     );

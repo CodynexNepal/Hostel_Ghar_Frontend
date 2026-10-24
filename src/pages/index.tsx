@@ -20,19 +20,14 @@ import { Section, CTAButton } from '@/components/ui/Section';
 import { HostelImage } from '@/components/ui/Media';
 
 const HOME_FAQS = FAQS.filter((f) =>
-  ['cost-per-night', 'is-hostel-ghar-free', 'how-to-book', 'safe-for-solo-female'].includes(f.id),
+  ['cost-per-night', 'is-hostel-ghar-free', 'how-to-book', 'safe-for-solo-female'].includes(f.id)
 );
 
 export default function Home() {
   const meta = getPageMeta('/');
   return (
     <>
-      <Seo
-        title={meta.title}
-        description={meta.description}
-        path="/"
-        keywords={meta.keywords}
-      />
+      <Seo title={meta.title} description={meta.description} path="/" keywords={meta.keywords} />
       <JsonLd
         data={[
           breadcrumbJsonLd([{ name: 'Home', path: '/' }]),
@@ -42,9 +37,18 @@ export default function Home() {
             name: 'How to book a hostel on Hostel Ghar',
             description: 'Book a verified hostel in Nepal in under 2 minutes.',
             steps: [
-              { name: 'Search by city', text: 'Enter Kathmandu, Pokhara, Chitwan or any of 50+ cities and pick your dates.' },
-              { name: 'Compare verified stays', text: 'Filter by price (NPR 600+), dorm or private room, amenities and real traveler reviews.' },
-              { name: 'Confirm instantly', text: 'One-click booking with instant SMS + email confirmation. Pay at the property on most listings.' },
+              {
+                name: 'Search by city',
+                text: 'Enter Kathmandu, Pokhara, Chitwan or any of 50+ cities and pick your dates.',
+              },
+              {
+                name: 'Compare verified stays',
+                text: 'Filter by price (NPR 600+), dorm or private room, amenities and real traveler reviews.',
+              },
+              {
+                name: 'Confirm instantly',
+                text: 'One-click booking with instant SMS + email confirmation. Pay at the property on most listings.',
+              },
             ],
           }),
         ]}
@@ -56,77 +60,76 @@ export default function Home() {
 
         {/* Hero Section */}
         <Section tone="tint" spacing="lg" className="relative overflow-hidden pt-16 md:pt-24">
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-              {/* Left Content */}
-              <div className="space-y-7 animate-slide-up order-2 lg:order-1">
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-lime/20 text-brand-black text-sm font-semibold tracking-tight">
-                  <span className="text-lg">🏔️</span> #1 Hostel Booking Platform in Nepal
-                </span>
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left Content */}
+            <div className="space-y-7 animate-slide-up order-2 lg:order-1">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-lime/20 text-brand-black text-sm font-semibold tracking-tight">
+                <span className="text-lg">🏔️</span> #1 Hostel Booking Platform in Nepal
+              </span>
 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-black leading-[1.1] tracking-tight">
-                  Find Your Perfect{' '}
-                  <span className="relative inline-block">
-                    <span className="relative z-10">Hostel</span>
-                    <span className="absolute bottom-2 left-0 right-0 h-3 bg-brand-lime/50 -z-0 rounded-sm"></span>
-                  </span>{' '}
-                  Away From Home
-                </h1>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-black leading-[1.1] tracking-tight">
+                Find Your Perfect{' '}
+                <span className="relative inline-block">
+                  <span className="relative z-10">Hostel</span>
+                  <span className="absolute bottom-2 left-0 right-0 h-3 bg-brand-lime/50 -z-0 rounded-sm"></span>
+                </span>{' '}
+                Away From Home
+              </h1>
 
-                <p className="text-lg md:text-xl text-neutral-600 max-w-lg leading-relaxed">
-                  Discover affordable, comfortable, and safe hostels across Nepal. Whether
-                  you&apos;re a backpacker, student, or digital nomad, we&apos;ve got the perfect
-                  place for you.
-                </p>
+              <p className="text-lg md:text-xl text-neutral-600 max-w-lg leading-relaxed">
+                Discover affordable, comfortable, and safe hostels across Nepal. Whether you&apos;re
+                a backpacker, student, or digital nomad, we&apos;ve got the perfect place for you.
+              </p>
 
-                <div className="flex flex-wrap gap-4 pt-2">
-                  <CTAButton href="/hostels" variant="dark" arrow="right">
-                    Explore Hostels
-                  </CTAButton>
-                  <CTAButton href="/list-hostel" variant="lime">
-                    List Your Hostel
-                  </CTAButton>
-                </div>
-
-                <div className="flex items-center gap-6 sm:gap-8 pt-4">
-                  <div className="text-center">
-                    <p className="text-3xl md:text-4xl font-extrabold text-brand-black">500+</p>
-                    <p className="text-sm text-neutral-500 font-medium">Hostels Listed</p>
-                  </div>
-                  <div className="h-10 w-px bg-neutral-200"></div>
-                  <div className="text-center">
-                    <p className="text-3xl md:text-4xl font-extrabold text-brand-black">10K+</p>
-                    <p className="text-sm text-neutral-500 font-medium">Happy Travelers</p>
-                  </div>
-                  <div className="h-10 w-px bg-neutral-200"></div>
-                  <div className="text-center">
-                    <p className="text-3xl md:text-4xl font-extrabold text-brand-black">50+</p>
-                    <p className="text-sm text-neutral-500 font-medium">Cities Covered</p>
-                  </div>
-                </div>
+              <div className="flex flex-wrap gap-4 pt-2">
+                <CTAButton href="/hostels" variant="dark" arrow="right">
+                  Explore Hostels
+                </CTAButton>
+                <CTAButton href="/list-hostel" variant="lime">
+                  List Your Hostel
+                </CTAButton>
               </div>
 
-              {/* Right Illustration */}
-              <div className="relative animate-fade-in order-1 lg:order-2">
-                <div className="relative z-10">
-                  <HostelImage
-                    src="/images/static/hostel.jpg"
-                    alt="Cozy hostel room in Nepal listed on Hostel Ghar"
-                    priority
-                    framed
-                    aspect="wide"
-                    className="mx-auto max-w-md shadow-lime"
-                  />
+              <div className="flex items-center gap-6 sm:gap-8 pt-4">
+                <div className="text-center">
+                  <p className="text-3xl md:text-4xl font-extrabold text-brand-black">500+</p>
+                  <p className="text-sm text-neutral-500 font-medium">Hostels Listed</p>
                 </div>
-                {/* Decorative Elements */}
-                <div className="absolute -top-6 -right-6 w-64 h-64 bg-brand-lime/20 rounded-full blur-3xl"></div>
-                <div className="absolute -bottom-8 -left-8 w-56 h-56 bg-brand-lime/15 rounded-full blur-3xl"></div>
-                <div className="absolute top-1/2 -right-4 w-4 h-4 bg-brand-lime rounded-full animate-bounce-soft"></div>
-                <div
-                  className="absolute top-1/4 -left-2 w-3 h-3 bg-brand-lime/60 rounded-full animate-bounce-soft"
-                  style={{ animationDelay: '0.5s' }}
-                ></div>
+                <div className="h-10 w-px bg-neutral-200"></div>
+                <div className="text-center">
+                  <p className="text-3xl md:text-4xl font-extrabold text-brand-black">10K+</p>
+                  <p className="text-sm text-neutral-500 font-medium">Happy Travelers</p>
+                </div>
+                <div className="h-10 w-px bg-neutral-200"></div>
+                <div className="text-center">
+                  <p className="text-3xl md:text-4xl font-extrabold text-brand-black">50+</p>
+                  <p className="text-sm text-neutral-500 font-medium">Cities Covered</p>
+                </div>
               </div>
             </div>
+
+            {/* Right Illustration */}
+            <div className="relative animate-fade-in order-1 lg:order-2">
+              <div className="relative z-10">
+                <HostelImage
+                  src="/images/static/hostel.jpg"
+                  alt="Cozy hostel room in Nepal listed on Hostel Ghar"
+                  priority
+                  framed
+                  aspect="wide"
+                  className="mx-auto max-w-md shadow-lime"
+                />
+              </div>
+              {/* Decorative Elements */}
+              <div className="absolute -top-6 -right-6 w-64 h-64 bg-brand-lime/20 rounded-full blur-3xl"></div>
+              <div className="absolute -bottom-8 -left-8 w-56 h-56 bg-brand-lime/15 rounded-full blur-3xl"></div>
+              <div className="absolute top-1/2 -right-4 w-4 h-4 bg-brand-lime rounded-full animate-bounce-soft"></div>
+              <div
+                className="absolute top-1/4 -left-2 w-3 h-3 bg-brand-lime/60 rounded-full animate-bounce-soft"
+                style={{ animationDelay: '0.5s' }}
+              ></div>
+            </div>
+          </div>
         </Section>
 
         <Services />

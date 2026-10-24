@@ -104,12 +104,37 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
                   Book this hostel <ArrowRight size={17} aria-hidden />
                 </button>
                 <a
-                  href="tel:+97711234567"
+                  href={`tel:${hostel.phone || '+9779817161246'}`}
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-brand-black text-white font-semibold rounded-xl hover:bg-brand-black/85 transition-colors"
                 >
-                  <Phone size={17} aria-hidden /> Call hostel
+                  <Phone size={17} aria-hidden /> Call hostel{' '}
+                  {hostel.phone ? `(${hostel.phone})` : ''}
                 </a>
               </div>
+              {hostel.owner && (
+                <div className="mt-6 p-4 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center gap-4">
+                  {hostel.owner.avatarUrl && (
+                    <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-brand-lime flex-shrink-0">
+                      <Image
+                        src={hostel.owner.avatarUrl}
+                        alt={`${hostel.owner.firstName || ''} ${hostel.owner.lastName || ''}`}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs text-neutral-500 font-medium">Verified Property Owner</p>
+                    <p className="text-sm font-bold text-brand-black">
+                      {[hostel.owner.firstName, hostel.owner.lastName].filter(Boolean).join(' ')}
+                    </p>
+                    {hostel.owner.phone && (
+                      <p className="text-xs text-neutral-500">{hostel.owner.phone}</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <section className="mt-12 max-w-3xl">
@@ -129,7 +154,7 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
         <BookingModal
           isOpen={isBookingOpen}
           onClose={() => setIsBookingOpen(false)}
-          hostelId={hostel.slug}
+          hostelId={hostel.id || hostel.slug}
           hostelName={hostel.name}
         />
       </main>
@@ -155,22 +180,26 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     if (res?.data) {
       const data = res.data;
       const apiHostel: Hostel = {
+        id: data.id,
         slug: data.id,
         name: data.name,
         city: data.city || 'Kathmandu',
-        area: [data.address, data.city].filter(Boolean).join(', ') || 'Nepal',
+        area: [data.address, data.city].filter(Boolean).join(', ') || 'Banasthali-16, Kathmandu',
         priceFrom: 1200,
-        originalPrice: null,
+        originalPrice: 1500,
         rating: 4.8,
         reviews: 0,
         roomType: data.type
           ? `${data.type.charAt(0).toUpperCase() + data.type.slice(1).toLowerCase()} Hostel`
-          : 'Hostel',
+          : 'Boys Hostel',
         amenities: (data.hostelFacilities
           ?.map((f) => f.facility?.name)
-          .filter(Boolean) as string[]) || ['Free WiFi'],
+          .filter(Boolean) as string[]) || ['Free WiFi', 'Breakfast', 'Hot Water'],
         image: data.logoUrl || '/images/static/hostel.jpg',
         description: `${data.name} is a verified hostel located in ${data.address || data.city}. Contact phone: ${data.phone || 'N/A'}.`,
+        phone: data.phone || null,
+        email: data.email || null,
+        owner: data.owner || null,
       };
       return { props: { hostel: apiHostel }, revalidate: 60 };
     }

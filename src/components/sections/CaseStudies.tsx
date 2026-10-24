@@ -65,44 +65,44 @@ const caseStudies = [
 const CaseStudies = () => {
   return (
     <Section tone="gray">
-        {/* Section Header */}
-        <SectionHeader
-          eyebrow="Case Studies"
-          title="Real Success Stories"
-          description="Explore real-life examples of how we've helped hostels grow their online presence"
-        />
+      {/* Section Header */}
+      <SectionHeader
+        eyebrow="Case Studies"
+        title="Real Success Stories"
+        description="Explore real-life examples of how we've helped hostels grow their online presence"
+      />
 
-        {/* Case Studies Carousel */}
-        <Carousel
-          itemsPerView={{ mobile: 1, tablet: 2, desktop: 3 }}
-          gap={24}
-          showDots={true}
-          showArrows={true}
-        >
-          {caseStudies.map((study, index) => (
-            <div
-              key={index}
-              className="group overflow-hidden bg-white rounded-2xl border border-neutral-100 hover:border-brand-lime/50 transition-all duration-300 h-full"
+      {/* Case Studies Carousel */}
+      <Carousel
+        itemsPerView={{ mobile: 1, tablet: 2, desktop: 3 }}
+        gap={24}
+        showDots={true}
+        showArrows={true}
+      >
+        {caseStudies.map((study, index) => (
+          <div
+            key={index}
+            className="group overflow-hidden bg-white rounded-2xl border border-neutral-100 hover:border-brand-lime/50 transition-all duration-300 h-full"
+          >
+            <HostelImage
+              src="/images/static/hostel.jpg"
+              alt={`${study.title} — hostel listed on Hostel Ghar`}
+              aspect="video"
+              rounded="none"
+              zoomOnHover
+              objectPosition={index % 2 === 0 ? 'center 30%' : 'center 70%'}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             >
-              <HostelImage
-                src="/images/static/hostel.jpg"
-                alt={`${study.title} — hostel listed on Hostel Ghar`}
-                aspect="video"
-                rounded="none"
-                zoomOnHover
-                objectPosition={index % 2 === 0 ? 'center 30%' : 'center 70%'}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              >
-                <div className="flex items-start justify-between p-4">
-                  <span className="px-3 py-1.5 rounded-full bg-brand-black/80 backdrop-blur text-white text-xs font-bold">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span className="px-3 py-1.5 rounded-full bg-brand-lime text-brand-black text-xs font-bold">
-                    {study.stats[0]?.value} {study.stats[0]?.label}
-                  </span>
-                </div>
-              </HostelImage>
-              <div className="p-6">
+              <div className="flex items-start justify-between p-4">
+                <span className="px-3 py-1.5 rounded-full bg-brand-black/80 backdrop-blur text-white text-xs font-bold">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span className="px-3 py-1.5 rounded-full bg-brand-lime text-brand-black text-xs font-bold">
+                  {study.stats[0]?.value} {study.stats[0]?.label}
+                </span>
+              </div>
+            </HostelImage>
+            <div className="p-6">
               <h3 className="text-xl font-bold text-brand-black mb-3">{study.title}</h3>
               <p className="text-neutral-600 leading-relaxed mb-5">{study.description}</p>
 
@@ -119,10 +119,10 @@ const CaseStudies = () => {
                 Read More
                 <ArrowUpRight size={16} strokeWidth={2.5} />
               </button>
-              </div>
             </div>
-          ))}
-        </Carousel>
+          </div>
+        ))}
+      </Carousel>
     </Section>
   );
 };

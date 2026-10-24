@@ -12,11 +12,21 @@ export default function GuidesPage() {
   const meta = getPageMeta('/guides');
   return (
     <>
-      <Seo title={meta.title} description={meta.description} path="/guides" keywords={meta.keywords} />
+      <Seo
+        title={meta.title}
+        description={meta.description}
+        path="/guides"
+        keywords={meta.keywords}
+      />
       <main className="min-h-screen bg-white">
         <Header />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
-          <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Guides', path: '/guides' }]} />
+          <Breadcrumbs
+            items={[
+              { label: 'Home', path: '/' },
+              { label: 'Guides', path: '/guides' },
+            ]}
+          />
           <div className="text-center mb-12">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-lime/20 text-brand-black text-sm font-semibold">
               <BookOpen size={16} aria-hidden /> Original research + field guides
@@ -31,15 +41,32 @@ export default function GuidesPage() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {GUIDES.map((g) => (
-              <Link key={g.slug} href={`/guides/${g.slug}`} className="group bg-white border border-neutral-100 rounded-2xl p-6 hover:border-brand-lime hover:shadow-soft transition-all">
-                <p className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2">{g.category}</p>
-                <h2 className="text-xl font-extrabold text-brand-black leading-snug mb-2 group-hover:underline underline-offset-4 decoration-brand-lime decoration-2">{g.title}</h2>
+              <Link
+                key={g.slug}
+                href={`/guides/${g.slug}`}
+                className="group bg-white border border-neutral-100 rounded-2xl p-6 hover:border-brand-lime hover:shadow-soft transition-all"
+              >
+                <p className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2">
+                  {g.category}
+                </p>
+                <h2 className="text-xl font-extrabold text-brand-black leading-snug mb-2 group-hover:underline underline-offset-4 decoration-brand-lime decoration-2">
+                  {g.title}
+                </h2>
                 <p className="text-[15px] text-neutral-600 leading-relaxed mb-4">{g.description}</p>
                 <p className="text-sm text-neutral-400 flex items-center gap-3 mb-4">
                   <span>By {g.author.name}</span>
-                  <span className="inline-flex items-center gap-1"><Clock3 size={14} aria-hidden /> {g.readMinutes} min</span>
+                  <span className="inline-flex items-center gap-1">
+                    <Clock3 size={14} aria-hidden /> {g.readMinutes} min
+                  </span>
                 </p>
-                <span className="inline-flex items-center gap-1 text-sm font-bold text-brand-black">Read guide <ArrowRight size={15} aria-hidden className="group-hover:translate-x-0.5 transition-transform" /></span>
+                <span className="inline-flex items-center gap-1 text-sm font-bold text-brand-black">
+                  Read guide{' '}
+                  <ArrowRight
+                    size={15}
+                    aria-hidden
+                    className="group-hover:translate-x-0.5 transition-transform"
+                  />
+                </span>
               </Link>
             ))}
           </div>

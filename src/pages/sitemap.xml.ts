@@ -39,7 +39,7 @@ function buildSitemap(): string {
     <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority.toFixed(1)}</priority>
-  </url>`,
+  </url>`
     )
     .join('\n');
 

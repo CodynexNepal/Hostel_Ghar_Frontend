@@ -13,8 +13,10 @@ import AuthLayout from '@/components/auth/AuthLayout';
 import { loginSchema, type LoginFormData } from '@/lib/validation';
 import { login } from '@/lib/api/auth';
 
-const inputBase = 'w-full rounded-xl border bg-neutral-50/50 py-3 pl-11 pr-4 text-sm text-brand-black outline-none transition-all duration-200 placeholder:text-neutral-400 sm:text-[15px]';
-const inputOk = 'border-neutral-200 hover:border-neutral-300 focus:border-brand-lime focus:bg-white focus:ring-4 focus:ring-brand-lime/20';
+const inputBase =
+  'w-full rounded-xl border bg-neutral-50/50 py-3 pl-11 pr-4 text-sm text-brand-black outline-none transition-all duration-200 placeholder:text-neutral-400 sm:text-[15px]';
+const inputOk =
+  'border-neutral-200 hover:border-neutral-300 focus:border-brand-lime focus:bg-white focus:ring-4 focus:ring-brand-lime/20';
 const inputErr = 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/15';
 
 const Login = () => {
@@ -25,7 +27,11 @@ const Login = () => {
   const router = useRouter();
   const errRef = useRef<HTMLDivElement>(null);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
 
   useEffect(() => {
     if (localStorage.getItem('rememberEmail')) setRememberMe(true);
@@ -51,7 +57,10 @@ const Login = () => {
     <>
       <Head>
         <title>Login | Hostel Ghar</title>
-        <meta name="description" content="Sign in to your Hostel Ghar account to find and book the best hostels across Nepal." />
+        <meta
+          name="description"
+          content="Sign in to your Hostel Ghar account to find and book the best hostels across Nepal."
+        />
       </Head>
 
       <Header />
@@ -60,7 +69,11 @@ const Login = () => {
         badge="Members get more"
         title="Welcome back!"
         subtitle="Your next adventure awaits — pick up right where you left off."
-        benefits={['Access 500+ verified hostels', 'Manage your bookings easily', 'Exclusive member discounts']}
+        benefits={[
+          'Access 500+ verified hostels',
+          'Manage your bookings easily',
+          'Exclusive member discounts',
+        ]}
         trust="Your data is protected with 256-bit encryption"
         mobileBrand="Hostel Ghar"
       >
@@ -71,11 +84,18 @@ const Login = () => {
             </span>
             Welcome back
           </h1>
-          <p className="mt-2 text-sm text-neutral-500 sm:text-[15px]">Sign in to continue to your account.</p>
+          <p className="mt-2 text-sm text-neutral-500 sm:text-[15px]">
+            Sign in to continue to your account.
+          </p>
         </div>
 
         {loginError && (
-          <div ref={errRef} tabIndex={-1} role="alert" className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 outline-none">
+          <div
+            ref={errRef}
+            tabIndex={-1}
+            role="alert"
+            className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 outline-none"
+          >
             <AlertCircle size={19} strokeWidth={2} className="mt-0.5 shrink-0 text-red-500" />
             <p className="text-sm font-medium text-red-700">{loginError}</p>
           </div>
@@ -84,31 +104,84 @@ const Login = () => {
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
           <div>
             <label htmlFor="login-email" className="mb-2 block text-sm font-bold text-brand-black">
-              Email <span className="text-red-500" aria-hidden>*</span>
+              Email{' '}
+              <span className="text-red-500" aria-hidden>
+                *
+              </span>
             </label>
             <div className="relative">
-              <Mail size={18} strokeWidth={2} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input id="login-email" type="email" autoComplete="email" placeholder="you@example.com" {...register('email')} aria-invalid={!!errors.email} aria-describedby={errors.email ? 'login-email-error' : undefined} className={`${inputBase} ${errors.email ? inputErr : inputOk}`} />
+              <Mail
+                size={18}
+                strokeWidth={2}
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
+              />
+              <input
+                id="login-email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                {...register('email')}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'login-email-error' : undefined}
+                className={`${inputBase} ${errors.email ? inputErr : inputOk}`}
+              />
             </div>
             {errors.email && (
-              <p id="login-email-error" role="alert" className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500">
+              <p
+                id="login-email-error"
+                role="alert"
+                className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500"
+              >
                 <AlertCircle size={14} strokeWidth={2} /> {errors.email.message}
               </p>
             )}
           </div>
           <div>
-            <label htmlFor="login-password" className="mb-2 block text-sm font-bold text-brand-black">
-              Password <span className="text-red-500" aria-hidden>*</span>
+            <label
+              htmlFor="login-password"
+              className="mb-2 block text-sm font-bold text-brand-black"
+            >
+              Password{' '}
+              <span className="text-red-500" aria-hidden>
+                *
+              </span>
             </label>
             <div className="relative">
-              <Lock size={18} strokeWidth={2} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input id="login-password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Enter your password" {...register('password')} aria-invalid={!!errors.password} aria-describedby={errors.password ? 'login-password-error' : undefined} className={`${inputBase} pr-12 ${errors.password ? inputErr : inputOk}`} />
-              <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} className="absolute right-2.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-brand-black">
-                {showPassword ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
+              <Lock
+                size={18}
+                strokeWidth={2}
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
+              />
+              <input
+                id="login-password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                {...register('password')}
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'login-password-error' : undefined}
+                className={`${inputBase} pr-12 ${errors.password ? inputErr : inputOk}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
+                className="absolute right-2.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-brand-black"
+              >
+                {showPassword ? (
+                  <EyeOff size={18} strokeWidth={2} />
+                ) : (
+                  <Eye size={18} strokeWidth={2} />
+                )}
               </button>
             </div>
             {errors.password && (
-              <p id="login-password-error" role="alert" className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500">
+              <p
+                id="login-password-error"
+                role="alert"
+                className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500"
+              >
                 <AlertCircle size={14} strokeWidth={2} /> {errors.password.message}
               </p>
             )}
@@ -116,21 +189,44 @@ const Login = () => {
 
           <div className="flex items-center justify-between text-sm">
             <label className="flex cursor-pointer select-none items-center gap-2 font-medium text-neutral-600">
-              <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-[#65a30d]" />
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-[#65a30d]"
+              />
               Remember me
             </label>
-            <Link href="/forgot-password" className="rounded font-bold text-brand-black underline-offset-4 hover:underline">
+            <Link
+              href="/forgot-password"
+              className="rounded font-bold text-brand-black underline-offset-4 hover:underline"
+            >
               Forgot password?
             </Link>
           </div>
 
-          <button type="submit" disabled={isLoading} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-black py-3.5 text-[15px] font-bold text-white shadow-hard transition-all duration-200 hover:-translate-y-px hover:bg-neutral-800 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0">
-            {isLoading ? (<><Loader2 size={17} strokeWidth={2.5} className="animate-spin" /> Signing you in…</>) : (<>Sign in <ArrowRight size={17} strokeWidth={2.5} /></>)}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-black py-3.5 text-[15px] font-bold text-white shadow-hard transition-all duration-200 hover:-translate-y-px hover:bg-neutral-800 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 size={17} strokeWidth={2.5} className="animate-spin" /> Signing you in…
+              </>
+            ) : (
+              <>
+                Sign in <ArrowRight size={17} strokeWidth={2.5} />
+              </>
+            )}
           </button>
 
           <p className="pt-1 text-center text-sm text-neutral-500">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="font-bold text-brand-black underline decoration-brand-lime decoration-2 underline-offset-4 hover:decoration-4">
+            <Link
+              href="/register"
+              className="font-bold text-brand-black underline decoration-brand-lime decoration-2 underline-offset-4 hover:decoration-4"
+            >
               Create account
             </Link>
           </p>

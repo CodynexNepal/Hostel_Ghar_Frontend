@@ -23,8 +23,7 @@ const inputBase =
   'w-full rounded-xl border bg-neutral-50/50 py-3 pl-11 pr-4 text-sm text-brand-black outline-none transition-all duration-200 placeholder:text-neutral-400 sm:text-[15px]';
 const inputOk =
   'border-neutral-200 hover:border-neutral-300 focus:border-brand-lime focus:bg-white focus:ring-4 focus:ring-brand-lime/20';
-const inputErr =
-  'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/15';
+const inputErr = 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/15';
 
 const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +32,11 @@ const ForgotPassword = () => {
   const router = useRouter();
   const errRef = useRef<HTMLDivElement>(null);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<ForgotPasswordFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordFormData>({
     resolver: yupResolver(forgotPasswordSchema),
   });
 
@@ -65,7 +68,11 @@ const ForgotPassword = () => {
           badge="Reset your password"
           title="Check your inbox"
           subtitle="We’ve sent a password-reset link to your email address."
-          benefits={['Link expires in 60 minutes', 'Create a new strong password', 'Secure & encrypted']}
+          benefits={[
+            'Link expires in 60 minutes',
+            'Create a new strong password',
+            'Secure & encrypted',
+          ]}
           trust="If you don’t see the email, check your spam folder."
           mobileBrand="Hostel Ghar"
         >
@@ -126,7 +133,12 @@ const ForgotPassword = () => {
         </div>
 
         {forgotError && (
-          <div ref={errRef} tabIndex={-1} role="alert" className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 outline-none">
+          <div
+            ref={errRef}
+            tabIndex={-1}
+            role="alert"
+            className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 outline-none"
+          >
             <AlertCircle size={19} strokeWidth={2} className="mt-0.5 shrink-0 text-red-500" />
             <p className="text-sm font-medium text-red-700">{forgotError}</p>
           </div>
@@ -135,10 +147,17 @@ const ForgotPassword = () => {
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div>
             <label htmlFor="forgot-email" className="mb-2 block text-sm font-bold text-brand-black">
-              Email address <span className="text-red-500" aria-hidden>*</span>
+              Email address{' '}
+              <span className="text-red-500" aria-hidden>
+                *
+              </span>
             </label>
             <div className="relative">
-              <Mail size={18} strokeWidth={2} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+              <Mail
+                size={18}
+                strokeWidth={2}
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
+              />
               <input
                 id="forgot-email"
                 type="email"
@@ -151,7 +170,11 @@ const ForgotPassword = () => {
               />
             </div>
             {errors.email && (
-              <p id="forgot-email-error" role="alert" className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500">
+              <p
+                id="forgot-email-error"
+                role="alert"
+                className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500"
+              >
                 <AlertCircle size={14} strokeWidth={2} /> {errors.email.message}
               </p>
             )}
@@ -175,7 +198,10 @@ const ForgotPassword = () => {
 
           <p className="pt-1 text-center text-sm text-neutral-500">
             Remember your password?{' '}
-            <Link href="/login" className="font-bold text-brand-black underline decoration-brand-lime decoration-2 underline-offset-4 hover:decoration-4">
+            <Link
+              href="/login"
+              className="font-bold text-brand-black underline decoration-brand-lime decoration-2 underline-offset-4 hover:decoration-4"
+            >
               Sign in
             </Link>
           </p>
