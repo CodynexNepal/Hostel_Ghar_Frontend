@@ -12,6 +12,21 @@ export interface Hostel {
   isActive?: boolean;
   createdAt: string;
   owner?: HostelOwner | null;
+  monthlyPrice?: number;
+  priceFrom?: number;
+  totalBeds?: number;
+  availableBeds?: number;
+  totalStudents?: number;
+}
+
+export interface HostelFacility {
+  id: string;
+  title: string;
+  slug?: string;
+  facilityId?: string;
+  description?: string | null;
+  tag?: string;
+  clientKey?: string | null;
 }
 
 export interface HostelFacilityItem {
@@ -19,10 +34,13 @@ export interface HostelFacilityItem {
   facilityId: string;
   facility?: {
     id: string;
-    name: string;
+    name?: string;
+    title?: string;
     icon?: string;
     description?: string;
   };
+  description?: string | null;
+  tag?: string;
 }
 
 export interface HostelOwner {
@@ -41,6 +59,7 @@ export interface HostelDetail extends Hostel {
   updatedAt?: string;
   owner?: HostelOwner;
   hostelFacilities?: HostelFacilityItem[];
+  facilities?: HostelFacility[];
 }
 
 export interface SingleHostelResponse {
@@ -88,6 +107,19 @@ export const listHostels = async (params: ListHostelsParams = {}): Promise<ListH
  */
 export const getHostelById = async (id: string): Promise<SingleHostelResponse> => {
   const response = await apiClient.get<SingleHostelResponse>(`/hostels/${id}`);
+  return response.data;
+};
+
+/**
+ * Gets normalized facilities for a hostel.
+ * GET /api/v1/hostel-ghar/hostels/:hostelId/facilities
+ */
+export const getHostelFacilities = async (
+  hostelId: string
+): Promise<{ success: boolean; data: HostelFacility[] }> => {
+  const response = await apiClient.get<{ success: boolean; data: HostelFacility[] }>(
+    `/hostels/${hostelId}/facilities`
+  );
   return response.data;
 };
 

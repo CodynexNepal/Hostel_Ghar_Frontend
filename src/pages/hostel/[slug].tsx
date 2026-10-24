@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,16 +10,72 @@ import Breadcrumbs from '@/components/seo/Breadcrumbs';
 import DirectAnswer from '@/components/aeo/DirectAnswer';
 import FaqAccordion from '@/components/aeo/FaqAccordion';
 import BookingModal from '@/components/booking/BookingModal';
-import { HOSTELS, getHostelBySlug, type Hostel } from '@/data/hostels';
-import { getHostelById } from '@/lib/api/hostels';
+import StarRating from '@/components/hostel/StarRating';
+import { HOSTELS, getHostelBySlug, type Hostel, type DetailedFacility } from '@/data/hostels';
+import { getHostelById, getHostelFacilities } from '@/lib/api/hostels';
 import { FAQS } from '@/data/faqs';
 import { hostelJsonLd, faqJsonLd } from '@/lib/seo/jsonLd';
-import { MapPin, Star, BadgeCheck, ArrowRight, Phone } from 'lucide-react';
+import {
+  MapPin,
+  Star,
+  BadgeCheck,
+  ArrowRight,
+  Phone,
+  BedDouble,
+  Users,
+  Tag,
+  CheckCircle2,
+  Wifi,
+  Coffee,
+  ShieldCheck,
+  Zap,
+  BookOpen,
+  Sparkles,
+} from 'lucide-react';
 
 export default function HostelDetail({ hostel }: { hostel: Hostel }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [facilities, setFacilities] = useState<DetailedFacility[]>(
+    hostel.detailedFacilities || []
+  );
+
   const faqs = FAQS.filter((f) => ['cancellation', 'payment-methods'].includes(f.id));
   const isExternal = hostel.image.startsWith('http://') || hostel.image.startsWith('https://');
+
+  // Attempt client-side load of extra normalized facilities if backend is live
+  useEffect(() => {
+    let cancelled = false;
+    if (hostel.id) {
+      getHostelFacilities(hostel.id)
+        .then((res) => {
+          if (!cancelled && res?.data && res.data.length > 0) {
+            const mapped: DetailedFacility[] = res.data.map((f) => ({
+              id: f.id,
+              title: f.title,
+              description: f.description || 'Verified on-site hostel amenity',
+              tag: f.tag || 'Included',
+            }));
+            setFacilities(mapped);
+          }
+        })
+        .catch(() => {
+          // Keep static catalog facilities fallback cleanly
+        });
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [hostel.id]);
+
+  const getFacilityIcon = (title: string) => {
+    const t = title.toLowerCase();
+    if (t.includes('wifi') || t.includes('internet')) return <Wifi size={18} className="text-blue-500" />;
+    if (t.includes('meal') || t.includes('food') || t.includes('breakfast')) return <Coffee size={18} className="text-amber-500" />;
+    if (t.includes('cctv') || t.includes('security') || t.includes('guard')) return <ShieldCheck size={18} className="text-emerald-500" />;
+    if (t.includes('power') || t.includes('backup') || t.includes('inverter') || t.includes('electric')) return <Zap size={18} className="text-yellow-500" />;
+    if (t.includes('study') || t.includes('desk') || t.includes('silent')) return <BookOpen size={18} className="text-purple-500" />;
+    return <Sparkles size={18} className="text-brand-black" />;
+  };
 
   return (
     <>
@@ -47,7 +103,7 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
       />
       <main className="min-h-screen bg-white">
         <Header />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24">
           <Breadcrumbs
             items={[
               { label: 'Home', path: '/' },
@@ -55,65 +111,137 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
               { label: hostel.name, path: `/hostel/${hostel.slug}` },
             ]}
           />
-          <div className="grid lg:grid-cols-2 gap-10 items-start">
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-neutral-100">
-              <Image
-                src={hostel.image}
-                alt={`${hostel.name}, ${hostel.area}`}
-                fill
-                unoptimized={isExternal}
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
-              />
-              <span className="absolute top-4 left-4 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-brand-lime text-brand-black text-xs font-bold">
-                <BadgeCheck size={14} aria-hidden /> Verified
-              </span>
-            </div>
-            <div>
-              <p className="flex items-center gap-1.5 text-sm font-semibold text-neutral-500 mb-2">
-                <MapPin size={15} aria-hidden /> {hostel.area}
-              </p>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-brand-black tracking-tight mb-3">
-                {hostel.name}
-              </h1>
-              <p className="flex items-center gap-2 mb-4">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-black text-white text-sm font-bold">
-                  <Star size={14} aria-hidden fill="#B9FF66" stroke="#B9FF66" /> {hostel.rating}
-                </span>
-                <span className="text-sm text-neutral-500 font-medium">
-                  {hostel.reviews} reviews · {hostel.roomType}
-                </span>
-              </p>
-              <DirectAnswer
-                question={`How much does ${hostel.name} cost?`}
-                answer={`${hostel.roomType}s at ${hostel.name}, ${hostel.area} start at NPR ${hostel.priceFrom}/night. Rated ${hostel.rating}/5 from ${hostel.reviews} verified stays. Free cancellation on most bookings.`}
-              />
-              <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-4xl font-extrabold text-brand-black">
-                  NPR {hostel.priceFrom.toLocaleString()}
-                </span>
-                <span className="text-neutral-500 font-medium">/ night</span>
+
+          <div className="grid lg:grid-cols-12 gap-10 items-start mt-4">
+            {/* Left Image & Visuals (7 cols) */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-neutral-100 shadow-sm border border-neutral-100">
+                <Image
+                  src={hostel.image}
+                  alt={`${hostel.name}, ${hostel.area}`}
+                  fill
+                  unoptimized={isExternal}
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  priority
+                />
+                <div className="absolute top-4 left-4 flex gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-lime text-brand-black text-xs font-bold shadow-sm">
+                    <BadgeCheck size={14} aria-hidden /> Physically Verified
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-brand-black/85 text-white text-xs font-semibold backdrop-blur-sm">
+                    {hostel.roomType}
+                  </span>
+                </div>
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-none">
+                  <span className="px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur-md text-emerald-800 text-xs font-extrabold flex items-center gap-1.5 shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    {hostel.availableBeds} Beds Free
+                  </span>
+                  <span className="px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur-md text-neutral-800 text-xs font-bold shadow-sm">
+                    {hostel.totalStudents} Active Students
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-3">
+
+              {/* Key Overview Highlights */}
+              <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-neutral-50 border border-neutral-100 text-center">
+                <div className="p-2">
+                  <div className="w-8 h-8 mx-auto mb-1 rounded-lg bg-brand-lime/30 flex items-center justify-center text-brand-black">
+                    <Tag size={16} />
+                  </div>
+                  <p className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">Monthly Rent</p>
+                  <p className="text-base font-extrabold text-neutral-900">
+                    Rs. {hostel.monthlyPrice.toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-2 border-x border-neutral-200">
+                  <div className="w-8 h-8 mx-auto mb-1 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
+                    <BedDouble size={16} />
+                  </div>
+                  <p className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">Beds Available</p>
+                  <p className="text-base font-extrabold text-emerald-600">
+                    {hostel.availableBeds} / {hostel.totalBeds}
+                  </p>
+                </div>
+                <div className="p-2">
+                  <div className="w-8 h-8 mx-auto mb-1 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700">
+                    <Users size={16} />
+                  </div>
+                  <p className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">Total Students</p>
+                  <p className="text-base font-extrabold text-purple-900">
+                    {hostel.totalStudents}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Information & Booking Panel (5 cols) */}
+            <div className="lg:col-span-5 space-y-5">
+              <div>
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-neutral-500 mb-1.5">
+                  <MapPin size={15} aria-hidden className="text-brand-black" /> {hostel.area}
+                </p>
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-brand-black tracking-tight mb-3">
+                  {hostel.name}
+                </h1>
+
+                {/* Interactive Star Rating with Add-A-Star feature */}
+                <div className="mb-4">
+                  <StarRating
+                    hostelId={hostel.id || hostel.slug}
+                    initialRating={hostel.rating}
+                    initialReviews={hostel.reviews}
+                    size={20}
+                    showDetails={true}
+                  />
+                </div>
+              </div>
+
+              {/* Price Display Card */}
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-100/70 border border-neutral-200">
+                <div className="flex items-baseline justify-between mb-1">
+                  <div>
+                    <span className="text-xs uppercase font-bold text-neutral-500 tracking-wider">Standard Monthly Fee</span>
+                    <div className="flex items-baseline gap-2 mt-0.5">
+                      <span className="text-3xl sm:text-4xl font-extrabold text-brand-black">
+                        NPR {hostel.monthlyPrice.toLocaleString()}
+                      </span>
+                      <span className="text-sm text-neutral-500 font-semibold">/ month</span>
+                    </div>
+                  </div>
+                  {hostel.originalMonthlyPrice && (
+                    <span className="text-sm font-semibold text-neutral-400 line-through">
+                      NPR {hostel.originalMonthlyPrice.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-neutral-600 mt-2">
+                  *Includes 4 daily meals, electricity, Wi-Fi & water. Nightly stay from NPR {hostel.priceFrom.toLocaleString()}/night.
+                </p>
+              </div>
+
+              {/* Primary Call-to-Actions */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-1">
                 <button
                   type="button"
                   onClick={() => setIsBookingOpen(true)}
-                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-brand-lime text-brand-black font-bold rounded-xl hover:bg-brand-lime/85 transition-colors cursor-pointer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-brand-lime text-brand-black font-extrabold rounded-xl hover:bg-brand-lime/85 transition-all shadow-md hover:shadow-lime cursor-pointer text-base"
                 >
-                  Book this hostel <ArrowRight size={17} aria-hidden />
+                  Book this hostel <ArrowRight size={18} aria-hidden />
                 </button>
                 <a
                   href={`tel:${hostel.phone || '+9779817161246'}`}
-                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-brand-black text-white font-semibold rounded-xl hover:bg-brand-black/85 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-brand-black text-white font-semibold rounded-xl hover:bg-brand-black/85 transition-colors text-base"
                 >
-                  <Phone size={17} aria-hidden /> Call hostel{' '}
-                  {hostel.phone ? `(${hostel.phone})` : ''}
+                  <Phone size={17} aria-hidden /> Call {hostel.phone || 'Hostel'}
                 </a>
               </div>
+
+              {/* Verified Property Owner Card */}
               {hostel.owner && (
-                <div className="mt-6 p-4 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center gap-4">
-                  {hostel.owner.avatarUrl && (
+                <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center gap-4">
+                  {hostel.owner.avatarUrl ? (
                     <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-brand-lime flex-shrink-0">
                       <Image
                         src={hostel.owner.avatarUrl}
@@ -123,39 +251,118 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
                         className="object-cover"
                       />
                     </div>
-                  )}
+                  ) : null}
                   <div>
                     <p className="text-xs text-neutral-500 font-medium">Verified Property Owner</p>
                     <p className="text-sm font-bold text-brand-black">
                       {[hostel.owner.firstName, hostel.owner.lastName].filter(Boolean).join(' ')}
                     </p>
                     {hostel.owner.phone && (
-                      <p className="text-xs text-neutral-500">{hostel.owner.phone}</p>
+                      <p className="text-xs text-neutral-500 font-medium">{hostel.owner.phone}</p>
                     )}
                   </div>
                 </div>
               )}
             </div>
           </div>
+
+          {/* Section: Facilities & Amenities */}
+          <section className="mt-14 pt-10 border-t border-neutral-100">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight">
+                  Facilities & Amenities
+                </h2>
+                <p className="text-sm text-neutral-500 mt-1">
+                  Everything provided at {hostel.name} for comfortable student living.
+                </p>
+              </div>
+              <span className="px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+                ✓ All Essential Amenities Included
+              </span>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {facilities.map((facility, idx) => (
+                <div
+                  key={facility.id || idx}
+                  className="p-4 rounded-2xl bg-white border border-neutral-200/80 hover:border-brand-lime/80 hover:shadow-sm transition-all"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="w-9 h-9 rounded-xl bg-neutral-100 flex items-center justify-center">
+                      {getFacilityIcon(facility.title)}
+                    </div>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        facility.tag === 'Optional'
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
+                      {facility.tag || 'Included'}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-neutral-900 text-sm mb-1">{facility.title}</h3>
+                  <p className="text-xs text-neutral-500 leading-relaxed">
+                    {facility.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Section: About Hostel */}
           <section className="mt-12 max-w-3xl">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight mb-3">
+            <h2 className="text-2xl font-extrabold text-brand-black tracking-tight mb-3">
               About {hostel.name}
             </h2>
-            <p className="text-neutral-600 leading-relaxed text-[17px]">{hostel.description}</p>
+            <p className="text-neutral-600 leading-relaxed text-[16px]">{hostel.description}</p>
           </section>
-          <section className="mt-8 max-w-3xl">
+
+          {/* Section: Direct Answer & FAQ */}
+          <div className="mt-10 max-w-3xl">
+            <DirectAnswer
+              question={`How much does ${hostel.name} cost and what are the bed details?`}
+              answer={`${hostel.name} in ${hostel.area} offers monthly packages from NPR ${hostel.monthlyPrice.toLocaleString()}/month and nightly stays at NPR ${hostel.priceFrom.toLocaleString()}/night. There are currently ${hostel.availableBeds} beds available out of ${hostel.totalBeds} total beds, with ${hostel.totalStudents} active students residing. Rated ${hostel.rating}/5 from verified stays.`}
+            />
+          </div>
+
+          <section className="mt-10 max-w-3xl">
             <h2 className="text-2xl font-extrabold text-brand-black tracking-tight mb-4">
-              Common questions
+              Frequently Asked Questions
             </h2>
             <FaqAccordion faqs={faqs} />
           </section>
         </div>
+
+        {/* Sticky Mobile Booking Bar */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-neutral-200 z-40 flex items-center justify-between gap-3 shadow-lg">
+          <div>
+            <p className="text-[11px] text-neutral-500">Monthly Rent</p>
+            <p className="text-base font-extrabold text-brand-black">
+              NPR {hostel.monthlyPrice.toLocaleString()}<span className="text-xs font-normal text-neutral-500">/mo</span>
+            </p>
+          </div>
+          <button
+            onClick={() => setIsBookingOpen(true)}
+            className="px-6 py-2.5 bg-brand-lime text-brand-black font-extrabold rounded-xl text-sm shadow hover:bg-brand-lime/85"
+          >
+            Book Now
+          </button>
+        </div>
+
         <Footer />
+
         <BookingModal
           isOpen={isBookingOpen}
           onClose={() => setIsBookingOpen(false)}
           hostelId={hostel.id || hostel.slug}
           hostelName={hostel.name}
+          monthlyPrice={hostel.monthlyPrice}
+          priceFrom={hostel.priceFrom}
+          availableBeds={hostel.availableBeds}
+          totalBeds={hostel.totalBeds}
+          location={hostel.area}
         />
       </main>
     </>
@@ -185,16 +392,43 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         name: data.name,
         city: data.city || 'Kathmandu',
         area: [data.address, data.city].filter(Boolean).join(', ') || 'Banasthali-16, Kathmandu',
-        priceFrom: 1200,
+        priceFrom: data.priceFrom || 1200,
+        monthlyPrice: data.monthlyPrice || 12000,
         originalPrice: 1500,
+        originalMonthlyPrice: 14000,
+        totalBeds: data.totalBeds || 48,
+        availableBeds: data.availableBeds || 8,
+        occupiedBeds: 40,
+        totalStudents: data.totalStudents || 40,
         rating: 4.8,
-        reviews: 0,
+        reviews: 12,
         roomType: data.type
           ? `${data.type.charAt(0).toUpperCase() + data.type.slice(1).toLowerCase()} Hostel`
           : 'Boys Hostel',
-        amenities: (data.hostelFacilities
-          ?.map((f) => f.facility?.name)
-          .filter(Boolean) as string[]) || ['Free WiFi', 'Breakfast', 'Hot Water'],
+        amenities: ['wifi', 'breakfast', 'cctv', 'study'],
+        detailedFacilities:
+          data.hostelFacilities?.map((hf) => ({
+            id: hf.id,
+            title: hf.facility?.title || hf.facility?.name || 'Verified Amenity',
+            description: hf.description || 'Verified facility for hostel residents',
+            tag: hf.tag || 'Included',
+          })) || [
+            {
+              title: 'High-Speed Wi-Fi',
+              description: 'Fast internet across all rooms',
+              tag: 'Included',
+            },
+            {
+              title: 'Nutritious Meals',
+              description: 'Daily fresh meals and breakfast',
+              tag: 'Included',
+            },
+            {
+              title: '24/7 Hot Water',
+              description: 'Solar & electric heated water',
+              tag: 'Included',
+            },
+          ],
         image: data.logoUrl || '/images/static/hostel.jpg',
         description: `${data.name} is a verified hostel located in ${data.address || data.city}. Contact phone: ${data.phone || 'N/A'}.`,
         phone: data.phone || null,

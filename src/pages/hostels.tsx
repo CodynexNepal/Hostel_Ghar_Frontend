@@ -6,6 +6,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
+import BookingModal from '@/components/booking/BookingModal';
+import StarRating from '@/components/hostel/StarRating';
 import { listHostels, Hostel, ListHostelsResponse } from '@/lib/api/hostels';
 import { HOSTELS } from '@/data/hostels';
 import {
@@ -25,6 +27,8 @@ import {
   Heart,
   Grid3X3,
   List,
+  BedDouble,
+  Users,
 } from 'lucide-react';
 
 const locations = [
@@ -76,7 +80,12 @@ interface HostelCardData {
   name: string;
   location: string;
   price: number;
+  monthlyPrice: number;
   originalPrice: number | null;
+  originalMonthlyPrice: number | null;
+  totalBeds: number;
+  availableBeds: number;
+  totalStudents: number;
   rating: number;
   reviews: number;
   amenities: string[];
@@ -102,13 +111,18 @@ const mapHostelToCard = (hostel: Hostel): HostelCardData => {
     name: hostel.name,
     location: loc,
     price: known?.priceFrom ?? 1200,
+    monthlyPrice: known?.monthlyPrice ?? 12000,
     originalPrice: known?.originalPrice ?? 1500,
+    originalMonthlyPrice: known?.originalMonthlyPrice ?? 14000,
+    totalBeds: known?.totalBeds ?? 48,
+    availableBeds: known?.availableBeds ?? 8,
+    totalStudents: known?.totalStudents ?? 40,
     rating: known?.rating ?? 4.8,
     reviews: known?.reviews ?? 15,
-    amenities: ['wifi', 'breakfast', 'parking'],
+    amenities: known?.amenities ?? ['wifi', 'breakfast', 'cctv'],
     roomType: typeFormatted,
-    discount: known?.originalPrice
-      ? Math.round(((known.originalPrice - known.priceFrom) / known.originalPrice) * 100)
+    discount: known?.originalMonthlyPrice
+      ? Math.round(((known.originalMonthlyPrice - known.monthlyPrice) / known.originalMonthlyPrice) * 100)
       : null,
     featured: (known?.rating ?? 4.8) >= 4.8,
     image: hostel.logoUrl || known?.image || DEFAULT_HOSTEL_IMAGE,
@@ -123,13 +137,18 @@ const INITIAL_HOSTELS: HostelCardData[] = HOSTELS.map((h) => ({
   name: h.name,
   location: h.area,
   price: h.priceFrom,
+  monthlyPrice: h.monthlyPrice,
   originalPrice: h.originalPrice || null,
+  originalMonthlyPrice: h.originalMonthlyPrice || null,
+  totalBeds: h.totalBeds,
+  availableBeds: h.availableBeds,
+  totalStudents: h.totalStudents,
   rating: h.rating,
   reviews: h.reviews,
-  amenities: ['wifi', 'breakfast', 'parking'],
+  amenities: h.amenities,
   roomType: h.roomType,
-  discount: h.originalPrice
-    ? Math.round(((h.originalPrice - h.priceFrom) / h.originalPrice) * 100)
+  discount: h.originalMonthlyPrice
+    ? Math.round(((h.originalMonthlyPrice - h.monthlyPrice) / h.originalMonthlyPrice) * 100)
     : null,
   featured: h.rating >= 4.8,
   image: h.image,
@@ -137,7 +156,13 @@ const INITIAL_HOSTELS: HostelCardData[] = HOSTELS.map((h) => ({
   email: h.email || null,
 }));
 
-const HostelCard = ({ hostel }: { hostel: HostelCardData }) => {
+const HostelCard = ({
+  hostel,
+  onBook,
+}: {
+  hostel: HostelCardData;
+  onBook: (hostel: HostelCardData) => void;
+}) => {
   const [isLiked, setIsLiked] = useState(false);
   const [imgSrc, setImgSrc] = useState(hostel.image);
   const isExternal = imgSrc.startsWith('http://') || imgSrc.startsWith('https://');
@@ -156,16 +181,16 @@ const HostelCard = ({ hostel }: { hostel: HostelCardData }) => {
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           </Link>
           <div className="absolute top-3 left-3 flex gap-2 pointer-events-none">
             {hostel.discount && (
-              <span className="px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-lg">
+              <span className="px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-lg shadow-sm">
                 -{hostel.discount}%
               </span>
             )}
             {hostel.featured && (
-              <span className="px-2.5 py-1 bg-brand-lime text-brand-black text-xs font-bold rounded-lg">
+              <span className="px-2.5 py-1 bg-brand-lime text-brand-black text-xs font-bold rounded-lg shadow-sm">
                 Featured
               </span>
             )}
@@ -187,65 +212,77 @@ const HostelCard = ({ hostel }: { hostel: HostelCardData }) => {
             </span>
           </div>
         </div>
+
         <div className="p-5">
-          <div className="flex items-center gap-1.5 text-neutral-500 text-sm mb-2">
+          <div className="flex items-center gap-1.5 text-neutral-500 text-sm mb-1.5">
             <MapPin size={14} strokeWidth={2} />
             <span className="truncate">{hostel.location}</span>
           </div>
+
           <Link href={`/hostel/${hostel.id}`}>
             <h3 className="text-lg font-bold text-brand-black mb-2 group-hover:text-brand-lime transition-colors">
               {hostel.name}
             </h3>
           </Link>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="flex items-center gap-1">
-              <Star size={16} fill="#B9FF66" stroke="#B9FF66" />
-              <span className="text-sm font-bold text-brand-black">{hostel.rating}</span>
-            </div>
-            <span className="text-sm text-neutral-500">({hostel.reviews} reviews)</span>
+
+          {/* Interactive Star Rating with Add a Star feature */}
+          <div className="mb-3">
+            <StarRating
+              hostelId={hostel.id}
+              initialRating={hostel.rating}
+              initialReviews={hostel.reviews}
+              size={15}
+              showDetails={true}
+            />
           </div>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {hostel.amenities.slice(0, 4).map((amenity) => {
-              const amenityData = amenities.find((a) => a.id === amenity);
-              return (
-                <div
-                  key={amenity}
-                  className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-600"
-                  title={amenityData?.label}
-                >
-                  {amenityData?.icon}
-                </div>
-              );
-            })}
-            {hostel.amenities.length > 4 && (
-              <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-xs font-bold text-neutral-600">
-                +{hostel.amenities.length - 4}
-              </div>
-            )}
+
+          {/* Key Occupancy & Capacity Stats: Beds Available & Total Students */}
+          <div className="grid grid-cols-2 gap-2 p-2.5 mb-3 rounded-xl bg-neutral-50 border border-neutral-100 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span className="font-bold text-emerald-800">
+                {hostel.availableBeds} beds free
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 text-neutral-600 justify-end">
+              <Users size={13} className="text-purple-600 shrink-0" />
+              <span className="font-medium">{hostel.totalStudents} students</span>
+            </div>
+          </div>
+
+          {/* Facilities preview chips */}
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 text-[11px] font-medium flex items-center gap-1">
+              <Wifi size={12} className="text-blue-500" /> Free WiFi
+            </span>
+            <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 text-[11px] font-medium flex items-center gap-1">
+              <Coffee size={12} className="text-amber-500" /> Meals
+            </span>
+            <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 text-[11px] font-medium flex items-center gap-1">
+              <Wind size={12} className="text-emerald-500" /> Hot Water
+            </span>
           </div>
         </div>
       </div>
+
       <div className="p-5 pt-0">
         <div className="flex items-end justify-between pt-3 border-t border-neutral-100">
           <div>
-            {hostel.originalPrice && (
-              <span className="text-sm text-neutral-400 line-through">
-                NPR {hostel.originalPrice.toLocaleString()}
-              </span>
-            )}
+            <p className="text-[11px] text-neutral-400 font-medium">Monthly Rent</p>
             <div className="flex items-baseline gap-1">
               <span className="text-xl font-extrabold text-brand-black">
-                NPR {hostel.price.toLocaleString()}
+                NPR {hostel.monthlyPrice.toLocaleString()}
               </span>
-              <span className="text-sm text-neutral-500">/night</span>
+              <span className="text-xs text-neutral-500">/mo</span>
             </div>
           </div>
-          <Link
-            href={`/hostel/${hostel.id}`}
-            className="px-4 py-2 bg-brand-lime text-brand-black text-sm font-bold rounded-xl hover:bg-brand-lime/85 transition-colors"
+          <button
+            type="button"
+            onClick={() => onBook(hostel)}
+            className="px-4 py-2 bg-brand-lime text-brand-black text-sm font-bold rounded-xl hover:bg-brand-lime/85 transition-colors shadow-sm cursor-pointer"
           >
             Book Now
-          </Link>
+          </button>
         </div>
       </div>
     </div>
@@ -263,6 +300,7 @@ const HostelsPage = () => {
   const [showFilters, setShowFilters] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [bookingHostel, setBookingHostel] = useState<HostelCardData | null>(null);
 
   // Pagination + API state initialized with real backend data
   const [page, setPage] = useState(1);
@@ -664,7 +702,7 @@ const HostelsPage = () => {
                     }
                   >
                     {filteredHostels.map((hostel) => (
-                      <HostelCard key={hostel.id} hostel={hostel} />
+                      <HostelCard key={hostel.id} hostel={hostel} onBook={setBookingHostel} />
                     ))}
                   </div>
                 )}
@@ -719,6 +757,19 @@ const HostelsPage = () => {
             </div>
           </div>
         </section>
+        {bookingHostel && (
+          <BookingModal
+            isOpen={Boolean(bookingHostel)}
+            onClose={() => setBookingHostel(null)}
+            hostelId={bookingHostel.id}
+            hostelName={bookingHostel.name}
+            monthlyPrice={bookingHostel.monthlyPrice}
+            priceFrom={bookingHostel.price}
+            availableBeds={bookingHostel.availableBeds}
+            totalBeds={bookingHostel.totalBeds}
+            location={bookingHostel.location}
+          />
+        )}
         <Footer />
       </main>
     </>
