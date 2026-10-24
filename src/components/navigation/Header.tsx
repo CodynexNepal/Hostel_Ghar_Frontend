@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import {
   Home,
@@ -13,12 +13,15 @@ import {
   Tag,
   LogIn,
   UserPlus,
+  LogOut,
+  User,
   Calendar,
   Menu,
   X,
   ChevronRight,
   Sparkles,
 } from 'lucide-react';
+import { getCurrentUser, logout, AuthUser } from '@/lib/api/auth';
 
 interface NavItem {
   label: string;
@@ -46,12 +49,74 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isAuth, setIsAuth] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const checkAuthStatus = (): boolean => {
+    if (typeof window === 'undefined') return false;
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+    const isLoggedIn = localStorage.getItem('is_logged_in') === 'true';
+    const storedUser = localStorage.getItem('user');
+    return Boolean(token || isLoggedIn || storedUser);
+  };
 
   useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    setIsAuth(Boolean(token));
+    const syncAuth = () => {
+      const authed = checkAuthStatus();
+      setIsAuth(authed);
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('user');
+        if (stored) {
+          try {
+            setUser(JSON.parse(stored));
+          } catch {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
+      }
+    };
+
+    syncAuth();
+
+    // Verify session in background if cookies are used
+    getCurrentUser()
+      .then((currentUser) => {
+        if (currentUser) {
+          setIsAuth(true);
+          setUser(currentUser);
+        }
+      })
+      .catch(() => {
+        // If /auth/me returns 401 and there is no token/user in localStorage, clear
+        if (!checkAuthStatus()) {
+          setIsAuth(false);
+          setUser(null);
+        }
+      });
+
+    window.addEventListener('auth_state_changed', syncAuth);
+    window.addEventListener('storage', syncAuth);
+
+    return () => {
+      window.removeEventListener('auth_state_changed', syncAuth);
+      window.removeEventListener('storage', syncAuth);
+    };
   }, [pathname]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setIsAuth(false);
+      setUser(null);
+      setIsMenuOpen(false);
+      router.push('/login');
+    } catch (err) {
+      console.warn('Logout error:', err);
+    }
+  };
 
   const headerRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLAnchorElement>(null);
@@ -266,13 +331,32 @@ const Header = () => {
             {/* Desktop CTA Buttons */}
             <div ref={ctaRef} className="hidden md:flex items-center gap-2">
               {isAuth ? (
-                <Link
-                  href="/my-bookings"
-                  className="flex items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold text-brand-black bg-brand-lime/20 hover:bg-brand-lime/35 rounded-lg transition-all duration-200 tracking-tight"
-                >
-                  <Calendar size={15} strokeWidth={2.2} />
-                  <span>My Bookings</span>
-                </Link>
+                <>
+                  <Link
+                    href="/my-bookings"
+                    className="flex items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold text-brand-black bg-brand-lime/20 hover:bg-brand-lime/35 rounded-lg transition-all duration-200 tracking-tight"
+                  >
+                    <Calendar size={15} strokeWidth={2.2} />
+                    <span>My Bookings</span>
+                  </Link>
+
+                  {user?.fullName && (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium text-neutral-700 bg-neutral-100 rounded-lg border border-neutral-200">
+                      <User size={13} className="text-neutral-500" />
+                      <span className="max-w-[120px] truncate">{user.fullName.split(' ')[0]}</span>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleLogout}
+                    type="button"
+                    title="Log out of your account"
+                    className="flex items-center gap-1.5 px-3 py-2 text-[13px] font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-all duration-200 tracking-tight border border-rose-200 cursor-pointer"
+                  >
+                    <LogOut size={15} strokeWidth={2.2} />
+                    <span>Logout</span>
+                  </button>
+                </>
               ) : (
                 <>
                   <Link
@@ -349,14 +433,30 @@ const Header = () => {
 
               <div className="pt-3 mt-3 border-t border-neutral-100 space-y-1">
                 {isAuth ? (
-                  <Link
-                    href="/my-bookings"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-3 rounded-lg text-sm font-semibold text-brand-black bg-brand-lime/15 hover:bg-brand-lime/25 transition-all duration-200 tracking-tight"
-                  >
-                    <Calendar size={16} strokeWidth={2.2} />
-                    My Bookings
-                  </Link>
+                  <>
+                    {user?.fullName && (
+                      <div className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-neutral-600 bg-neutral-50 rounded-lg">
+                        <User size={14} className="text-neutral-500" />
+                        <span className="truncate">Signed in as {user.fullName}</span>
+                      </div>
+                    )}
+                    <Link
+                      href="/my-bookings"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-3 rounded-lg text-sm font-semibold text-brand-black bg-brand-lime/15 hover:bg-brand-lime/25 transition-all duration-200 tracking-tight"
+                    >
+                      <Calendar size={16} strokeWidth={2.2} />
+                      My Bookings
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      type="button"
+                      className="w-full flex items-center gap-2.5 px-4 py-3 rounded-lg text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-all duration-200 tracking-tight text-left cursor-pointer"
+                    >
+                      <LogOut size={16} strokeWidth={2.2} />
+                      Logout
+                    </button>
+                  </>
                 ) : (
                   <>
                     <Link

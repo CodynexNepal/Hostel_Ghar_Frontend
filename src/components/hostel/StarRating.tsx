@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Star, CheckCircle } from 'lucide-react';
+import { Star, CheckCircle, Loader2 } from 'lucide-react';
+import { submitHostelRating, getHostelRatings } from '@/lib/api/hostels';
 
 interface StarRatingProps {
   hostelId: string;
@@ -28,8 +29,9 @@ export default function StarRating({
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [showToast, setShowToast] = useState<boolean>(false);
   const [isInteractiveOpen, setIsInteractiveOpen] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // Load user's previous rating from localStorage
+  // Load user's previous rating and sync from backend
   useEffect(() => {
     if (typeof window !== 'undefined' && hostelId) {
       try {
@@ -43,15 +45,29 @@ export default function StarRating({
       } catch {
         // Ignore localStorage error
       }
+
+      // Sync actual backend rating & review count
+      getHostelRatings(hostelId)
+        .then((res) => {
+          if (res?.data?.averageRating) {
+            setRating(res.data.averageRating);
+          }
+          if (res?.data?.totalReviews !== undefined) {
+            setReviews(res.data.totalReviews);
+          }
+        })
+        .catch(() => {
+          // Graceful fallback to initial values
+        });
     }
   }, [hostelId]);
 
-  const handleRate = (starCount: number) => {
+  const handleRate = async (starCount: number) => {
     setUserRating(starCount);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3500);
 
-    // If first time rating, increment review count and recalculate average
+    // Optimistically update review count and recalculated average
     if (!userRating) {
       const newReviews = reviews + 1;
       const newRating = Number(((rating * reviews + starCount) / newReviews).toFixed(1));
@@ -69,6 +85,24 @@ export default function StarRating({
 
     if (onRatingSubmitted) {
       onRatingSubmitted(starCount);
+    }
+
+    // Send actual rating to backend
+    if (hostelId) {
+      setIsSubmitting(true);
+      try {
+        const res = await submitHostelRating(hostelId, starCount);
+        if (res?.data?.averageRating) {
+          setRating(res.data.averageRating);
+        }
+        if (res?.data?.totalReviews !== undefined) {
+          setReviews(res.data.totalReviews);
+        }
+      } catch (err) {
+        console.warn('Failed to send rating to backend:', err);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -166,8 +200,16 @@ export default function StarRating({
       {/* Instant Feedback Toast */}
       {showToast && (
         <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg animate-in fade-in slide-in-from-top-1 duration-200">
-          <CheckCircle size={14} className="text-emerald-600" />
-          <span>You added {userRating} stars! Thank you for rating.</span>
+          {isSubmitting ? (
+            <Loader2 size={14} className="text-emerald-600 animate-spin" />
+          ) : (
+            <CheckCircle size={14} className="text-emerald-600" />
+          )}
+          <span>
+            {isSubmitting
+              ? `Submitting your ${userRating}★ rating to server...`
+              : `You added ${userRating} stars! Rating saved.`}
+          </span>
         </div>
       )}
     </div>

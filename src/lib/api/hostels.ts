@@ -177,3 +177,46 @@ export const getHostelResidents = async (id: string): Promise<HostelResidentsRes
   const response = await apiClient.get<HostelResidentsResponse>(`/hostels/${id}/residents`);
   return response.data;
 };
+
+export interface HostelRatingResponse {
+  success: boolean;
+  data: {
+    hostelId: string;
+    rating?: number;
+    averageRating: number;
+    totalReviews: number;
+    message?: string;
+    recentRatings?: Array<{
+      rating: number;
+      comment?: string;
+      userId?: string;
+      createdAt: string;
+    }>;
+  };
+}
+
+/**
+ * Submits an actual rating (1-5 stars) for a hostel to the backend.
+ * POST /api/v1/hostel-ghar/hostels/:id/ratings
+ */
+export const submitHostelRating = async (
+  hostelId: string,
+  rating: number,
+  comment?: string
+): Promise<HostelRatingResponse> => {
+  const response = await apiClient.post<HostelRatingResponse>(`/hostels/${hostelId}/ratings`, {
+    rating,
+    comment,
+  });
+  return response.data;
+};
+
+/**
+ * Fetches the current ratings and review count for a hostel.
+ * GET /api/v1/hostel-ghar/hostels/:id/ratings
+ */
+export const getHostelRatings = async (hostelId: string): Promise<HostelRatingResponse> => {
+  const response = await apiClient.get<HostelRatingResponse>(`/hostels/${hostelId}/ratings`);
+  return response.data;
+};
+

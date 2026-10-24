@@ -19,6 +19,7 @@ const getBaseURL = () => {
 const apiClient = axios.create({
   baseURL: getBaseURL(),
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -29,7 +30,10 @@ apiClient.interceptors.request.use(
   (config) => {
     // Add auth token if running in browser and token exists
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
+      const token =
+        localStorage.getItem('token') ||
+        localStorage.getItem('accessToken') ||
+        localStorage.getItem('access_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
