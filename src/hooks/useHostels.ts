@@ -27,7 +27,7 @@ export interface UseHostelsReturn {
  * Endpoint: GET /api/v1/hostel-ghar/hostels
  */
 export function useHostels(options: UseHostelsOptions = {}): UseHostelsReturn {
-  const { page = 1, limit = 12, enabled = true } = options;
+  const { page = 1, limit = 20, enabled = true } = options;
 
   const [hostels, setHostels] = useState<Hostel[]>([]);
   const [pagination, setPagination] = useState<ListHostelsResponse['pagination'] | null>(null);

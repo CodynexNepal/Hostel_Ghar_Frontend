@@ -433,7 +433,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       const apiHostel: Hostel = {
         id: data.id,
         slug: data.id,
-        name: data.name,
+        name: staticHostel?.name || data.name,
         city: data.city || staticHostel?.city || 'Kathmandu',
         area:
           [data.address, data.city].filter(Boolean).join(', ') ||
@@ -448,7 +448,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         occupiedBeds: staticHostel?.occupiedBeds ?? 30,
         totalStudents: data.totalStudents || staticHostel?.totalStudents || 30,
         rating: staticHostel?.rating ?? 4.8,
-        reviews: staticHostel?.reviews ?? 19,
+        reviews: staticHostel?.reviews ?? 0,
         roomType: data.type
           ? `${data.type.charAt(0).toUpperCase() + data.type.slice(1).toLowerCase()} Hostel`
           : staticHostel?.roomType || 'Boys Hostel',

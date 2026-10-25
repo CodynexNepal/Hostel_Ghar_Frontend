@@ -70,8 +70,8 @@ export const HOSTELS: Hostel[] = [
     availableBeds: 8,
     occupiedBeds: 40,
     totalStudents: 40,
-    rating: 4.9,
-    reviews: 28,
+    rating: 5.0,
+    reviews: 1,
     roomType: 'Boys Hostel',
     amenities: ['wifi', 'breakfast', 'cctv', 'study', 'hotwater'],
     detailedFacilities: [
@@ -244,7 +244,7 @@ export const HOSTELS: Hostel[] = [
     occupiedBeds: 30,
     totalStudents: 30,
     rating: 4.7,
-    reviews: 19,
+    reviews: 0,
     roomType: 'Boys Hostel',
     amenities: ['wifi', 'breakfast', 'powerbackup', 'laundry'],
     detailedFacilities: [
@@ -310,7 +310,7 @@ export const HOSTELS: Hostel[] = [
     occupiedBeds: 31,
     totalStudents: 31,
     rating: 4.6,
-    reviews: 15,
+    reviews: 0,
     roomType: 'Boys Hostel',
     amenities: ['wifi', 'breakfast', 'cctv', 'parking'],
     detailedFacilities: [

@@ -98,36 +98,58 @@ interface HostelCardData {
   email?: string | null;
 }
 
-// Map the API Hostel shape to the UI card fields, cross-referencing catalog for pricing/ratings
+// Map the API Hostel shape to the UI card fields, directly using endpoint response
 const mapHostelToCard = (hostel: Hostel): HostelCardData => {
-  const typeFormatted = hostel.type
-    ? `${hostel.type.charAt(0).toUpperCase() + hostel.type.slice(1).toLowerCase()} Hostel`
-    : 'Boys Hostel';
+  const typeFormatted = hostel.category
+    ? hostel.category
+    : hostel.type
+      ? `${hostel.type.charAt(0).toUpperCase() + hostel.type.slice(1).toLowerCase()} Hostel`
+      : 'Boys Hostel';
 
-  const loc = [hostel.address, hostel.city].filter(Boolean).join(', ') || 'Kathmandu, Nepal';
   const known = HOSTELS.find((h) => h.id === hostel.id || h.slug === hostel.id);
+  const loc =
+    hostel.address ||
+    known?.area ||
+    [hostel.address, hostel.city].filter(Boolean).join(', ') ||
+    'Banasthali-16, Kathmandu';
+  const name = hostel.name || known?.name || 'Hostel';
+  const rating = hostel.rating ?? known?.rating ?? 4.8;
+  const reviews = hostel.reviewCount ?? known?.reviews ?? 0;
+  const monthlyPrice = hostel.monthlyRent ?? hostel.monthlyPrice ?? known?.monthlyPrice ?? 12000;
+  const originalMonthlyPrice =
+    known?.originalMonthlyPrice ?? (monthlyPrice ? Math.round(monthlyPrice * 1.18) : 14000);
+  const isFeatured =
+    hostel.isFeatured ??
+    (hostel.id === 'bdde17d2-d56e-4f81-987c-d0132cf4409d' ||
+      hostel.id === 'a38bf07a-b7b1-49dc-85c8-dd5542a8e90a');
+  const discount =
+    hostel.discountPercent ??
+    (originalMonthlyPrice
+      ? Math.round(((originalMonthlyPrice - monthlyPrice) / originalMonthlyPrice) * 100)
+      : null);
+
+  const amenities =
+    hostel.facilities && hostel.facilities.length > 0
+      ? hostel.facilities.map((f) => (typeof f === 'string' ? f : f.title))
+      : known?.amenities ?? ['wifi', 'breakfast', 'cctv'];
 
   return {
     id: hostel.id,
-    name: hostel.name,
+    name,
     location: loc,
-    price: known?.priceFrom ?? 1200,
-    monthlyPrice: known?.monthlyPrice ?? 12000,
+    price: hostel.priceFrom ?? known?.priceFrom ?? 1200,
+    monthlyPrice,
     originalPrice: known?.originalPrice ?? 1500,
-    originalMonthlyPrice: known?.originalMonthlyPrice ?? 14000,
-    totalBeds: known?.totalBeds ?? 48,
-    availableBeds: known?.availableBeds ?? 8,
-    totalStudents: known?.totalStudents ?? 40,
-    rating: known?.rating ?? 4.8,
-    reviews: known?.reviews ?? 15,
-    amenities: known?.amenities ?? ['wifi', 'breakfast', 'cctv'],
+    originalMonthlyPrice,
+    totalBeds: hostel.totalBeds ?? known?.totalBeds ?? 48,
+    availableBeds: hostel.availableBeds ?? known?.availableBeds ?? 8,
+    totalStudents: hostel.totalStudents ?? known?.totalStudents ?? 40,
+    rating,
+    reviews,
+    amenities,
     roomType: typeFormatted,
-    discount: known?.originalMonthlyPrice
-      ? Math.round(
-          ((known.originalMonthlyPrice - known.monthlyPrice) / known.originalMonthlyPrice) * 100
-        )
-      : null,
-    featured: (known?.rating ?? 4.8) >= 4.8,
+    discount,
+    featured: isFeatured,
     image: hostel.logoUrl || known?.image || DEFAULT_HOSTEL_IMAGE,
     phone: hostel.phone ?? known?.phone ?? null,
     email: hostel.email ?? known?.email ?? null,
@@ -153,7 +175,9 @@ const INITIAL_HOSTELS: HostelCardData[] = HOSTELS.map((h) => ({
   discount: h.originalMonthlyPrice
     ? Math.round(((h.originalMonthlyPrice - h.monthlyPrice) / h.originalMonthlyPrice) * 100)
     : null,
-  featured: h.rating >= 4.8,
+  featured:
+    h.id === 'bdde17d2-d56e-4f81-987c-d0132cf4409d' ||
+    h.id === 'a38bf07a-b7b1-49dc-85c8-dd5542a8e90a',
   image: h.image,
   phone: h.phone || null,
   email: h.email || null,
@@ -312,7 +336,7 @@ const HostelsPage = () => {
     error,
   } = useHostels({
     page,
-    limit: 12,
+    limit: 20,
   });
 
   const hostels: HostelCardData[] = useMemo(() => {
@@ -325,8 +349,8 @@ const HostelsPage = () => {
   const pagination = apiPagination || {
     totalItems: hostels.length,
     currentPage: page,
-    totalPages: Math.max(1, Math.ceil(hostels.length / 12)),
-    itemsPerPage: 12,
+    totalPages: Math.max(1, Math.ceil(hostels.length / 20)),
+    itemsPerPage: 20,
     hasNextPage: false,
     hasPrevPage: false,
   };
