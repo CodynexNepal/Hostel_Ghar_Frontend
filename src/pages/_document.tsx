@@ -61,6 +61,10 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
+        <meta
+          name="google-site-verification"
+          content="tHWXbvKz-rkvqveh4IPReiyufQHr46O6D7ltp42o-9s"
+        />
         <meta charSet="utf-8" />
         <meta name="theme-color" content={siteConfig.themeColor} />
         <meta name="geo.region" content="NP" />

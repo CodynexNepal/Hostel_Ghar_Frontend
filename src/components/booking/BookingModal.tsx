@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { X, Calendar, MessageSquare, CheckCircle, AlertCircle, Loader2, BedDouble, Tag, MapPin, ArrowRight } from 'lucide-react';
+import {
+  X,
+  Calendar,
+  MessageSquare,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  BedDouble,
+  Tag,
+  MapPin,
+  ArrowRight,
+} from 'lucide-react';
 import { createBooking, generateIdempotencyKey } from '@/lib/api/bookings';
 
 interface BookingModalProps {
@@ -117,11 +128,16 @@ export default function BookingModal({
             <h3 className="text-2xl font-bold text-neutral-900 mb-2">Sign In to Book</h3>
             <p className="text-sm text-neutral-600 mb-4 max-w-sm mx-auto">
               Please sign in to complete your booking request for{' '}
-              <span className="font-semibold text-neutral-900">{hostelName}</span>. Your booking is guaranteed with instant status tracking.
+              <span className="font-semibold text-neutral-900">{hostelName}</span>. Your booking is
+              guaranteed with instant status tracking.
             </p>
             <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-100 mb-6 text-xs text-neutral-600 flex items-center justify-center gap-4">
-              <span>💰 Monthly: <strong>NPR {monthlyPrice.toLocaleString()}</strong></span>
-              <span>🛏️ Available: <strong>{availableBeds} beds</strong></span>
+              <span>
+                💰 Monthly: <strong>NPR {monthlyPrice.toLocaleString()}</strong>
+              </span>
+              <span>
+                🛏️ Available: <strong>{availableBeds} beds</strong>
+              </span>
             </div>
             <div className="flex gap-3 justify-center">
               <button
@@ -144,15 +160,25 @@ export default function BookingModal({
             <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
               <CheckCircle size={36} />
             </div>
-            <h3 className="text-2xl font-extrabold text-neutral-900 mb-2">Booking Request Submitted!</h3>
+            <h3 className="text-2xl font-extrabold text-neutral-900 mb-2">
+              Booking Request Submitted!
+            </h3>
             <p className="text-sm text-neutral-600 mb-4 max-w-md mx-auto">
-              Your booking request for <span className="font-bold text-neutral-900">{hostelName}</span> with check-in on{' '}
-              <span className="font-bold text-neutral-900">{checkInDate}</span> has been sent to the hostel administration.
+              Your booking request for{' '}
+              <span className="font-bold text-neutral-900">{hostelName}</span> with check-in on{' '}
+              <span className="font-bold text-neutral-900">{checkInDate}</span> has been sent to the
+              hostel administration.
             </p>
             <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100 mb-6 text-xs text-neutral-700 text-left space-y-1.5">
-              <p>✓ <strong>Status:</strong> PENDING review by hostel owner</p>
-              <p>✓ <strong>Room Type:</strong> {roomPreference}</p>
-              <p>✓ <strong>Estimated Fee:</strong> NPR {monthlyPrice.toLocaleString()}/month</p>
+              <p>
+                ✓ <strong>Status:</strong> PENDING review by hostel owner
+              </p>
+              <p>
+                ✓ <strong>Room Type:</strong> {roomPreference}
+              </p>
+              <p>
+                ✓ <strong>Estimated Fee:</strong> NPR {monthlyPrice.toLocaleString()}/month
+              </p>
             </div>
             <div className="flex gap-3 justify-center">
               <Link
@@ -194,7 +220,9 @@ export default function BookingModal({
                 </div>
                 <div>
                   <p className="text-[11px] text-neutral-500 font-medium">Monthly Rent</p>
-                  <p className="text-sm font-bold text-neutral-900">NPR {monthlyPrice.toLocaleString()}</p>
+                  <p className="text-sm font-bold text-neutral-900">
+                    NPR {monthlyPrice.toLocaleString()}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
@@ -203,7 +231,9 @@ export default function BookingModal({
                 </div>
                 <div>
                   <p className="text-[11px] text-neutral-500 font-medium">Availability</p>
-                  <p className="text-sm font-bold text-emerald-700">{availableBeds} / {totalBeds} Beds Free</p>
+                  <p className="text-sm font-bold text-emerald-700">
+                    {availableBeds} / {totalBeds} Beds Free
+                  </p>
                 </div>
               </div>
             </div>

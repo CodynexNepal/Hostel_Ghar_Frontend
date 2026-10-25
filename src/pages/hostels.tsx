@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,7 +8,8 @@ import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
 import BookingModal from '@/components/booking/BookingModal';
 import StarRating from '@/components/hostel/StarRating';
-import { listHostels, Hostel, ListHostelsResponse } from '@/lib/api/hostels';
+import { Hostel } from '@/lib/api/hostels';
+import { useHostels } from '@/hooks/useHostels';
 import { HOSTELS } from '@/data/hostels';
 import {
   Search,
@@ -122,7 +123,9 @@ const mapHostelToCard = (hostel: Hostel): HostelCardData => {
     amenities: known?.amenities ?? ['wifi', 'breakfast', 'cctv'],
     roomType: typeFormatted,
     discount: known?.originalMonthlyPrice
-      ? Math.round(((known.originalMonthlyPrice - known.monthlyPrice) / known.originalMonthlyPrice) * 100)
+      ? Math.round(
+          ((known.originalMonthlyPrice - known.monthlyPrice) / known.originalMonthlyPrice) * 100
+        )
       : null,
     featured: (known?.rating ?? 4.8) >= 4.8,
     image: hostel.logoUrl || known?.image || DEFAULT_HOSTEL_IMAGE,
@@ -240,9 +243,7 @@ const HostelCard = ({
           <div className="grid grid-cols-2 gap-2 p-2.5 mb-3 rounded-xl bg-neutral-50 border border-neutral-100 text-xs">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span className="font-bold text-emerald-800">
-                {hostel.availableBeds} beds free
-              </span>
+              <span className="font-bold text-emerald-800">{hostel.availableBeds} beds free</span>
             </div>
             <div className="flex items-center gap-1.5 text-neutral-600 justify-end">
               <Users size={13} className="text-purple-600 shrink-0" />
@@ -302,19 +303,33 @@ const HostelsPage = () => {
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [bookingHostel, setBookingHostel] = useState<HostelCardData | null>(null);
 
-  // Pagination + API state initialized with real backend data
+  // Pagination + API state using custom Axios hook
   const [page, setPage] = useState(1);
-  const [hostels, setHostels] = useState<HostelCardData[]>(INITIAL_HOSTELS);
-  const [pagination, setPagination] = useState<ListHostelsResponse['pagination'] | null>({
-    totalItems: INITIAL_HOSTELS.length,
-    currentPage: 1,
-    totalPages: 1,
+  const {
+    hostels: apiHostels,
+    pagination: apiPagination,
+    loading,
+    error,
+  } = useHostels({
+    page,
+    limit: 12,
+  });
+
+  const hostels: HostelCardData[] = useMemo(() => {
+    if (apiHostels && apiHostels.length > 0) {
+      return apiHostels.map(mapHostelToCard);
+    }
+    return INITIAL_HOSTELS;
+  }, [apiHostels]);
+
+  const pagination = apiPagination || {
+    totalItems: hostels.length,
+    currentPage: page,
+    totalPages: Math.max(1, Math.ceil(hostels.length / 12)),
     itemsPerPage: 12,
     hasNextPage: false,
     hasPrevPage: false,
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  };
 
   const toggleAmenity = (amenityId: string) => {
     setSelectedAmenities((prev) =>
@@ -339,44 +354,6 @@ const HostelsPage = () => {
     priceRange[0] > 0 || priceRange[1] < 5000,
     minRating > 0,
   ].filter(Boolean).length;
-
-  // Fetch hostels from the production API whenever page changes
-  useEffect(() => {
-    let cancelled = false;
-    const fetchHostels = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response: ListHostelsResponse = await listHostels({
-          page,
-          limit: 12,
-        });
-        if (!cancelled) {
-          if (response?.data && response.data.length > 0) {
-            setHostels(response.data.map(mapHostelToCard));
-            setPagination(response.pagination || null);
-          } else {
-            // Keep actual backend data if API returns empty
-            setHostels(INITIAL_HOSTELS);
-          }
-        }
-      } catch (err) {
-        if (!cancelled) {
-          // Keep INITIAL_HOSTELS as reliable fallback so page never renders blank
-          console.warn('Backend API request error, preserving actual hostel data:', err);
-          setHostels((prev) => (prev.length > 0 ? prev : INITIAL_HOSTELS));
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-    fetchHostels();
-    return () => {
-      cancelled = true;
-    };
-  }, [page]);
 
   // Client-side filtering over loaded page results
   const filteredHostels = hostels.filter((h) => {

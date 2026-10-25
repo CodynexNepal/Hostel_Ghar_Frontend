@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import type { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -12,7 +12,8 @@ import FaqAccordion from '@/components/aeo/FaqAccordion';
 import BookingModal from '@/components/booking/BookingModal';
 import StarRating from '@/components/hostel/StarRating';
 import { HOSTELS, getHostelBySlug, type Hostel, type DetailedFacility } from '@/data/hostels';
-import { getHostelById, getHostelFacilities } from '@/lib/api/hostels';
+import { listHostels, getHostelById } from '@/lib/api/hostels';
+import { useHostel } from '@/hooks/useHostels';
 import { FAQS } from '@/data/faqs';
 import { hostelJsonLd, faqJsonLd } from '@/lib/seo/jsonLd';
 import {
@@ -33,47 +34,72 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-export default function HostelDetail({ hostel }: { hostel: Hostel }) {
+export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [facilities, setFacilities] = useState<DetailedFacility[]>(
-    hostel.detailedFacilities || []
-  );
+
+  // Hook to call the hostel endpoint with Axios
+  const {
+    hostel: apiHostel,
+    facilities: apiFacilities,
+    loading: isHostelLoading,
+  } = useHostel(initialHostel.id || initialHostel.slug);
+
+  // Merge live API data with initial props
+  const hostel = useMemo<Hostel>(() => {
+    if (!apiHostel) return initialHostel;
+    return {
+      ...initialHostel,
+      name: apiHostel.name || initialHostel.name,
+      city: apiHostel.city || initialHostel.city,
+      area: [apiHostel.address, apiHostel.city].filter(Boolean).join(', ') || initialHostel.area,
+      phone: apiHostel.phone ?? initialHostel.phone,
+      email: apiHostel.email ?? initialHostel.email,
+      image: apiHostel.logoUrl || initialHostel.image,
+      priceFrom: apiHostel.priceFrom || initialHostel.priceFrom,
+      monthlyPrice: apiHostel.monthlyPrice || initialHostel.monthlyPrice,
+      totalBeds: apiHostel.totalBeds || initialHostel.totalBeds,
+      availableBeds: apiHostel.availableBeds || initialHostel.availableBeds,
+      totalStudents: apiHostel.totalStudents || initialHostel.totalStudents,
+      roomType: apiHostel.type
+        ? `${apiHostel.type.charAt(0).toUpperCase() + apiHostel.type.slice(1).toLowerCase()} Hostel`
+        : initialHostel.roomType,
+      owner: (apiHostel.owner as any) ?? initialHostel.owner,
+    };
+  }, [apiHostel, initialHostel]);
+
+  // Merge facilities fetched via Axios hook
+  const facilities = useMemo<DetailedFacility[]>(() => {
+    if (apiFacilities && apiFacilities.length > 0) {
+      return apiFacilities.map((f) => ({
+        id: f.id,
+        title: f.title,
+        description: f.description || 'Verified on-site hostel amenity',
+        tag: f.tag || 'Included',
+      }));
+    }
+    return initialHostel.detailedFacilities || [];
+  }, [apiFacilities, initialHostel.detailedFacilities]);
 
   const faqs = FAQS.filter((f) => ['cancellation', 'payment-methods'].includes(f.id));
   const isExternal = hostel.image.startsWith('http://') || hostel.image.startsWith('https://');
 
-  // Attempt client-side load of extra normalized facilities if backend is live
-  useEffect(() => {
-    let cancelled = false;
-    if (hostel.id) {
-      getHostelFacilities(hostel.id)
-        .then((res) => {
-          if (!cancelled && res?.data && res.data.length > 0) {
-            const mapped: DetailedFacility[] = res.data.map((f) => ({
-              id: f.id,
-              title: f.title,
-              description: f.description || 'Verified on-site hostel amenity',
-              tag: f.tag || 'Included',
-            }));
-            setFacilities(mapped);
-          }
-        })
-        .catch(() => {
-          // Keep static catalog facilities fallback cleanly
-        });
-    }
-    return () => {
-      cancelled = true;
-    };
-  }, [hostel.id]);
-
   const getFacilityIcon = (title: string) => {
     const t = title.toLowerCase();
-    if (t.includes('wifi') || t.includes('internet')) return <Wifi size={18} className="text-blue-500" />;
-    if (t.includes('meal') || t.includes('food') || t.includes('breakfast')) return <Coffee size={18} className="text-amber-500" />;
-    if (t.includes('cctv') || t.includes('security') || t.includes('guard')) return <ShieldCheck size={18} className="text-emerald-500" />;
-    if (t.includes('power') || t.includes('backup') || t.includes('inverter') || t.includes('electric')) return <Zap size={18} className="text-yellow-500" />;
-    if (t.includes('study') || t.includes('desk') || t.includes('silent')) return <BookOpen size={18} className="text-purple-500" />;
+    if (t.includes('wifi') || t.includes('internet'))
+      return <Wifi size={18} className="text-blue-500" />;
+    if (t.includes('meal') || t.includes('food') || t.includes('breakfast'))
+      return <Coffee size={18} className="text-amber-500" />;
+    if (t.includes('cctv') || t.includes('security') || t.includes('guard'))
+      return <ShieldCheck size={18} className="text-emerald-500" />;
+    if (
+      t.includes('power') ||
+      t.includes('backup') ||
+      t.includes('inverter') ||
+      t.includes('electric')
+    )
+      return <Zap size={18} className="text-yellow-500" />;
+    if (t.includes('study') || t.includes('desk') || t.includes('silent'))
+      return <BookOpen size={18} className="text-purple-500" />;
     return <Sparkles size={18} className="text-brand-black" />;
   };
 
@@ -150,7 +176,9 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
                   <div className="w-8 h-8 mx-auto mb-1 rounded-lg bg-brand-lime/30 flex items-center justify-center text-brand-black">
                     <Tag size={16} />
                   </div>
-                  <p className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">Monthly Rent</p>
+                  <p className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">
+                    Monthly Rent
+                  </p>
                   <p className="text-base font-extrabold text-neutral-900">
                     Rs. {hostel.monthlyPrice.toLocaleString()}
                   </p>
@@ -159,7 +187,9 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
                   <div className="w-8 h-8 mx-auto mb-1 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
                     <BedDouble size={16} />
                   </div>
-                  <p className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">Beds Available</p>
+                  <p className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">
+                    Beds Available
+                  </p>
                   <p className="text-base font-extrabold text-emerald-600">
                     {hostel.availableBeds} / {hostel.totalBeds}
                   </p>
@@ -168,10 +198,10 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
                   <div className="w-8 h-8 mx-auto mb-1 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700">
                     <Users size={16} />
                   </div>
-                  <p className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">Total Students</p>
-                  <p className="text-base font-extrabold text-purple-900">
-                    {hostel.totalStudents}
+                  <p className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">
+                    Total Students
                   </p>
+                  <p className="text-base font-extrabold text-purple-900">{hostel.totalStudents}</p>
                 </div>
               </div>
             </div>
@@ -202,7 +232,9 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
               <div className="p-5 rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-100/70 border border-neutral-200">
                 <div className="flex items-baseline justify-between mb-1">
                   <div>
-                    <span className="text-xs uppercase font-bold text-neutral-500 tracking-wider">Standard Monthly Fee</span>
+                    <span className="text-xs uppercase font-bold text-neutral-500 tracking-wider">
+                      Standard Monthly Fee
+                    </span>
                     <div className="flex items-baseline gap-2 mt-0.5">
                       <span className="text-3xl sm:text-4xl font-extrabold text-brand-black">
                         NPR {hostel.monthlyPrice.toLocaleString()}
@@ -217,7 +249,8 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
                   )}
                 </div>
                 <p className="text-xs text-neutral-600 mt-2">
-                  *Includes 4 daily meals, electricity, Wi-Fi & water. Nightly stay from NPR {hostel.priceFrom.toLocaleString()}/night.
+                  *Includes 4 daily meals, electricity, Wi-Fi & water. Nightly stay from NPR{' '}
+                  {hostel.priceFrom.toLocaleString()}/night.
                 </p>
               </div>
 
@@ -303,9 +336,7 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
                     </span>
                   </div>
                   <h3 className="font-bold text-neutral-900 text-sm mb-1">{facility.title}</h3>
-                  <p className="text-xs text-neutral-500 leading-relaxed">
-                    {facility.description}
-                  </p>
+                  <p className="text-xs text-neutral-500 leading-relaxed">{facility.description}</p>
                 </div>
               ))}
             </div>
@@ -340,7 +371,8 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
           <div>
             <p className="text-[11px] text-neutral-500">Monthly Rent</p>
             <p className="text-base font-extrabold text-brand-black">
-              NPR {hostel.monthlyPrice.toLocaleString()}<span className="text-xs font-normal text-neutral-500">/mo</span>
+              NPR {hostel.monthlyPrice.toLocaleString()}
+              <span className="text-xs font-normal text-neutral-500">/mo</span>
             </p>
           </div>
           <button
@@ -369,19 +401,31 @@ export default function HostelDetail({ hostel }: { hostel: Hostel }) {
   );
 }
 
-export const getStaticPaths: GetStaticPaths = async () => ({
-  paths: HOSTELS.map((h) => ({ params: { slug: h.slug } })),
-  fallback: 'blocking',
-});
+export const getStaticPaths: GetStaticPaths = async () => {
+  try {
+    const res = await listHostels({ limit: 50 });
+    if (res?.data && res.data.length > 0) {
+      const paths = res.data.map((h) => ({ params: { slug: h.id } }));
+      return { paths, fallback: 'blocking' };
+    }
+  } catch {
+    // API not reachable during static build; fall back to known static slugs
+  }
+  return {
+    paths: HOSTELS.map((h) => ({ params: { slug: h.slug } })),
+    fallback: 'blocking',
+  };
+};
+
+function sanitizeForJson<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
+}
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const slug = String(params?.slug);
   const staticHostel = getHostelBySlug(slug);
-  if (staticHostel) {
-    return { props: { hostel: staticHostel } };
-  }
 
-  // Attempt to fetch from API by ID
+  // 1. Fetch from actual production backend API endpoint first
   try {
     const res = await getHostelById(slug);
     if (res?.data) {
@@ -390,55 +434,74 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         id: data.id,
         slug: data.id,
         name: data.name,
-        city: data.city || 'Kathmandu',
-        area: [data.address, data.city].filter(Boolean).join(', ') || 'Banasthali-16, Kathmandu',
-        priceFrom: data.priceFrom || 1200,
-        monthlyPrice: data.monthlyPrice || 12000,
-        originalPrice: 1500,
-        originalMonthlyPrice: 14000,
-        totalBeds: data.totalBeds || 48,
-        availableBeds: data.availableBeds || 8,
-        occupiedBeds: 40,
-        totalStudents: data.totalStudents || 40,
-        rating: 4.8,
-        reviews: 12,
+        city: data.city || staticHostel?.city || 'Kathmandu',
+        area:
+          [data.address, data.city].filter(Boolean).join(', ') ||
+          staticHostel?.area ||
+          'Banasthali-16, Kathmandu',
+        priceFrom: data.priceFrom || staticHostel?.priceFrom || 1100,
+        monthlyPrice: data.monthlyPrice || staticHostel?.monthlyPrice || 11000,
+        originalPrice: staticHostel?.originalPrice ?? 1400,
+        originalMonthlyPrice: staticHostel?.originalMonthlyPrice ?? 13000,
+        totalBeds: data.totalBeds || staticHostel?.totalBeds || 36,
+        availableBeds: data.availableBeds || staticHostel?.availableBeds || 6,
+        occupiedBeds: staticHostel?.occupiedBeds ?? 30,
+        totalStudents: data.totalStudents || staticHostel?.totalStudents || 30,
+        rating: staticHostel?.rating ?? 4.8,
+        reviews: staticHostel?.reviews ?? 19,
         roomType: data.type
           ? `${data.type.charAt(0).toUpperCase() + data.type.slice(1).toLowerCase()} Hostel`
-          : 'Boys Hostel',
-        amenities: ['wifi', 'breakfast', 'cctv', 'study'],
+          : staticHostel?.roomType || 'Boys Hostel',
+        amenities: staticHostel?.amenities || ['wifi', 'breakfast', 'powerbackup', 'laundry'],
         detailedFacilities:
-          data.hostelFacilities?.map((hf) => ({
-            id: hf.id,
-            title: hf.facility?.title || hf.facility?.name || 'Verified Amenity',
-            description: hf.description || 'Verified facility for hostel residents',
-            tag: hf.tag || 'Included',
-          })) || [
-            {
-              title: 'High-Speed Wi-Fi',
-              description: 'Fast internet across all rooms',
-              tag: 'Included',
-            },
-            {
-              title: 'Nutritious Meals',
-              description: 'Daily fresh meals and breakfast',
-              tag: 'Included',
-            },
-            {
-              title: '24/7 Hot Water',
-              description: 'Solar & electric heated water',
-              tag: 'Included',
-            },
-          ],
-        image: data.logoUrl || '/images/static/hostel.jpg',
-        description: `${data.name} is a verified hostel located in ${data.address || data.city}. Contact phone: ${data.phone || 'N/A'}.`,
-        phone: data.phone || null,
-        email: data.email || null,
-        owner: data.owner || null,
+          data.hostelFacilities && data.hostelFacilities.length > 0
+            ? data.hostelFacilities.map((hf) => ({
+                id: hf.id,
+                title: hf.facility?.title || hf.facility?.name || 'Verified Amenity',
+                description: hf.description || 'Verified facility for hostel residents',
+                tag: hf.tag || 'Included',
+              }))
+            : staticHostel?.detailedFacilities || [
+                {
+                  title: 'High-Speed Wi-Fi',
+                  description: 'Fast internet across all rooms',
+                  tag: 'Included',
+                },
+                {
+                  title: 'Nutritious Meals',
+                  description: 'Daily fresh meals and breakfast',
+                  tag: 'Included',
+                },
+                {
+                  title: '24/7 Hot Water',
+                  description: 'Solar & electric heated water',
+                  tag: 'Included',
+                },
+              ],
+        image: data.logoUrl || staticHostel?.image || '/images/static/hostel.jpg',
+        description:
+          staticHostel?.description ||
+          `${data.name} is a verified hostel located in ${data.address || data.city}. Contact phone: ${data.phone || 'N/A'}.`,
+        ...(staticHostel?.latitude !== undefined ? { latitude: staticHostel.latitude } : {}),
+        ...(staticHostel?.longitude !== undefined ? { longitude: staticHostel.longitude } : {}),
+        ...(data.createdAt || staticHostel?.createdAt
+          ? { createdAt: data.createdAt || staticHostel?.createdAt }
+          : {}),
+        ...(staticHostel?.aliasSlugs ? { aliasSlugs: staticHostel.aliasSlugs } : {}),
+        phone: data.phone || staticHostel?.phone || null,
+        email: data.email || staticHostel?.email || null,
+        isActive: data.isActive ?? true,
+        owner: (data.owner as any) || staticHostel?.owner || null,
       };
-      return { props: { hostel: apiHostel }, revalidate: 60 };
+      return { props: { hostel: sanitizeForJson(apiHostel) }, revalidate: 60 };
     }
   } catch {
-    // If not found in API, falls through to notFound
+    // If not found in API or API request times out, fall through to static catalog
+  }
+
+  // 2. Fallback to static catalog if API is offline
+  if (staticHostel) {
+    return { props: { hostel: sanitizeForJson(staticHostel) }, revalidate: 60 };
   }
 
   return { notFound: true };

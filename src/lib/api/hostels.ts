@@ -219,4 +219,3 @@ export const getHostelRatings = async (hostelId: string): Promise<HostelRatingRe
   const response = await apiClient.get<HostelRatingResponse>(`/hostels/${hostelId}/ratings`);
   return response.data;
 };
-

@@ -77,12 +77,14 @@ export const HOSTELS: Hostel[] = [
     detailedFacilities: [
       {
         title: 'High-Speed Wi-Fi',
-        description: 'Unlimited dual-band fiber internet accessible across all rooms and study lounges.',
+        description:
+          'Unlimited dual-band fiber internet accessible across all rooms and study lounges.',
         tag: 'Included',
       },
       {
         title: '4-Time Nutritious Meals',
-        description: 'Hygienic home-cooked breakfast, lunch, evening tea & snacks, and full dinner.',
+        description:
+          'Hygienic home-cooked breakfast, lunch, evening tea & snacks, and full dinner.',
         tag: 'Included',
       },
       {
@@ -92,22 +94,26 @@ export const HOSTELS: Hostel[] = [
       },
       {
         title: 'CCTV & Security',
-        description: '24-hour perimeter security with CCTV surveillance and hostel warden supervision.',
+        description:
+          '24-hour perimeter security with CCTV surveillance and hostel warden supervision.',
         tag: 'Included',
       },
       {
         title: 'Power Backup / Inverter',
-        description: 'Continuous uninterrupted power supply for emergency lights and internet connectivity.',
+        description:
+          'Continuous uninterrupted power supply for emergency lights and internet connectivity.',
         tag: 'Included',
       },
       {
         title: 'Silent Study Room',
-        description: 'Spacious dedicated study room equipped with private study desks and charging ports.',
+        description:
+          'Spacious dedicated study room equipped with private study desks and charging ports.',
         tag: 'Included',
       },
       {
         title: 'Laundry & Washing Facilities',
-        description: 'Automatic washing machine access and covered sunny terrace clothes-drying area.',
+        description:
+          'Automatic washing machine access and covered sunny terrace clothes-drying area.',
         tag: 'Included',
       },
       {
@@ -158,12 +164,14 @@ export const HOSTELS: Hostel[] = [
     detailedFacilities: [
       {
         title: 'Ultra-Fast 100 Mbps Wi-Fi',
-        description: 'Dual-band gigabit mesh network covering all rooms, dining, and common lounges.',
+        description:
+          'Dual-band gigabit mesh network covering all rooms, dining, and common lounges.',
         tag: 'Included',
       },
       {
         title: 'Healthy 4-Meal Diet',
-        description: 'Morning tea with breakfast, hot lunch, evening refreshment, and nutritious dinner.',
+        description:
+          'Morning tea with breakfast, hot lunch, evening refreshment, and nutritious dinner.',
         tag: 'Included',
       },
       {
@@ -173,12 +181,14 @@ export const HOSTELS: Hostel[] = [
       },
       {
         title: 'Modern Study Desks',
-        description: 'Ergonomic study chairs, personal reading lights, and dedicated power sockets.',
+        description:
+          'Ergonomic study chairs, personal reading lights, and dedicated power sockets.',
         tag: 'Included',
       },
       {
         title: '24/7 Generator & Solar Backup',
-        description: 'Automatic phase-shift generator ensures continuous light, charging, and connectivity.',
+        description:
+          'Automatic phase-shift generator ensures continuous light, charging, and connectivity.',
         tag: 'Included',
       },
       {
@@ -193,7 +203,8 @@ export const HOSTELS: Hostel[] = [
       },
       {
         title: '24/7 Hot Water Facility',
-        description: 'Central heat pump and solar water heating with instant hot water in all bathrooms.',
+        description:
+          'Central heat pump and solar water heating with instant hot water in all bathrooms.',
         tag: 'Included',
       },
     ],
@@ -244,12 +255,14 @@ export const HOSTELS: Hostel[] = [
       },
       {
         title: 'Daily Cooked Meals',
-        description: 'Wholesome breakfast, lunch, snacks, and dinner prepared with fresh ingredients.',
+        description:
+          'Wholesome breakfast, lunch, snacks, and dinner prepared with fresh ingredients.',
         tag: 'Included',
       },
       {
         title: '24/7 Power Backup',
-        description: 'Inverter backup ensuring uninterrupted power for lighting and device charging.',
+        description:
+          'Inverter backup ensuring uninterrupted power for lighting and device charging.',
         tag: 'Included',
       },
       {
@@ -264,7 +277,8 @@ export const HOSTELS: Hostel[] = [
       },
       {
         title: 'Continuous Water Supply',
-        description: '24/7 running water with dedicated hot water during morning and evening hours.',
+        description:
+          '24/7 running water with dedicated hot water during morning and evening hours.',
         tag: 'Included',
       },
     ],
@@ -337,7 +351,12 @@ export const HOSTELS: Hostel[] = [
     isActive: true,
     createdAt: '2026-10-16T14:27:40.947Z',
     owner: null,
-    aliasSlugs: ['bishan-hostel-annex', 'lumbini-peace-hostel', 'nagarkot-sunrise-inn', 'bhaktapur-heritage-stay'],
+    aliasSlugs: [
+      'bishan-hostel-annex',
+      'lumbini-peace-hostel',
+      'nagarkot-sunrise-inn',
+      'bhaktapur-heritage-stay',
+    ],
   },
 ];
 
@@ -348,7 +367,7 @@ export function getHostelBySlug(slug: string): Hostel | undefined {
     (h) =>
       h.slug.toLowerCase() === normalized ||
       h.id.toLowerCase() === normalized ||
-      (h.aliasSlugs && h.aliasSlugs.some((alias) => alias.toLowerCase() === normalized)),
+      (h.aliasSlugs && h.aliasSlugs.some((alias) => alias.toLowerCase() === normalized))
   );
 }
 

@@ -142,8 +142,8 @@ export default function StarRating({
                         ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]'
                         : 'text-neutral-300'
                       : isFilled || isUserRated
-                      ? 'fill-amber-400 text-amber-400'
-                      : 'text-neutral-300'
+                        ? 'fill-amber-400 text-amber-400'
+                        : 'text-neutral-300'
                   }`}
                 />
               </button>
@@ -215,4 +215,3 @@ export default function StarRating({
     </div>
   );
 }
-
