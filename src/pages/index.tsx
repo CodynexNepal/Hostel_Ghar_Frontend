@@ -66,7 +66,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto text-center space-y-7 animate-slide-up">
             <div>
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-lime/25 text-brand-black text-sm font-bold tracking-tight shadow-sm border border-brand-lime/40">
-                <span className="text-lg">🏔️</span> #1 Hostel Booking Platform in Nepal
+                 #1 Hostel Booking Platform in Nepal
               </span>
             </div>
 

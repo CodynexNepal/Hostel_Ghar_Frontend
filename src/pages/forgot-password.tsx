@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/navigation/Header';
@@ -64,33 +65,22 @@ const ForgotPassword = () => {
 
         <Header />
 
-        <AuthLayout
-          badge="Reset your password"
-          title="Check your inbox"
-          subtitle="We’ve sent a password-reset link to your email address."
-          benefits={[
-            'Link expires in 60 minutes',
-            'Create a new strong password',
-            'Secure & encrypted',
-          ]}
-          trust="If you don’t see the email, check your spam folder."
-          mobileBrand="Hostel Ghar"
-        >
+        <AuthLayout>
           <div className="text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-              <CheckCircle size={32} strokeWidth={2.5} className="text-emerald-600" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 mb-6">
+              <CheckCircle size={28} strokeWidth={2.5} />
             </div>
-            <h1 className="mt-6 text-[26px] font-extrabold tracking-tight text-brand-black sm:text-3xl">
+            <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl">
               Reset link sent
             </h1>
-            <p className="mt-2 max-w-sm mx-auto text-sm text-neutral-500 sm:text-[15px]">
-              Follow the link in your email to create a new password.
+            <p className="mt-2 max-w-sm mx-auto text-sm text-neutral-500">
+              We&apos;ve sent a password reset link to your email. Please check your inbox.
             </p>
 
             <div className="mt-8">
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-black py-3.5 text-[15px] font-bold text-white shadow-hard transition-all duration-200 hover:-translate-y-px hover:bg-neutral-800 active:translate-y-0"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-black py-3.5 text-[15px] font-bold text-white shadow-hard transition-all duration-200 hover:-translate-y-px hover:bg-neutral-800 active:translate-y-0"
               >
                 Back to sign in <ArrowRight size={17} strokeWidth={2.5} />
               </Link>
@@ -112,23 +102,25 @@ const ForgotPassword = () => {
 
       <Header />
 
-      <AuthLayout
-        badge="Reset your password"
-        title="Forgot password?"
-        subtitle="Enter your email and we’ll send you a link to reset your password."
-        benefits={['Secure reset link', 'Link expires in 60 minutes', '256-bit encryption']}
-        trust="No account? Create one instead."
-        mobileBrand="Hostel Ghar"
-      >
-        <div className="mb-7">
-          <h1 className="flex items-center gap-2.5 text-[26px] font-extrabold tracking-tight text-brand-black sm:text-3xl">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-black text-brand-lime">
-              <Mail size={20} strokeWidth={2.5} />
-            </span>
+      <AuthLayout>
+        <div className="mb-8 text-center">
+          <Link href="/" className="inline-block group mb-3">
+            <div className="relative mx-auto h-14 w-14 rounded-2xl overflow-hidden border border-neutral-200/80 shadow-xs bg-white p-1 transition-transform duration-200 group-hover:scale-105">
+              <Image
+                src="/images/logo/hostel_ghar_logo.jpg"
+                alt="Hostel Ghar"
+                width={56}
+                height={56}
+                className="w-full h-full object-cover rounded-xl"
+                priority
+              />
+            </div>
+          </Link>
+          <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl">
             Forgot password
           </h1>
-          <p className="mt-2 text-sm text-neutral-500 sm:text-[15px]">
-            Enter the email address associated with your account.
+          <p className="mt-2 text-sm text-neutral-500">
+            Enter your email to receive a password reset link
           </p>
         </div>
 

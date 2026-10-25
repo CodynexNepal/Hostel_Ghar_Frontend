@@ -9,7 +9,7 @@ import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Mail, Lock, Eye, EyeOff, LogIn, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import AuthLayout from '@/components/auth/AuthLayout';
 import { loginSchema, type LoginFormData } from '@/lib/validation';
 import { login } from '@/lib/api/auth';
@@ -66,39 +66,25 @@ const Login = () => {
 
       <Header />
 
-      <AuthLayout
-        badge="Members get more"
-        title="Welcome back!"
-        subtitle="Your next adventure awaits — pick up right where you left off."
-        benefits={[
-          'Access 500+ verified hostels',
-          'Manage your bookings easily',
-          'Exclusive member discounts',
-        ]}
-        trust="Your data is protected with 256-bit encryption"
-        mobileBrand="Hostel Ghar"
-      >
-        <div className="mb-7">
-          <Link href="/" className="inline-block mb-3.5 group">
-            <div className="relative h-12 w-12 rounded-2xl overflow-hidden border border-neutral-200/80 shadow-sm bg-white p-0.5 group-hover:scale-105 transition-transform">
+      <AuthLayout>
+        <div className="mb-8 text-center">
+          <Link href="/" className="inline-block group mb-3">
+            <div className="relative mx-auto h-14 w-14 rounded-2xl overflow-hidden border border-neutral-200/80 shadow-xs bg-white p-1 transition-transform duration-200 group-hover:scale-105">
               <Image
                 src="/images/logo/hostel_ghar_logo.jpg"
-                alt="Hostel Ghar Logo"
-                width={46}
-                height={46}
+                alt="Hostel Ghar"
+                width={56}
+                height={56}
                 className="w-full h-full object-cover rounded-xl"
                 priority
               />
             </div>
           </Link>
-          <h1 className="flex items-center gap-2.5 text-[26px] font-extrabold tracking-tight text-brand-black sm:text-3xl">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-black text-brand-lime">
-              <LogIn size={20} strokeWidth={2.5} />
-            </span>
+          <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl">
             Welcome back
           </h1>
-          <p className="mt-2 text-sm text-neutral-500 sm:text-[15px]">
-            Sign in to continue to your account.
+          <p className="mt-2 text-sm text-neutral-500">
+            Sign in to continue to your account
           </p>
         </div>
 
