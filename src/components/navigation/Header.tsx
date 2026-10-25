@@ -14,6 +14,7 @@ import {
   LogIn,
   UserPlus,
   LogOut,
+  Loader2,
   User,
   Calendar,
   Menu,
@@ -106,15 +107,26 @@ const Header = () => {
     };
   }, [pathname]);
 
-  const handleLogout = async () => {
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = async () => {
+    setIsLoggingOut(true);
     try {
       await logout();
       setIsAuth(false);
       setUser(null);
       setIsMenuOpen(false);
+      setShowLogoutModal(false);
       router.push('/login');
     } catch (err) {
       console.warn('Logout error:', err);
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -348,7 +360,7 @@ const Header = () => {
                   )}
 
                   <button
-                    onClick={handleLogout}
+                    onClick={handleLogoutClick}
                     type="button"
                     title="Log out of your account"
                     className="flex items-center gap-1.5 px-3 py-2 text-[13px] font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-all duration-200 tracking-tight border border-rose-200 cursor-pointer"
@@ -449,7 +461,7 @@ const Header = () => {
                       My Bookings
                     </Link>
                     <button
-                      onClick={handleLogout}
+                      onClick={handleLogoutClick}
                       type="button"
                       className="w-full flex items-center gap-2.5 px-4 py-3 rounded-lg text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-all duration-200 tracking-tight text-left cursor-pointer"
                     >
@@ -493,6 +505,80 @@ const Header = () => {
 
       {/* Spacer for fixed header */}
       <div className="h-16 md:h-20" />
+
+      {/* Logout Confirmation & Spinner Modal */}
+      {showLogoutModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="logout-modal-title"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+          onClick={() => {
+            if (!isLoggingOut) setShowLogoutModal(false);
+          }}
+        >
+          <div
+            className="relative w-full max-w-sm bg-white rounded-3xl p-6 sm:p-7 shadow-2xl border border-neutral-100 text-center animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            {!isLoggingOut && (
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-neutral-500 transition-colors"
+                aria-label="Close"
+              >
+                <X size={16} />
+              </button>
+            )}
+
+            {/* Icon / Spinner */}
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center">
+              {isLoggingOut ? (
+                <Loader2 size={30} className="text-rose-600 animate-spin" />
+              ) : (
+                <LogOut size={28} className="text-rose-600 stroke-[2.2]" />
+              )}
+            </div>
+
+            <h3 id="logout-modal-title" className="text-xl font-extrabold text-brand-black mb-1.5">
+              {isLoggingOut ? 'Logging you out...' : 'Log out of Hostel Ghar?'}
+            </h3>
+
+            <p className="text-sm text-neutral-500 mb-6 leading-relaxed">
+              {isLoggingOut
+                ? 'Please wait a moment while we secure your session.'
+                : 'Are you sure you want to sign out? You can sign back in anytime.'}
+            </p>
+
+            {isLoggingOut ? (
+              <div className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-neutral-50 border border-neutral-100 text-sm font-semibold text-neutral-600">
+                <Loader2 size={16} className="animate-spin text-brand-black" />
+                <span>Signing out...</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowLogoutModal(false)}
+                  className="w-full py-2.5 px-4 rounded-xl border border-neutral-200 text-sm font-bold text-neutral-700 hover:bg-neutral-50 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmLogout}
+                  className="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <LogOut size={15} />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 };

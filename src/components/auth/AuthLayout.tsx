@@ -1,8 +1,10 @@
 'use client';
 
 import { ReactNode, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import gsap from 'gsap';
-import { Building2, CheckCircle, Shield } from 'lucide-react';
+import { CheckCircle, Shield } from 'lucide-react';
 
 export interface AuthLayoutProps {
   badge: string;
@@ -69,9 +71,16 @@ const AuthLayout = ({
               <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-brand-lime/20 blur-3xl" />
               <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-brand-lime/10 blur-3xl" />
             </div>
-            <div className="relative flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-lime shadow-lime">
-                <Building2 size={24} strokeWidth={2.4} className="text-brand-black" />
+            <Link href="/" className="relative flex items-center gap-3 group">
+              <span className="relative flex h-12 w-12 items-center justify-center rounded-2xl overflow-hidden bg-white shadow-lime p-0.5 border border-brand-lime/50 group-hover:scale-105 transition-transform">
+                <Image
+                  src="/images/logo/hostel_ghar_logo.jpg"
+                  alt="Hostel Ghar Logo"
+                  width={46}
+                  height={46}
+                  className="w-full h-full object-cover rounded-xl"
+                  priority
+                />
               </span>
               <span className="leading-tight">
                 <span className="block text-lg font-extrabold tracking-tight">Hostel Ghar</span>
@@ -79,8 +88,8 @@ const AuthLayout = ({
                   Find • Book • Stay
                 </span>
               </span>
-            </div>
-            <div className="relative mt-10">
+            </Link>
+            <div className="relative mt-8">
               <p className="inline-flex items-center rounded-full bg-brand-lime px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-brand-black">
                 {badge}
               </p>
@@ -90,60 +99,23 @@ const AuthLayout = ({
               <p className="mt-3 max-w-md text-[15px] leading-relaxed text-white/65">{subtitle}</p>
               <div
                 ref={artRef}
-                className="relative mt-8 rounded-2xl border border-white/10 bg-white/[0.05] p-5 backdrop-blur"
+                className="relative mt-8 rounded-2xl border border-white/10 bg-white/[0.05] p-6 backdrop-blur text-center"
               >
-                <svg
-                  viewBox="0 0 400 220"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-auto w-full"
-                  role="img"
-                  aria-label="Hostel illustration"
-                >
-                  <path
-                    d="M50 180 L150 80 L250 180 Z"
-                    fill="#B9FF66"
-                    fillOpacity="0.25"
-                    stroke="#B9FF66"
-                    strokeWidth="2"
+                <div className="relative mx-auto w-36 h-36 sm:w-44 sm:h-44 rounded-3xl overflow-hidden shadow-2xl border-2 border-brand-lime/40 bg-white p-2">
+                  <Image
+                    src="/images/logo/hostel_ghar_logo.jpg"
+                    alt="Hostel Ghar Official Logo"
+                    fill
+                    className="object-contain p-1 rounded-2xl"
+                    priority
                   />
-                  <path
-                    d="M120 180 L240 45 L360 180 Z"
-                    fill="#B9FF66"
-                    fillOpacity="0.4"
-                    stroke="#B9FF66"
-                    strokeWidth="2"
-                  />
-                  <rect
-                    x="130"
-                    y="135"
-                    width="140"
-                    height="65"
-                    fill="#FFFFFF"
-                    stroke="#B9FF66"
-                    strokeWidth="2.5"
-                    rx="6"
-                  />
-                  <path
-                    d="M120 135 L200 100 L280 135 Z"
-                    fill="#B9FF66"
-                    stroke="#B9FF66"
-                    strokeWidth="2"
-                  />
-                  <rect
-                    x="180"
-                    y="155"
-                    width="40"
-                    height="45"
-                    fill="#B9FF66"
-                    stroke="#010101"
-                    strokeWidth="2"
-                    rx="3"
-                  />
-                </svg>
-                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                </div>
+                <div className="mt-6 grid grid-cols-3 gap-2 text-center">
                   {stats.map((s) => (
-                    <div key={s.small} className="rounded-xl bg-white/5 px-2 py-3">
+                    <div
+                      key={s.small}
+                      className="rounded-xl bg-white/5 px-2 py-3 border border-white/5"
+                    >
                       <p className="text-lg font-extrabold text-brand-lime">{s.big}</p>
                       <p className="text-[11px] font-medium text-white/55">{s.small}</p>
                     </div>
@@ -170,11 +142,19 @@ const AuthLayout = ({
             ref={cardRef}
             className="flex min-h-[660px] flex-col justify-center bg-white p-6 sm:p-10 lg:p-12"
           >
-            <div className="mb-6 flex items-center gap-2 lg:hidden">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-lime">
-                <Building2 size={20} strokeWidth={2} className="text-brand-black" />
-              </span>
-              <span className="text-lg font-extrabold text-brand-black">{mobileBrand}</span>
+            <div className="mb-6 flex items-center gap-3 lg:hidden">
+              <Link href="/" className="flex items-center gap-2.5">
+                <span className="relative flex h-10 w-10 items-center justify-center rounded-xl overflow-hidden bg-white shadow-sm border border-neutral-200 p-0.5">
+                  <Image
+                    src="/images/logo/hostel_ghar_logo.jpg"
+                    alt="Hostel Ghar Logo"
+                    width={38}
+                    height={38}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </span>
+                <span className="text-lg font-extrabold text-brand-black">{mobileBrand}</span>
+              </Link>
             </div>
             {children}
           </div>

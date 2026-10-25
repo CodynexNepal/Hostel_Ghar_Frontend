@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/navigation/Header';
@@ -103,6 +104,18 @@ const Register = () => {
         mobileBrand="Hostel Ghar"
       >
         <div className="mb-7">
+          <Link href="/" className="inline-block mb-3.5 group">
+            <div className="relative h-12 w-12 rounded-2xl overflow-hidden border border-neutral-200/80 shadow-sm bg-white p-0.5 group-hover:scale-105 transition-transform">
+              <Image
+                src="/images/logo/hostel_ghar_logo.jpg"
+                alt="Hostel Ghar Logo"
+                width={46}
+                height={46}
+                className="w-full h-full object-cover rounded-xl"
+                priority
+              />
+            </div>
+          </Link>
           <h1 className="flex items-center gap-2.5 text-[26px] font-extrabold tracking-tight text-brand-black sm:text-3xl">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-lime text-brand-black">
               <UserPlus size={20} strokeWidth={2.5} />
