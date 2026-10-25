@@ -6,9 +6,9 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone: string;
   password: string;
 }
 
@@ -19,7 +19,9 @@ export interface ForgotPasswordRequest {
 export interface AuthUser {
   id: string;
   email: string;
-  fullName: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
   role?: string;
 }
 
@@ -79,12 +81,48 @@ export const login = async (credentials: LoginRequest): Promise<AuthResponse> =>
  * Creates a new user account.
  * POST /api/v1/hostel-ghar/auth/register
  */
-export const register = async (payload: RegisterRequest): Promise<AuthResponse> => {
+export const register = async (
+  payload:
+    | RegisterRequest
+    | {
+        fullName?: string;
+        firstName?: string;
+        lastName?: string;
+        email: string;
+        password: string;
+        phone?: string;
+      }
+): Promise<AuthResponse> => {
+  let firstName = payload.firstName;
+  let lastName = payload.lastName;
+
+  if ((!firstName || !lastName) && 'fullName' in payload && payload.fullName) {
+    const parts = payload.fullName.trim().split(/\s+/);
+    firstName = parts[0] || '';
+    lastName = parts.slice(1).join(' ') || parts[0] || '';
+  }
+
+  // Strictly send only whitelisted fields to pass backend DTO validation
+  const body = {
+    firstName: (firstName || '').trim(),
+    lastName: (lastName || '').trim(),
+    email: payload.email.trim(),
+    password: payload.password,
+  };
+
   try {
-    const response = await apiClient.post<any>('/auth/register', payload);
+    const response = await apiClient.post<any>('/auth/register', body);
     const data = response.data?.data || {};
     const token = data.token || data.accessToken;
-    const user = data.user;
+    const user = data.user
+      ? {
+          ...data.user,
+          fullName:
+            data.user.fullName ||
+            [data.user.firstName, data.user.lastName].filter(Boolean).join(' ') ||
+            data.user.email,
+        }
+      : null;
 
     if (token && typeof window !== 'undefined') {
       localStorage.setItem('token', token);
@@ -160,8 +198,18 @@ export const logout = async (): Promise<void> => {
 function handleAuthError(error: any): AuthApiError {
   const status = error.response?.status;
   const data = error.response?.data;
-  const message =
+  let message =
     data?.message || data?.error || error.message || 'Authentication failed. Please try again.';
+
+  if (data?.errors && Array.isArray(data.errors)) {
+    const errorMessages = data.errors
+      .map((item: any) => (Array.isArray(item.messages) ? item.messages.join(', ') : item.field))
+      .filter(Boolean);
+    if (errorMessages.length > 0) {
+      message = errorMessages.join('. ');
+    }
+  }
+
   const errors = data?.errors;
   return new AuthApiError(message, status, errors);
 }

@@ -1,5 +1,18 @@
 import apiClient from './client';
 
+export interface BedInventory {
+  total: number;
+  available: number;
+  occupied: number;
+}
+
+export interface HostelAdminCreator {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 export interface Hostel {
   id: string;
   name: string;
@@ -15,11 +28,15 @@ export interface Hostel {
   owner?: HostelOwner | null;
   monthlyPrice?: number;
   monthlyRent?: number;
+  hostelFee?: number;
   currency?: string;
   priceFrom?: number;
   totalBeds?: number;
   availableBeds?: number;
+  occupiedBeds?: number;
+  activeResidents?: number;
   totalStudents?: number;
+  beds?: BedInventory;
   isFeatured?: boolean;
   discountPercent?: number;
   rating?: number;
@@ -66,7 +83,17 @@ export interface HostelDetail extends Omit<Hostel, 'facilities'> {
   email?: string | null;
   isActive?: boolean;
   updatedAt?: string;
-  owner?: HostelOwner;
+  totalBeds?: number;
+  availableBeds?: number;
+  occupiedBeds?: number;
+  activeResidents?: number;
+  totalStudents?: number;
+  hostelFee?: number;
+  monthlyRent?: number;
+  currency?: string;
+  beds?: BedInventory;
+  owner?: HostelOwner | null;
+  createdByAdmin?: HostelAdminCreator | null;
   hostelFacilities?: HostelFacilityItem[];
   facilities?: HostelFacility[];
 }

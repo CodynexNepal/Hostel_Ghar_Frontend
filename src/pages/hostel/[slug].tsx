@@ -56,10 +56,18 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
       email: apiHostel.email ?? initialHostel.email,
       image: apiHostel.logoUrl || initialHostel.image,
       priceFrom: apiHostel.priceFrom || initialHostel.priceFrom,
-      monthlyPrice: apiHostel.monthlyPrice || initialHostel.monthlyPrice,
-      totalBeds: apiHostel.totalBeds || initialHostel.totalBeds,
-      availableBeds: apiHostel.availableBeds || initialHostel.availableBeds,
-      totalStudents: apiHostel.totalStudents || initialHostel.totalStudents,
+      monthlyPrice:
+        apiHostel.monthlyRent ??
+        apiHostel.hostelFee ??
+        apiHostel.monthlyPrice ??
+        initialHostel.monthlyPrice,
+      totalBeds: apiHostel.totalBeds ?? apiHostel.beds?.total ?? initialHostel.totalBeds,
+      availableBeds:
+        apiHostel.availableBeds ?? apiHostel.beds?.available ?? initialHostel.availableBeds,
+      occupiedBeds:
+        apiHostel.occupiedBeds ?? apiHostel.beds?.occupied ?? initialHostel.occupiedBeds,
+      totalStudents:
+        apiHostel.totalStudents ?? apiHostel.activeResidents ?? initialHostel.totalStudents,
       roomType: apiHostel.type
         ? `${apiHostel.type.charAt(0).toUpperCase() + apiHostel.type.slice(1).toLowerCase()} Hostel`
         : initialHostel.roomType,
@@ -440,13 +448,20 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           staticHostel?.area ||
           'Banasthali-16, Kathmandu',
         priceFrom: data.priceFrom || staticHostel?.priceFrom || 1100,
-        monthlyPrice: data.monthlyPrice || staticHostel?.monthlyPrice || 11000,
+        monthlyPrice:
+          data.monthlyRent ??
+          data.hostelFee ??
+          data.monthlyPrice ??
+          staticHostel?.monthlyPrice ??
+          11000,
         originalPrice: staticHostel?.originalPrice ?? 1400,
         originalMonthlyPrice: staticHostel?.originalMonthlyPrice ?? 13000,
-        totalBeds: data.totalBeds || staticHostel?.totalBeds || 36,
-        availableBeds: data.availableBeds || staticHostel?.availableBeds || 6,
-        occupiedBeds: staticHostel?.occupiedBeds ?? 30,
-        totalStudents: data.totalStudents || staticHostel?.totalStudents || 30,
+        totalBeds: data.totalBeds ?? data.beds?.total ?? staticHostel?.totalBeds ?? 36,
+        availableBeds:
+          data.availableBeds ?? data.beds?.available ?? staticHostel?.availableBeds ?? 6,
+        occupiedBeds: data.occupiedBeds ?? data.beds?.occupied ?? staticHostel?.occupiedBeds ?? 30,
+        totalStudents:
+          data.totalStudents ?? data.activeResidents ?? staticHostel?.totalStudents ?? 30,
         rating: staticHostel?.rating ?? 4.8,
         reviews: staticHostel?.reviews ?? 0,
         roomType: data.type

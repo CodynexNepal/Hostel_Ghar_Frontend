@@ -37,7 +37,12 @@ export interface Hostel {
   totalBeds: number;
   availableBeds: number;
   occupiedBeds: number;
+  activeResidents?: number;
   totalStudents: number;
+  hostelFee?: number;
+  monthlyRent?: number;
+  currency?: string;
+  beds?: { total: number; available: number; occupied: number };
   rating: number;
   reviews: number;
   roomType: string;

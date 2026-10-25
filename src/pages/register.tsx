@@ -67,9 +67,9 @@ const Register = () => {
     setRegisterError('');
     try {
       await apiRegister({
-        fullName: data.fullName,
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
-        phone: data.phone,
         password: data.password,
       });
       router.push('/login?registered=1');
@@ -110,7 +110,7 @@ const Register = () => {
             Join Hostel Ghar
           </h1>
           <p className="mt-2 text-sm text-neutral-500 sm:text-[15px]">
-            Full name, Gmail, phone and password — that&apos;s all we need.
+            First name, last name, email and password — that&apos;s all we need.
           </p>
         </div>
 
@@ -127,104 +127,111 @@ const Register = () => {
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label
+                htmlFor="reg-first-name"
+                className="mb-2 block text-sm font-bold text-brand-black"
+              >
+                First name{' '}
+                <span className="text-red-500" aria-hidden>
+                  *
+                </span>
+              </label>
+              <div className="relative">
+                <User
+                  size={18}
+                  strokeWidth={2}
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
+                />
+                <input
+                  id="reg-first-name"
+                  type="text"
+                  autoComplete="given-name"
+                  placeholder="e.g. Aashish"
+                  {...register('firstName')}
+                  aria-invalid={!!errors.firstName}
+                  className={`${inputBase} ${errors.firstName ? inputErr : inputOk}`}
+                />
+              </div>
+              {errors.firstName && (
+                <p
+                  role="alert"
+                  className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500"
+                >
+                  <AlertCircle size={14} strokeWidth={2} /> {errors.firstName.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="reg-last-name"
+                className="mb-2 block text-sm font-bold text-brand-black"
+              >
+                Last name{' '}
+                <span className="text-red-500" aria-hidden>
+                  *
+                </span>
+              </label>
+              <div className="relative">
+                <User
+                  size={18}
+                  strokeWidth={2}
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
+                />
+                <input
+                  id="reg-last-name"
+                  type="text"
+                  autoComplete="family-name"
+                  placeholder="e.g. Sharma"
+                  {...register('lastName')}
+                  aria-invalid={!!errors.lastName}
+                  className={`${inputBase} ${errors.lastName ? inputErr : inputOk}`}
+                />
+              </div>
+              {errors.lastName && (
+                <p
+                  role="alert"
+                  className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500"
+                >
+                  <AlertCircle size={14} strokeWidth={2} /> {errors.lastName.message}
+                </p>
+              )}
+            </div>
+          </div>
+
           <div>
-            <label htmlFor="reg-name" className="mb-2 block text-sm font-bold text-brand-black">
-              Full name{' '}
+            <label htmlFor="reg-email" className="mb-2 block text-sm font-bold text-brand-black">
+              Email{' '}
               <span className="text-red-500" aria-hidden>
                 *
               </span>
             </label>
             <div className="relative">
-              <User
+              <Mail
                 size={18}
                 strokeWidth={2}
                 className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
               />
               <input
-                id="reg-name"
-                type="text"
-                autoComplete="name"
-                placeholder="e.g. Aashish Sharma"
-                {...register('fullName')}
-                aria-invalid={!!errors.fullName}
-                className={`${inputBase} ${errors.fullName ? inputErr : inputOk}`}
+                id="reg-email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@gmail.com"
+                {...register('email')}
+                aria-invalid={!!errors.email}
+                className={`${inputBase} ${errors.email ? inputErr : inputOk}`}
               />
             </div>
-            {errors.fullName && (
+            {errors.email && (
               <p
                 role="alert"
                 className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500"
               >
-                <AlertCircle size={14} strokeWidth={2} /> {errors.fullName.message}
+                <AlertCircle size={14} strokeWidth={2} /> {errors.email.message}
               </p>
             )}
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label htmlFor="reg-email" className="mb-2 block text-sm font-bold text-brand-black">
-                Gmail{' '}
-                <span className="text-red-500" aria-hidden>
-                  *
-                </span>
-              </label>
-              <div className="relative">
-                <Mail
-                  size={18}
-                  strokeWidth={2}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
-                />
-                <input
-                  id="reg-email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@gmail.com"
-                  {...register('email')}
-                  aria-invalid={!!errors.email}
-                  className={`${inputBase} ${errors.email ? inputErr : inputOk}`}
-                />
-              </div>
-              {errors.email && (
-                <p
-                  role="alert"
-                  className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500"
-                >
-                  <AlertCircle size={14} strokeWidth={2} /> {errors.email.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="reg-phone" className="mb-2 block text-sm font-bold text-brand-black">
-                Phone{' '}
-                <span className="text-red-500" aria-hidden>
-                  *
-                </span>
-              </label>
-              <div className="relative">
-                <Phone
-                  size={18}
-                  strokeWidth={2}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
-                />
-                <input
-                  id="reg-phone"
-                  type="tel"
-                  autoComplete="tel"
-                  placeholder="+977 98XXXXXXXX"
-                  {...register('phone')}
-                  aria-invalid={!!errors.phone}
-                  className={`${inputBase} ${errors.phone ? inputErr : inputOk}`}
-                />
-              </div>
-              {errors.phone && (
-                <p
-                  role="alert"
-                  className="mt-1.5 flex items-center gap-1 text-[13px] font-medium text-red-500"
-                >
-                  <AlertCircle size={14} strokeWidth={2} /> {errors.phone.message}
-                </p>
-              )}
-            </div>
           </div>
 
           <div>
