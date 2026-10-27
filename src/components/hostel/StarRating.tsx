@@ -16,8 +16,8 @@ interface StarRatingProps {
 
 export default function StarRating({
   hostelId,
-  initialRating = 4.8,
-  initialReviews = 12,
+  initialRating = 0,
+  initialReviews = 0,
   size = 18,
   showDetails = true,
   onRatingSubmitted,
@@ -153,8 +153,14 @@ export default function StarRating({
 
         {showDetails && (
           <div className="flex items-center gap-1.5 text-sm">
-            <span className="font-extrabold text-neutral-900">{rating.toFixed(1)}</span>
-            <span className="text-neutral-500 font-medium">({reviews} reviews)</span>
+            {rating > 0 ? (
+              <>
+                <span className="font-extrabold text-neutral-900">{rating.toFixed(1)}</span>
+                <span className="text-neutral-500 font-medium text-xs">({reviews} reviews)</span>
+              </>
+            ) : (
+              <span className="text-neutral-400 text-xs">No reviews</span>
+            )}
           </div>
         )}
 

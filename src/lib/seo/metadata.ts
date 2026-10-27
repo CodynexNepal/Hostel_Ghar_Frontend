@@ -15,17 +15,18 @@ export interface PageMeta {
 
 export const PAGE_META: Record<string, PageMeta> = {
   '/': {
-    title: 'Find Your Perfect Hostel in Nepal',
+    title: 'Hostel Ghar - Find Your Place. Manage Your Space',
     description:
-      'Hostel Ghar is Nepal’s #1 hostel booking platform — 500+ verified hostels in Kathmandu, Pokhara, Chitwan & 50+ cities. Compare prices from NPR 600/night, read real reviews & book instantly.',
+      'Nepal’s hostel discovery and management platform. Explore verified hostels, compare facilities, and manage rooms, residents, and hostel operations all in one connected platform.',
     keywords: [
       'hostel in Nepal',
+      'hostel discovery Nepal',
+      'hostel management system Nepal',
       'hostel booking Nepal',
       'hostels in Kathmandu',
       'hostels in Pokhara',
-      'cheap hostel Nepal',
-      'backpacker hostel Nepal',
-      'student hostel Kathmandu',
+      'resident dashboard',
+      'hostel owner dashboard',
     ],
     changefreq: 'daily',
     priority: 1.0,

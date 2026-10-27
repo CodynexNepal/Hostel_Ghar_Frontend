@@ -54,13 +54,28 @@ export function useHostels(options: UseHostelsOptions = {}): UseHostelsReturn {
         setPagination(null);
       }
     } catch (err: unknown) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[Hostels API Error]:', err);
+      }
       if (axios.isAxiosError(err)) {
-        const message = err.response?.data?.message || err.message || 'Failed to fetch hostels';
-        setError(message);
-      } else if (err instanceof Error) {
-        setError(err.message);
+        const status = err.response?.status;
+        if (status === 404) {
+          setError('No hostels found matching your request.');
+        } else if (status === 429) {
+          setError('Too many requests. Please wait a moment and try again.');
+        } else if (status && status >= 500) {
+          setError('Our service is temporarily unavailable. Please try again in a few moments.');
+        } else if (err.code === 'ECONNABORTED' || err.message?.toLowerCase().includes('timeout')) {
+          setError(
+            'The request took too long. Please check your internet connection and try again.'
+          );
+        } else {
+          setError(
+            'Unable to load hostels right now. Please check your internet connection and try again.'
+          );
+        }
       } else {
-        setError('An unexpected error occurred while fetching hostels');
+        setError('Something went wrong while loading hostels. Please try again later.');
       }
     } finally {
       setLoading(false);
@@ -131,14 +146,20 @@ export function useHostel(hostelId?: string): UseHostelReturn {
         // Facilities fallback handled gracefully
       }
     } catch (err: unknown) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[Hostel Detail API Error]:', err);
+      }
       if (axios.isAxiosError(err)) {
-        const message =
-          err.response?.data?.message || err.message || 'Failed to fetch hostel details';
-        setError(message);
-      } else if (err instanceof Error) {
-        setError(err.message);
+        const status = err.response?.status;
+        if (status === 404) {
+          setError('Hostel not found.');
+        } else if (status && status >= 500) {
+          setError('Hostel details are temporarily unavailable. Please try again shortly.');
+        } else {
+          setError('Unable to load hostel details at this moment. Please check your connection.');
+        }
       } else {
-        setError('An unexpected error occurred while fetching hostel details');
+        setError('Unable to load hostel details. Please try again.');
       }
     } finally {
       setLoading(false);

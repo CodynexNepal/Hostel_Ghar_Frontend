@@ -32,6 +32,7 @@ import {
   Zap,
   BookOpen,
   Sparkles,
+  AlertCircle,
 } from 'lucide-react';
 
 export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel }) {
@@ -42,6 +43,7 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
     hostel: apiHostel,
     facilities: apiFacilities,
     loading: isHostelLoading,
+    error: apiError,
   } = useHostel(initialHostel.id || initialHostel.slug);
 
   // Merge live API data with initial props
@@ -145,6 +147,24 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
               { label: hostel.name, path: `/hostel/${hostel.slug}` },
             ]}
           />
+
+          {apiError && (
+            <div className="mt-4 p-4 rounded-2xl bg-neutral-50 border border-neutral-200 text-neutral-700 text-sm flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <AlertCircle size={16} className="text-neutral-500 shrink-0" />
+                <span>
+                  Live availability may be temporarily delayed. Please contact the property directly
+                  to confirm vacancy.
+                </span>
+              </div>
+              <Link
+                href="/contact"
+                className="text-xs font-semibold text-brand-black hover:underline shrink-0"
+              >
+                Need Help?
+              </Link>
+            </div>
+          )}
 
           <div className="grid lg:grid-cols-12 gap-10 items-start mt-4">
             {/* Left Image & Visuals (7 cols) */}
@@ -445,8 +465,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         city: data.city || staticHostel?.city || 'Kathmandu',
         area:
           [data.address, data.city].filter(Boolean).join(', ') ||
+          data.address ||
+          data.city ||
           staticHostel?.area ||
-          'Banasthali-16, Kathmandu',
+          'Nepal',
         priceFrom: data.priceFrom || staticHostel?.priceFrom || 1100,
         monthlyPrice:
           data.monthlyRent ??

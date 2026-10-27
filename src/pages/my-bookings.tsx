@@ -5,6 +5,7 @@ import Footer from '@/components/navigation/Footer';
 import Seo from '@/components/seo/Seo';
 import Breadcrumbs from '@/components/seo/Breadcrumbs';
 import { useMyBookings, useBookingMutations } from '@/hooks/useBookings';
+import HostelLoader from '@/components/ui/Loader/HostelLoader';
 import { BookingStatus, BookingItem } from '@/lib/api/bookings';
 import {
   Calendar,
@@ -116,8 +117,7 @@ export default function MyBookingsPage() {
 
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-neutral-200">
-                <Loader2 size={36} className="animate-spin text-brand-lime mb-3" />
-                <p className="text-sm font-semibold text-neutral-500">Loading your bookings...</p>
+                <HostelLoader size="md" showLabel={false} />
               </div>
             ) : error ? (
               <div className="p-8 text-center bg-white rounded-3xl border border-neutral-200">

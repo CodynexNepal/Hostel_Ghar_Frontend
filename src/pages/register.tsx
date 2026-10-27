@@ -9,16 +9,7 @@ import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowRight,
-  AlertCircle,
-  Loader2,
-  User,
-} from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Loader2, User } from 'lucide-react';
 import AuthLayout from '@/components/auth/AuthLayout';
 import { registerSchema, type RegisterFormData } from '@/lib/validation';
 import { register as apiRegister } from '@/lib/api/auth';
@@ -106,9 +97,7 @@ const Register = () => {
           <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl">
             Create an account
           </h1>
-          <p className="mt-2 text-sm text-neutral-500">
-            Sign up to get started with Hostel Ghar
-          </p>
+          <p className="mt-2 text-sm text-neutral-500">Sign up to get started with Hostel Ghar</p>
         </div>
 
         {registerError && (

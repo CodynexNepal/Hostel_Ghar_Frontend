@@ -83,9 +83,7 @@ const Login = () => {
           <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl">
             Welcome back
           </h1>
-          <p className="mt-2 text-sm text-neutral-500">
-            Sign in to continue to your account
-          </p>
+          <p className="mt-2 text-sm text-neutral-500">Sign in to continue to your account</p>
         </div>
 
         {loginError && (

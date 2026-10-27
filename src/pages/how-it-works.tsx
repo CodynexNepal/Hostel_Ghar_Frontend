@@ -14,9 +14,11 @@ import {
   Building2,
   Bell,
   ArrowRight,
-  Shield,
   Zap,
-  Globe,
+  ShieldCheck,
+  Tag,
+  PhoneCall,
+  HeartHandshake,
   Users,
   CheckCircle,
 } from 'lucide-react';
@@ -44,11 +46,11 @@ const steps = [
   },
   {
     number: '03',
-    title: 'Book Instantly',
+    title: 'Book or Schedule a Visit',
     description:
-      'Secure your spot with our one-click booking system. Receive instant confirmation and manage bookings.',
+      'Send a direct room enquiry or schedule a physical visit to see the rooms and facilities before booking.',
     icon: <CalendarCheck size={32} strokeWidth={1.5} />,
-    features: ['Instant confirmation', 'Idempotency protection', 'Booking management'],
+    features: ['Visit scheduling', 'Direct owner contact', 'Zero booking fees'],
     color: 'from-[#B9FF66]/60 to-[#B9FF66]/40]',
   },
   {
@@ -64,33 +66,37 @@ const steps = [
     number: '05',
     title: 'Stay Connected',
     description:
-      'Get real-time notifications for booking confirmations, leave approvals, and payment updates.',
+      'Receive timely updates for booking confirmations, monthly fee receipts, notices, and gate leave requests.',
     icon: <Bell size={32} strokeWidth={1.5} />,
-    features: ['Real-time updates', 'Socket events', 'Push notifications'],
+    features: ['Instant updates', 'Leave approvals', 'Notice board'],
     color: 'from-[#B9FF66]/20 to-[#B9FF66]/10]',
   },
 ];
 
 const features = [
   {
-    icon: <Shield size={24} strokeWidth={1.8} />,
-    title: 'Enterprise Security',
-    description: 'Helmet headers, CORS protection, rate limiting, and brute-force prevention.',
+    icon: <ShieldCheck size={24} strokeWidth={1.8} />,
+    title: 'Physically Verified Stays',
+    description:
+      'Every hostel is audited for student safety, clean drinking water, hot water, and verified ownership.',
   },
   {
-    icon: <Zap size={24} strokeWidth={1.8} />,
-    title: 'Real-time Updates',
-    description: 'WebSocket-powered events for bookings, payments, and updates.',
+    icon: <Tag size={24} strokeWidth={1.8} />,
+    title: 'Transparent Tariffs',
+    description:
+      'Direct published monthly rent with meals and laundry included. Zero hidden broker charges or surprises.',
   },
   {
-    icon: <Globe size={24} strokeWidth={1.8} />,
-    title: 'RESTful API',
-    description: 'Clean, predictable URLs with proper HTTP methods.',
+    icon: <PhoneCall size={24} strokeWidth={1.8} />,
+    title: 'Direct Owner Connect',
+    description:
+      'Speak directly with hostel owners and wardens to ask questions, check vacancies, and arrange visits.',
   },
   {
-    icon: <Users size={24} strokeWidth={1.8} />,
-    title: 'Role-based Access',
-    description: 'Granular permissions for admins, owners, residents, and travelers.',
+    icon: <HeartHandshake size={24} strokeWidth={1.8} />,
+    title: 'Resident-First Experience',
+    description:
+      'Peaceful study environments, hygienic meals, clear house rules, and responsive hostel management.',
   },
 ];
 
@@ -281,13 +287,14 @@ const HowItWorksPage = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
               <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
-                Built for Scale
+                The Hostel Ghar Difference
               </span>
               <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-4">
-                Powered by Modern Tech
+                Built for Safety, Comfort &amp; Trust
               </h2>
               <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
-                Our API is designed with security, performance, and developer experience in mind.
+                Everything you need to find a place that feels like home, backed by physical
+                verification and direct communication.
               </p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">

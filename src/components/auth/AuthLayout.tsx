@@ -32,10 +32,7 @@ const AuthLayout = ({ children, maxWidth = 'max-w-[440px]' }: AuthLayoutProps) =
   return (
     <main className="relative flex min-h-[calc(100vh-140px)] w-full items-center justify-center bg-neutral-50/70 px-4 py-12 sm:px-6 lg:px-8">
       {/* Subtle ambient blur */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden"
-      >
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-lime/15 blur-3xl" />
       </div>
 

@@ -10,7 +10,6 @@ import BookingModal from '@/components/booking/BookingModal';
 import StarRating from '@/components/hostel/StarRating';
 import { Hostel } from '@/lib/api/hostels';
 import { useHostels } from '@/hooks/useHostels';
-import { HOSTELS } from '@/data/hostels';
 import {
   Search,
   MapPin,
@@ -30,6 +29,8 @@ import {
   List,
   BedDouble,
   Users,
+  AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 
 const locations = [
@@ -98,90 +99,62 @@ interface HostelCardData {
   email?: string | null;
 }
 
-// Map the API Hostel shape to the UI card fields, directly using endpoint response
+// Map the API Hostel shape to the UI card fields directly from backend response
 const mapHostelToCard = (hostel: Hostel): HostelCardData => {
   const typeFormatted = hostel.category
     ? hostel.category
     : hostel.type
       ? `${hostel.type.charAt(0).toUpperCase() + hostel.type.slice(1).toLowerCase()} Hostel`
-      : 'Boys Hostel';
+      : 'Hostel';
 
-  const known = HOSTELS.find((h) => h.id === hostel.id || h.slug === hostel.id);
   const loc =
-    hostel.address ||
-    known?.area ||
     [hostel.address, hostel.city].filter(Boolean).join(', ') ||
-    'Banasthali-16, Kathmandu';
-  const name = hostel.name || known?.name || 'Hostel';
-  const rating = hostel.rating ?? known?.rating ?? 4.8;
-  const reviews = hostel.reviewCount ?? known?.reviews ?? 0;
-  const monthlyPrice = hostel.monthlyRent ?? hostel.monthlyPrice ?? known?.monthlyPrice ?? 12000;
-  const originalMonthlyPrice =
-    known?.originalMonthlyPrice ?? (monthlyPrice ? Math.round(monthlyPrice * 1.18) : 14000);
-  const isFeatured =
-    hostel.isFeatured ??
-    (hostel.id === 'bdde17d2-d56e-4f81-987c-d0132cf4409d' ||
-      hostel.id === 'a38bf07a-b7b1-49dc-85c8-dd5542a8e90a');
-  const discount =
-    hostel.discountPercent ??
-    (originalMonthlyPrice
-      ? Math.round(((originalMonthlyPrice - monthlyPrice) / originalMonthlyPrice) * 100)
-      : null);
+    hostel.address ||
+    hostel.city ||
+    'Location not specified';
 
-  const amenities =
+  const name = hostel.name || 'Hostel';
+  const rating = typeof hostel.rating === 'number' ? hostel.rating : 0;
+  const reviews = typeof hostel.reviewCount === 'number' ? hostel.reviewCount : 0;
+  const monthlyPrice = hostel.monthlyRent ?? hostel.monthlyPrice ?? hostel.hostelFee ?? 0;
+  const originalMonthlyPrice =
+    hostel.discountPercent && monthlyPrice
+      ? Math.round(monthlyPrice / (1 - hostel.discountPercent / 100))
+      : null;
+  const isFeatured = Boolean(hostel.isFeatured);
+  const discount = hostel.discountPercent ?? null;
+
+  const facilitiesList =
     hostel.facilities && hostel.facilities.length > 0
       ? hostel.facilities.map((f) => (typeof f === 'string' ? f : f.title))
-      : known?.amenities ?? ['wifi', 'breakfast', 'cctv'];
+      : [];
+
+  const totalBeds = hostel.totalBeds ?? hostel.beds?.total ?? 0;
+  const availableBeds = hostel.availableBeds ?? hostel.beds?.available ?? 0;
+  const totalStudents = hostel.totalStudents ?? hostel.activeResidents ?? 0;
 
   return {
     id: hostel.id,
     name,
     location: loc,
-    price: hostel.priceFrom ?? known?.priceFrom ?? 1200,
+    price: hostel.priceFrom ?? 0,
     monthlyPrice,
-    originalPrice: known?.originalPrice ?? 1500,
+    originalPrice: null,
     originalMonthlyPrice,
-    totalBeds: hostel.totalBeds ?? known?.totalBeds ?? 48,
-    availableBeds: hostel.availableBeds ?? known?.availableBeds ?? 8,
-    totalStudents: hostel.totalStudents ?? known?.totalStudents ?? 40,
+    totalBeds,
+    availableBeds,
+    totalStudents,
     rating,
     reviews,
-    amenities,
+    amenities: facilitiesList,
     roomType: typeFormatted,
     discount,
     featured: isFeatured,
-    image: hostel.logoUrl || known?.image || DEFAULT_HOSTEL_IMAGE,
-    phone: hostel.phone ?? known?.phone ?? null,
-    email: hostel.email ?? known?.email ?? null,
+    image: hostel.logoUrl || DEFAULT_HOSTEL_IMAGE,
+    phone: hostel.phone ?? null,
+    email: hostel.email ?? null,
   };
 };
-
-// Initial state mapped from verified backend data
-const INITIAL_HOSTELS: HostelCardData[] = HOSTELS.map((h) => ({
-  id: h.id,
-  name: h.name,
-  location: h.area,
-  price: h.priceFrom,
-  monthlyPrice: h.monthlyPrice,
-  originalPrice: h.originalPrice || null,
-  originalMonthlyPrice: h.originalMonthlyPrice || null,
-  totalBeds: h.totalBeds,
-  availableBeds: h.availableBeds,
-  totalStudents: h.totalStudents,
-  rating: h.rating,
-  reviews: h.reviews,
-  amenities: h.amenities,
-  roomType: h.roomType,
-  discount: h.originalMonthlyPrice
-    ? Math.round(((h.originalMonthlyPrice - h.monthlyPrice) / h.originalMonthlyPrice) * 100)
-    : null,
-  featured:
-    h.id === 'bdde17d2-d56e-4f81-987c-d0132cf4409d' ||
-    h.id === 'a38bf07a-b7b1-49dc-85c8-dd5542a8e90a',
-  image: h.image,
-  phone: h.phone || null,
-  email: h.email || null,
-}));
 
 const HostelCard = ({
   hostel,
@@ -264,29 +237,38 @@ const HostelCard = ({
           </div>
 
           {/* Key Occupancy & Capacity Stats: Beds Available & Total Students */}
-          <div className="grid grid-cols-2 gap-2 p-2.5 mb-3 rounded-xl bg-neutral-50 border border-neutral-100 text-xs">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span className="font-bold text-emerald-800">{hostel.availableBeds} beds free</span>
+          {(hostel.availableBeds > 0 || hostel.totalStudents > 0) && (
+            <div className="grid grid-cols-2 gap-2 p-2.5 mb-3 rounded-xl bg-neutral-50 border border-neutral-100 text-xs">
+              {hostel.availableBeds > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span className="font-bold text-emerald-800">
+                    {hostel.availableBeds} beds free
+                  </span>
+                </div>
+              )}
+              {hostel.totalStudents > 0 && (
+                <div className="flex items-center gap-1.5 text-neutral-600 justify-end">
+                  <Users size={13} className="text-purple-600 shrink-0" />
+                  <span className="font-medium">{hostel.totalStudents} students</span>
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-1.5 text-neutral-600 justify-end">
-              <Users size={13} className="text-purple-600 shrink-0" />
-              <span className="font-medium">{hostel.totalStudents} students</span>
-            </div>
-          </div>
+          )}
 
-          {/* Facilities preview chips */}
-          <div className="flex flex-wrap gap-1.5 mb-2">
-            <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 text-[11px] font-medium flex items-center gap-1">
-              <Wifi size={12} className="text-blue-500" /> Free WiFi
-            </span>
-            <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 text-[11px] font-medium flex items-center gap-1">
-              <Coffee size={12} className="text-amber-500" /> Meals
-            </span>
-            <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 text-[11px] font-medium flex items-center gap-1">
-              <Wind size={12} className="text-emerald-500" /> Hot Water
-            </span>
-          </div>
+          {/* Facilities preview chips from actual backend data */}
+          {hostel.amenities && hostel.amenities.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {hostel.amenities.slice(0, 4).map((amenity) => (
+                <span
+                  key={amenity}
+                  className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 text-[11px] font-medium capitalize"
+                >
+                  {amenity}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -296,9 +278,13 @@ const HostelCard = ({
             <p className="text-[11px] text-neutral-400 font-medium">Monthly Rent</p>
             <div className="flex items-baseline gap-1">
               <span className="text-xl font-extrabold text-brand-black">
-                NPR {hostel.monthlyPrice.toLocaleString()}
+                {hostel.monthlyPrice > 0
+                  ? `NPR ${hostel.monthlyPrice.toLocaleString()}`
+                  : hostel.price > 0
+                    ? `NPR ${hostel.price.toLocaleString()}`
+                    : 'Contact for price'}
               </span>
-              <span className="text-xs text-neutral-500">/mo</span>
+              {hostel.monthlyPrice > 0 && <span className="text-xs text-neutral-500">/mo</span>}
             </div>
           </div>
           <button
@@ -334,6 +320,7 @@ const HostelsPage = () => {
     pagination: apiPagination,
     loading,
     error,
+    refetch,
   } = useHostels({
     page,
     limit: 20,
@@ -343,7 +330,7 @@ const HostelsPage = () => {
     if (apiHostels && apiHostels.length > 0) {
       return apiHostels.map(mapHostelToCard);
     }
-    return INITIAL_HOSTELS;
+    return [];
   }, [apiHostels]);
 
   const pagination = apiPagination || {
@@ -653,46 +640,98 @@ const HostelsPage = () => {
                 </div>
               )}
               <div className="flex-1">
-                {loading && hostels.length === 0 ? (
-                  <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                {loading ? (
+                  <div
+                    className={
+                      viewMode === 'grid'
+                        ? 'grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                        : 'flex flex-col gap-4'
+                    }
+                  >
                     {[1, 2, 3, 4, 5, 6].map((n) => (
                       <div
                         key={n}
-                        className="bg-white rounded-2xl border border-neutral-100 overflow-hidden animate-pulse"
+                        className="bg-white rounded-2xl border border-neutral-100 overflow-hidden shadow-sm animate-pulse flex flex-col justify-between"
                       >
-                        <div className="h-48 bg-neutral-200" />
-                        <div className="p-5 space-y-3">
-                          <div className="h-4 bg-neutral-200 rounded w-1/3" />
-                          <div className="h-6 bg-neutral-200 rounded w-3/4" />
-                          <div className="h-4 bg-neutral-200 rounded w-1/2" />
-                          <div className="h-10 bg-neutral-200 rounded mt-4" />
+                        <div>
+                          {/* Image Placeholder */}
+                          <div className="h-48 bg-neutral-200" />
+                          <div className="p-5 space-y-3">
+                            {/* Location line */}
+                            <div className="h-3.5 bg-neutral-200 rounded w-2/5" />
+                            {/* Title */}
+                            <div className="h-5 bg-neutral-200 rounded w-4/5" />
+                            {/* Rating */}
+                            <div className="h-3.5 bg-neutral-200 rounded w-1/3" />
+                            {/* Occupancy stats block */}
+                            <div className="h-8 bg-neutral-100 rounded-xl w-full" />
+                            {/* Amenity tags */}
+                            <div className="flex gap-1.5 pt-1">
+                              <div className="h-5 bg-neutral-100 rounded-md w-16" />
+                              <div className="h-5 bg-neutral-100 rounded-md w-14" />
+                              <div className="h-5 bg-neutral-100 rounded-md w-14" />
+                            </div>
+                          </div>
+                        </div>
+                        {/* Monthly Rent & CTA button */}
+                        <div className="p-5 pt-0">
+                          <div className="flex items-center justify-between pt-3 border-t border-neutral-100">
+                            <div className="space-y-1">
+                              <div className="h-2.5 bg-neutral-200 rounded w-14" />
+                              <div className="h-6 bg-neutral-200 rounded w-24" />
+                            </div>
+                            <div className="h-9 bg-neutral-200 rounded-xl w-24" />
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                ) : error && hostels.length === 0 ? (
-                  <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center max-w-md mx-auto my-12">
-                    <p className="text-red-500 font-semibold mb-2">Unable to load hostels</p>
-                    <p className="text-neutral-500 text-sm mb-4">{error}</p>
-                    <button
-                      onClick={() => setPage(1)}
-                      className="px-5 py-2.5 bg-brand-lime text-brand-black text-sm font-bold rounded-xl hover:bg-brand-lime/80 transition-colors"
-                    >
-                      Try Again
-                    </button>
+                ) : error ? (
+                  <div className="bg-white border border-neutral-200 rounded-3xl p-8 md:p-12 text-center max-w-lg mx-auto my-12 shadow-sm">
+                    <div className="w-14 h-14 bg-neutral-100 text-neutral-700 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-neutral-200/80">
+                      <AlertCircle size={26} strokeWidth={2} className="text-neutral-700" />
+                    </div>
+                    <h3 className="text-xl font-extrabold text-brand-black mb-2">
+                      Unable to Load Hostels
+                    </h3>
+                    <p className="text-neutral-600 text-sm mb-6 leading-relaxed">{error}</p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => refetch()}
+                        className="w-full sm:w-auto px-6 py-3 bg-brand-black text-white text-sm font-semibold rounded-xl hover:bg-neutral-800 transition-colors inline-flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                      >
+                        <RefreshCw size={15} />
+                        Try Again
+                      </button>
+                      <Link
+                        href="/contact"
+                        className="w-full sm:w-auto px-6 py-3 bg-neutral-100 hover:bg-neutral-200 text-brand-black text-sm font-semibold rounded-xl transition-colors inline-flex items-center justify-center"
+                      >
+                        Contact Support
+                      </Link>
+                    </div>
                   </div>
                 ) : filteredHostels.length === 0 ? (
                   <div className="bg-white rounded-2xl border border-neutral-200 p-12 text-center my-8">
-                    <h3 className="text-lg font-bold text-brand-black mb-1">No hostels found</h3>
+                    <h3 className="text-lg font-bold text-brand-black mb-1">
+                      {hostels.length === 0
+                        ? 'No hostels found in database'
+                        : 'No hostels match your filters'}
+                    </h3>
                     <p className="text-neutral-500 text-sm mb-4">
-                      Try adjusting your search criteria or clearing active filters.
+                      {hostels.length === 0
+                        ? 'The backend currently has no active hostel listings.'
+                        : 'Try adjusting your search criteria or clearing active filters.'}
                     </p>
-                    <button
-                      onClick={clearAllFilters}
-                      className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-brand-black text-sm font-semibold rounded-xl transition-colors"
-                    >
-                      Reset Filters
-                    </button>
+                    {hostels.length > 0 && (
+                      <button
+                        onClick={clearAllFilters}
+                        className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-brand-black text-sm font-semibold rounded-xl transition-colors"
+                      >
+                        Reset Filters
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div

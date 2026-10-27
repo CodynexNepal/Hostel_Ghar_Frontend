@@ -31,11 +31,11 @@ export default function BookingModal({
   onClose,
   hostelId,
   hostelName,
-  monthlyPrice = 12000,
-  priceFrom = 1200,
-  availableBeds = 8,
-  totalBeds = 48,
-  location = 'Banasthali-16, Kathmandu',
+  monthlyPrice = 0,
+  priceFrom = 0,
+  availableBeds = 0,
+  totalBeds = 0,
+  location = '',
 }: BookingModalProps) {
   const [checkInDate, setCheckInDate] = useState<string>('');
   const [roomPreference, setRoomPreference] = useState<string>('Double Sharing (2 Beds)');
