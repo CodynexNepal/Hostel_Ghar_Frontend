@@ -64,7 +64,8 @@ apiClient.interceptors.response.use(
         pathname.startsWith('/how-it-works') ||
         pathname.startsWith('/login') ||
         pathname.startsWith('/register') ||
-        pathname.startsWith('/forgot-password');
+        pathname.startsWith('/forgot-password') ||
+        pathname.startsWith('/reset-password');
 
       localStorage.removeItem('token');
       if (!isPublicRoute) {

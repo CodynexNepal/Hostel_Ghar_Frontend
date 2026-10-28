@@ -6,3 +6,6 @@ export type { RegisterFormData } from './registerSchema';
 
 export { contactSchema } from './contactSchema';
 export type { ContactFormData } from './contactSchema';
+
+export { resetPasswordSchema } from './resetPasswordSchema';
+export type { ResetPasswordFormData } from './resetPasswordSchema';

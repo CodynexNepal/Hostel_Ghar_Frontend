@@ -39,6 +39,17 @@ export interface ForgotPasswordResponse {
   message?: string;
 }
 
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+  confirmPassword?: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message?: string;
+}
+
 export class AuthApiError extends Error {
   constructor(
     message: string,
@@ -168,6 +179,26 @@ export const forgotPassword = async (
 ): Promise<ForgotPasswordResponse> => {
   try {
     const response = await apiClient.post<ForgotPasswordResponse>('/auth/forgot-password', payload);
+    return response.data;
+  } catch (error: any) {
+    throw handleAuthError(error);
+  }
+};
+
+/**
+ * Resets a user's password using the token received in email.
+ * POST /api/v1/hostel-ghar/auth/reset-password
+ */
+export const resetPassword = async (
+  payload: ResetPasswordRequest
+): Promise<ResetPasswordResponse> => {
+  try {
+    const response = await apiClient.post<ResetPasswordResponse>('/auth/reset-password', {
+      token: payload.token,
+      password: payload.password,
+      confirmPassword: payload.confirmPassword || payload.password,
+      newPassword: payload.password,
+    });
     return response.data;
   } catch (error: any) {
     throw handleAuthError(error);

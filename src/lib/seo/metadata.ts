@@ -99,6 +99,20 @@ export const PAGE_META: Record<string, PageMeta> = {
     changefreq: 'weekly',
     priority: 0.8,
   },
+  '/forgot-password': {
+    title: 'Forgot Password | Hostel Ghar',
+    description: 'Request a password reset link for your Hostel Ghar account.',
+    keywords: ['forgot password', 'hostel ghar reset'],
+    changefreq: 'monthly',
+    priority: 0.3,
+  },
+  '/reset-password': {
+    title: 'Reset Password | Hostel Ghar',
+    description: 'Set a new password for your Hostel Ghar account.',
+    keywords: ['reset password', 'hostel ghar account'],
+    changefreq: 'monthly',
+    priority: 0.3,
+  },
   '/about': {
     title: 'About Hostel Ghar — Our Team & Mission',
     description:
