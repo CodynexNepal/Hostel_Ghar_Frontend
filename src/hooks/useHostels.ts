@@ -8,6 +8,10 @@ import {
   ListHostelsResponse,
   SingleHostelResponse,
   HostelFacility,
+  HostelMeal,
+  WeeklyMealResponse,
+  HostelLocationData,
+  HostelLocationResponse,
 } from '@/lib/api/hostels';
 
 export interface UseHostelsOptions extends ListHostelsParams {
@@ -106,6 +110,9 @@ export function useHostels(options: UseHostelsOptions = {}): UseHostelsReturn {
 export interface UseHostelReturn {
   hostel: HostelDetail | null;
   facilities: HostelFacility[];
+  meals: HostelMeal[];
+  hasMeals: boolean;
+  location: HostelLocationData | null;
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
@@ -118,6 +125,9 @@ export interface UseHostelReturn {
 export function useHostel(hostelId?: string): UseHostelReturn {
   const [hostel, setHostel] = useState<HostelDetail | null>(null);
   const [facilities, setFacilities] = useState<HostelFacility[]>([]);
+  const [meals, setMeals] = useState<HostelMeal[]>([]);
+  const [hasMeals, setHasMeals] = useState<boolean>(false);
+  const [location, setLocation] = useState<HostelLocationData | null>(null);
   const [loading, setLoading] = useState<boolean>(Boolean(hostelId));
   const [error, setError] = useState<string | null>(null);
 
@@ -144,6 +154,27 @@ export function useHostel(hostelId?: string): UseHostelReturn {
         }
       } catch {
         // Facilities fallback handled gracefully
+      }
+
+      // Fetch weekly meals with Axios
+      try {
+        const mealRes = await apiClient.get<WeeklyMealResponse>(`/hostels/${hostelId}/meals`);
+        if (mealRes.data && mealRes.data.success && mealRes.data.data) {
+          setMeals(mealRes.data.data.schedule || []);
+          setHasMeals(Boolean(mealRes.data.data.hasSchedule));
+        }
+      } catch {
+        // Meals fallback handled gracefully
+      }
+
+      // Fetch location with Axios
+      try {
+        const locRes = await apiClient.get<HostelLocationResponse>(`/hostels/${hostelId}/location`);
+        if (locRes.data && locRes.data.success && locRes.data.data) {
+          setLocation(locRes.data.data);
+        }
+      } catch {
+        // Location fallback handled gracefully
       }
     } catch (err: unknown) {
       if (process.env.NODE_ENV === 'development') {
@@ -175,6 +206,9 @@ export function useHostel(hostelId?: string): UseHostelReturn {
   return {
     hostel,
     facilities,
+    meals,
+    hasMeals,
+    location,
     loading,
     error,
     refetch: fetchHostel,

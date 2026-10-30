@@ -33,15 +33,36 @@ import {
   BookOpen,
   Sparkles,
   AlertCircle,
+  Navigation,
+  ExternalLink,
+  Clock,
+  Utensils,
+  Calendar,
+  Globe,
 } from 'lucide-react';
+import type { DayOfWeek, HostelMeal } from '@/lib/api/hostels';
+
+const WEEKDAY_NAMES: Array<{ key: DayOfWeek; name: string; nepali: string }> = [
+  { key: 'SUNDAY', name: 'Sunday', nepali: 'आइतबार' },
+  { key: 'MONDAY', name: 'Monday', nepali: 'सोमबार' },
+  { key: 'TUESDAY', name: 'Tuesday', nepali: 'मंगलबार' },
+  { key: 'WEDNESDAY', name: 'Wednesday', nepali: 'बुधबार' },
+  { key: 'THURSDAY', name: 'Thursday', nepali: 'बिहीबार' },
+  { key: 'FRIDAY', name: 'Friday', nepali: 'शुक्रबार' },
+  { key: 'SATURDAY', name: 'Saturday', nepali: 'शनिबार' },
+];
 
 export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [selectedMealDay, setSelectedMealDay] = useState<DayOfWeek>('SUNDAY');
 
   // Hook to call the hostel endpoint with Axios
   const {
     hostel: apiHostel,
     facilities: apiFacilities,
+    meals: apiMeals,
+    hasMeals: apiHasMeals,
+    location: apiLocation,
     loading: isHostelLoading,
     error: apiError,
   } = useHostel(initialHostel.id || initialHostel.slug);
@@ -73,9 +94,48 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
       roomType: apiHostel.type
         ? `${apiHostel.type.charAt(0).toUpperCase() + apiHostel.type.slice(1).toLowerCase()} Hostel`
         : initialHostel.roomType,
+      latitude: apiHostel.latitude !== undefined ? apiHostel.latitude : initialHostel.latitude,
+      longitude: apiHostel.longitude !== undefined ? apiHostel.longitude : initialHostel.longitude,
+      isLocationShared:
+        apiHostel.isLocationShared !== undefined
+          ? apiHostel.isLocationShared
+          : initialHostel.isLocationShared,
+      meals: apiHostel.meals || initialHostel.meals,
       owner: (apiHostel.owner as any) ?? initialHostel.owner,
     };
   }, [apiHostel, initialHostel]);
+
+  // Geographic location resolution: strictly hide coordinates if isLocationShared is not true
+  const isLocationShared = Boolean(
+    apiLocation?.isLocationShared ?? apiHostel?.isLocationShared ?? hostel.isLocationShared
+  );
+  const locationLat = isLocationShared
+    ? apiLocation?.latitude ?? apiHostel?.latitude ?? hostel.latitude ?? null
+    : null;
+  const locationLng = isLocationShared
+    ? apiLocation?.longitude ?? apiHostel?.longitude ?? hostel.longitude ?? null
+    : null;
+  const hasValidCoordinates =
+    locationLat !== null && locationLng !== null && !isNaN(locationLat) && !isNaN(locationLng);
+
+  // Meal schedule resolution
+  const effectiveMeals = useMemo<HostelMeal[]>(() => {
+    if (apiMeals && apiMeals.length > 0) return apiMeals;
+    if (apiHostel?.meals && apiHostel.meals.length > 0) return apiHostel.meals;
+    if (hostel.meals && hostel.meals.length > 0) return hostel.meals;
+    return [];
+  }, [apiMeals, apiHostel?.meals, hostel.meals]);
+
+  const hasConfiguredMeals = useMemo(() => {
+    return (
+      apiHasMeals ||
+      effectiveMeals.some(
+        (m) =>
+          (m.breakfastDescription && m.breakfastDescription.trim().length > 0) ||
+          (m.mainMealDescription && m.mainMealDescription.trim().length > 0)
+      )
+    );
+  }, [apiHasMeals, effectiveMeals]);
 
   // Merge facilities fetched via Axios hook
   const facilities = useMemo<DetailedFacility[]>(() => {
@@ -370,7 +430,280 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
             </div>
           </section>
 
-          {/* Section: About Hostel */}
+          {/* Section: Weekly Meals & Menu */}
+          <section className="mt-14 pt-10 border-t border-neutral-100">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1.5 rounded-lg bg-brand-lime/30 text-brand-black">
+                    <Utensils size={18} />
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight">
+                    Weekly Meals & Menu
+                  </h2>
+                </div>
+                <p className="text-sm text-neutral-500">
+                  Nutritious, hygienic breakfast and main meals prepared fresh daily for residents.
+                </p>
+              </div>
+              <span className="px-3.5 py-1.5 rounded-full bg-neutral-100 text-neutral-800 text-xs font-bold border border-neutral-200">
+                Sunday – Saturday Diet
+              </span>
+            </div>
+
+            {!hasConfiguredMeals ? (
+              <div className="p-8 rounded-3xl bg-neutral-50 border border-neutral-200/80 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-100/80 text-amber-700 flex items-center justify-center mx-auto">
+                  <Utensils size={24} />
+                </div>
+                <h3 className="font-bold text-neutral-800 text-base">Meal Schedule Coming Soon</h3>
+                <p className="text-neutral-500 text-sm max-w-md mx-auto leading-relaxed">
+                  The weekly meal menu for this hostel has not been published yet. Please contact
+                  the property directly for breakfast and mess timings.
+                </p>
+                {hostel.phone && (
+                  <div className="pt-2">
+                    <a
+                      href={`tel:${hostel.phone}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl bg-white border border-neutral-200 text-brand-black hover:border-brand-lime transition-all shadow-xs"
+                    >
+                      <Phone size={13} /> Call {hostel.phone} for Mess Info
+                    </a>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Weekday Selector Tabs */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-neutral-200/70">
+                  {WEEKDAY_NAMES.map((day) => {
+                    const dayMeal = effectiveMeals.find((m) => m.dayOfWeek === day.key);
+                    const isConfigured =
+                      dayMeal &&
+                      ((dayMeal.breakfastDescription &&
+                        dayMeal.breakfastDescription.trim().length > 0) ||
+                        (dayMeal.mainMealDescription &&
+                          dayMeal.mainMealDescription.trim().length > 0));
+                    const isSelected = selectedMealDay === day.key;
+
+                    return (
+                      <button
+                        key={day.key}
+                        type="button"
+                        onClick={() => setSelectedMealDay(day.key)}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                          isSelected
+                            ? 'bg-brand-black text-white shadow-sm'
+                            : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200/80'
+                        }`}
+                      >
+                        <span>{day.name}</span>
+                        <span className="text-[10px] opacity-75 font-normal">({day.nepali})</span>
+                        {isConfigured && (
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              isSelected ? 'bg-brand-lime' : 'bg-emerald-500'
+                            }`}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Day Meals View */}
+                {(() => {
+                  const dayMeal = effectiveMeals.find((m) => m.dayOfWeek === selectedMealDay);
+                  const selectedConfig = WEEKDAY_NAMES.find((w) => w.key === selectedMealDay);
+                  const hasBreakfast = Boolean(dayMeal?.breakfastDescription?.trim());
+                  const hasMain = Boolean(dayMeal?.mainMealDescription?.trim());
+
+                  if (!hasBreakfast && !hasMain) {
+                    return (
+                      <div className="p-6 rounded-2xl bg-neutral-50 border border-dashed border-neutral-200 text-center text-neutral-500 text-sm">
+                        <p className="font-semibold text-neutral-700">
+                          {selectedConfig?.name} Menu Not Specifically Listed
+                        </p>
+                        <p className="text-xs text-neutral-400 mt-1">
+                          Standard regular mess dining applies for this day. Ask the hostel warden
+                          upon check-in.
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {/* Breakfast Card */}
+                      {hasBreakfast && (
+                        <div className="p-5 rounded-2xl bg-white border border-neutral-200/80 shadow-xs hover:border-brand-lime/80 transition-all space-y-3">
+                          <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+                            <div className="flex items-center gap-2">
+                              <span className="p-1.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-100">
+                                <Coffee size={16} />
+                              </span>
+                              <div>
+                                <h3 className="font-bold text-neutral-900 text-sm">Breakfast</h3>
+                                <p className="text-[11px] text-neutral-400">Morning Refreshment</p>
+                              </div>
+                            </div>
+                            {dayMeal?.breakfastTime && (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-neutral-100 text-neutral-700">
+                                <Clock size={11} /> {dayMeal.breakfastTime}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-neutral-700 text-sm leading-relaxed whitespace-pre-line">
+                            {dayMeal?.breakfastDescription}
+                          </p>
+                          {dayMeal?.breakfastNotes && (
+                            <p className="text-xs text-neutral-400 italic pt-1 border-t border-neutral-50">
+                              Note: {dayMeal.breakfastNotes}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Main Meal Card */}
+                      {hasMain && (
+                        <div className="p-5 rounded-2xl bg-white border border-neutral-200/80 shadow-xs hover:border-brand-lime/80 transition-all space-y-3">
+                          <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+                            <div className="flex items-center gap-2">
+                              <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                <Utensils size={16} />
+                              </span>
+                              <div>
+                                <h3 className="font-bold text-neutral-900 text-sm">Main Meal</h3>
+                                <p className="text-[11px] text-neutral-400">Lunch / Dinner</p>
+                              </div>
+                            </div>
+                            {dayMeal?.mainMealTime && (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-neutral-100 text-neutral-700">
+                                <Clock size={11} /> {dayMeal.mainMealTime}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-neutral-700 text-sm leading-relaxed whitespace-pre-line">
+                            {dayMeal?.mainMealDescription}
+                          </p>
+                          {dayMeal?.mainMealNotes && (
+                            <p className="text-xs text-neutral-400 italic pt-1 border-t border-neutral-50">
+                              Note: {dayMeal.mainMealNotes}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+          </section>
+
+          {/* Section: Hostel Location */}
+          <section className="mt-14 pt-10 border-t border-neutral-100">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1.5 rounded-lg bg-brand-lime/30 text-brand-black">
+                    <MapPin size={18} />
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight">
+                    Hostel Location
+                  </h2>
+                </div>
+                <p className="text-sm text-neutral-500">
+                  {hostel.area
+                    ? `Located at ${hostel.area}`
+                    : `Verified location in ${hostel.city}`}
+                </p>
+              </div>
+
+              {isLocationShared && hasValidCoordinates && (
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationLat!)},${encodeURIComponent(locationLng!)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-lime text-brand-black text-xs font-bold shadow-xs hover:bg-brand-lime/85 transition-all"
+                >
+                  <Navigation size={14} /> Get Directions <ExternalLink size={12} />
+                </a>
+              )}
+            </div>
+
+            {isLocationShared && hasValidCoordinates ? (
+              <div className="space-y-4">
+                {/* Interactive Map Preview */}
+                <div className="relative aspect-[16/9] sm:aspect-[21/9] rounded-3xl overflow-hidden border border-neutral-200/90 shadow-sm bg-neutral-100">
+                  <iframe
+                    title={`${hostel.name} Location Map`}
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    scrolling="no"
+                    marginHeight={0}
+                    marginWidth={0}
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(locationLng! - 0.005)}%2C${encodeURIComponent(locationLat! - 0.003)}%2C${encodeURIComponent(locationLng! + 0.005)}%2C${encodeURIComponent(locationLat! + 0.003)}&layer=mapnik&marker=${encodeURIComponent(locationLat!)}%2C${encodeURIComponent(locationLng!)}`}
+                    className="w-full h-full"
+                  />
+                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-neutral-800 shadow-sm flex items-center gap-1.5 border border-neutral-200/60 pointer-events-none">
+                    <BadgeCheck size={14} className="text-emerald-600" />
+                    Verified Building Location
+                  </div>
+                </div>
+
+                {/* Location Meta Card */}
+                <div className="grid sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-neutral-50 border border-neutral-100 text-xs">
+                  <div>
+                    <span className="text-neutral-400 block uppercase text-[10px] font-semibold">
+                      Full Address
+                    </span>
+                    <span className="font-semibold text-neutral-800 block mt-0.5">
+                      {hostel.area || hostel.city}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-neutral-400 block uppercase text-[10px] font-semibold">
+                      GPS Coordinates
+                    </span>
+                    <span className="font-mono font-semibold text-neutral-800 block mt-0.5">
+                      {locationLat!.toFixed(5)}, {locationLng!.toFixed(5)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-neutral-400 block uppercase text-[10px] font-semibold">
+                      Direct Navigation
+                    </span>
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationLat!)},${encodeURIComponent(locationLng!)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-black font-bold hover:underline inline-flex items-center gap-1 mt-0.5"
+                    >
+                      Open in Maps App <ExternalLink size={11} />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 rounded-2xl bg-neutral-50 border border-neutral-200/80 space-y-2">
+                <div className="flex items-center gap-2">
+                  <MapPin size={16} className="text-brand-black" />
+                  <h3 className="font-bold text-neutral-900 text-sm">Verified Address</h3>
+                </div>
+                <p className="text-sm text-neutral-700">
+                  {hostel.area
+                    ? `${hostel.name}, ${hostel.area}`
+                    : `${hostel.name}, ${hostel.city}`}
+                </p>
+                <p className="text-xs text-neutral-400 pt-1">
+                  GPS coordinates are not publicly shared for this property. Prospective residents
+                  may visit the verified address above or call the hostel directly for landmark
+                  directions.
+                </p>
+              </div>
+            )}
+          </section>
           <section className="mt-12 max-w-3xl">
             <h2 className="text-2xl font-extrabold text-brand-black tracking-tight mb-3">
               About {hostel.name}
@@ -519,8 +852,11 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         description:
           staticHostel?.description ||
           `${data.name} is a verified hostel located in ${data.address || data.city}. Contact phone: ${data.phone || 'N/A'}.`,
-        ...(staticHostel?.latitude !== undefined ? { latitude: staticHostel.latitude } : {}),
-        ...(staticHostel?.longitude !== undefined ? { longitude: staticHostel.longitude } : {}),
+        latitude: data.isLocationShared && data.latitude != null ? data.latitude : null,
+        longitude: data.isLocationShared && data.longitude != null ? data.longitude : null,
+        isLocationShared: Boolean(data.isLocationShared),
+        locationUpdatedAt: data.isLocationShared ? data.locationUpdatedAt ?? null : null,
+        meals: data.meals || [],
         ...(data.createdAt || staticHostel?.createdAt
           ? { createdAt: data.createdAt || staticHostel?.createdAt }
           : {}),

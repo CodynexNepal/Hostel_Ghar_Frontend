@@ -96,6 +96,60 @@ export interface HostelDetail extends Omit<Hostel, 'facilities'> {
   createdByAdmin?: HostelAdminCreator | null;
   hostelFacilities?: HostelFacilityItem[];
   facilities?: HostelFacility[];
+  latitude?: number | null;
+  longitude?: number | null;
+  isLocationShared?: boolean;
+  locationUpdatedAt?: string | null;
+  meals?: HostelMeal[];
+}
+
+export type DayOfWeek =
+  | 'SUNDAY'
+  | 'MONDAY'
+  | 'TUESDAY'
+  | 'WEDNESDAY'
+  | 'THURSDAY'
+  | 'FRIDAY'
+  | 'SATURDAY';
+
+export interface HostelMeal {
+  id?: string | null;
+  dayOfWeek: DayOfWeek;
+  breakfastDescription?: string | null;
+  breakfastTime?: string | null;
+  breakfastNotes?: string | null;
+  mainMealDescription?: string | null;
+  mainMealTime?: string | null;
+  mainMealNotes?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface WeeklyMealScheduleData {
+  hostelId: string;
+  hasSchedule: boolean;
+  lastUpdatedAt: string | null;
+  schedule: HostelMeal[];
+}
+
+export interface WeeklyMealResponse {
+  success: boolean;
+  data: WeeklyMealScheduleData;
+}
+
+export interface HostelLocationData {
+  hostelId: string;
+  latitude: number | null;
+  longitude: number | null;
+  isLocationShared: boolean;
+  locationUpdatedAt: string | null;
+  address: string | null;
+  city: string | null;
+}
+
+export interface HostelLocationResponse {
+  success: boolean;
+  data: HostelLocationData;
 }
 
 export interface SingleHostelResponse {
@@ -393,5 +447,36 @@ export const submitHostelRating = async (
  */
 export const getHostelRatings = async (hostelId: string): Promise<HostelRatingResponse> => {
   const response = await apiClient.get<HostelRatingResponse>(`/hostels/${hostelId}/ratings`);
+  return response.data;
+};
+
+/**
+ * Fetches the weekly meal schedule for a hostel.
+ * GET /api/v1/hostel-ghar/hostels/:id/meals
+ */
+export const getHostelMeals = async (hostelId: string): Promise<WeeklyMealResponse> => {
+  const response = await apiClient.get<WeeklyMealResponse>(`/hostels/${hostelId}/meals`);
+  return response.data;
+};
+
+/**
+ * Fetches the daily meal schedule (दैनिक भोजन तालिका) for a hostel.
+ * GET /api/v1/hostel-ghar/hostels/:id/meals/daily
+ */
+export const getHostelDailyMeals = async (
+  hostelId: string
+): Promise<{ success: boolean; data: any }> => {
+  const response = await apiClient.get<{ success: boolean; data: any }>(
+    `/hostels/${hostelId}/meals/daily`
+  );
+  return response.data;
+};
+
+/**
+ * Fetches the public geographic location of a hostel (coordinates masked when isLocationShared is false).
+ * GET /api/v1/hostel-ghar/hostels/:id/location
+ */
+export const getHostelLocation = async (hostelId: string): Promise<HostelLocationResponse> => {
+  const response = await apiClient.get<HostelLocationResponse>(`/hostels/${hostelId}/location`);
   return response.data;
 };

@@ -11,6 +11,9 @@ import {
   Tag,
   MapPin,
   ArrowRight,
+  User,
+  Phone,
+  Mail,
 } from 'lucide-react';
 import { createBooking, generateIdempotencyKey } from '@/lib/api/bookings';
 
@@ -37,6 +40,9 @@ export default function BookingModal({
   totalBeds = 0,
   location = '',
 }: BookingModalProps) {
+  const [studentName, setStudentName] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   const [checkInDate, setCheckInDate] = useState<string>('');
   const [roomPreference, setRoomPreference] = useState<string>('Double Sharing (2 Beds)');
   const [remarks, setRemarks] = useState<string>('');
@@ -62,6 +68,29 @@ export default function BookingModal({
             localStorage.getItem('accessToken')
           : null;
       setIsAuthenticated(Boolean(token));
+
+      // Prefill user details if available
+      if (typeof window !== 'undefined') {
+        try {
+          const userStr = localStorage.getItem('user');
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            const fullName =
+              user.fullName || [user.firstName, user.lastName].filter(Boolean).join(' ') || '';
+            setStudentName(fullName);
+            setEmail(user.email || '');
+            setPhone(user.phone || '');
+          } else {
+            setStudentName('');
+            setPhone('');
+            setEmail('');
+          }
+        } catch {
+          setStudentName('');
+          setPhone('');
+          setEmail('');
+        }
+      }
     }
   }, [isOpen]);
 
@@ -72,6 +101,35 @@ export default function BookingModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const trimmedName = studentName.trim();
+    const trimmedPhone = phone.trim();
+    const trimmedEmail = email.trim();
+
+    if (!trimmedName) {
+      setError('Please enter the student full name.');
+      return;
+    }
+
+    if (!trimmedPhone) {
+      setError('Please enter a phone number.');
+      return;
+    }
+
+    const phoneRegex = /^[0-9+\-\s()]{7,20}$/;
+    if (!phoneRegex.test(trimmedPhone)) {
+      setError('Please enter a valid phone number (at least 7 digits).');
+      return;
+    }
+
+    if (trimmedEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedEmail)) {
+        setError('Please enter a valid email address, or leave it blank.');
+        return;
+      }
+    }
+
     if (!checkInDate) {
       setError('Please select a valid check-in date.');
       return;
@@ -82,6 +140,9 @@ export default function BookingModal({
       setError(null);
 
       const combinedRemarks = [
+        `Student: ${trimmedName}`,
+        `Phone: ${trimmedPhone}`,
+        trimmedEmail ? `Email: ${trimmedEmail}` : '',
         `Preference: ${roomPreference}`,
         remarks.trim() ? `Remarks: ${remarks.trim()}` : '',
       ]
@@ -93,6 +154,9 @@ export default function BookingModal({
           hostelId,
           checkInDate,
           remarks: combinedRemarks,
+          studentName: trimmedName,
+          phone: trimmedPhone,
+          email: trimmedEmail || undefined,
         },
         idempotencyKey
       );
@@ -174,6 +238,17 @@ export default function BookingModal({
                 ✓ <strong>Status:</strong> PENDING review by hostel owner
               </p>
               <p>
+                ✓ <strong>Student Name:</strong> {studentName.trim()}
+              </p>
+              <p>
+                ✓ <strong>Phone:</strong> {phone.trim()}
+              </p>
+              {email.trim() && (
+                <p>
+                  ✓ <strong>Email:</strong> {email.trim()}
+                </p>
+              )}
+              <p>
                 ✓ <strong>Room Type:</strong> {roomPreference}
               </p>
               <p>
@@ -248,37 +323,88 @@ export default function BookingModal({
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="flex items-center gap-1.5 text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1.5">
-                  <Calendar size={14} /> Expected Check-in Date *
+                  <User size={14} /> Student Full Name *
                 </label>
                 <input
-                  type="date"
-                  min={today}
-                  value={checkInDate}
-                  onChange={(e) => setCheckInDate(e.target.value)}
+                  type="text"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-brand-lime text-neutral-800 text-sm font-medium"
+                  placeholder="e.g. Aarav Sharma"
+                  className="w-full px-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-brand-lime text-neutral-800 text-sm font-medium placeholder:text-neutral-400"
                 />
               </div>
 
-              <div>
-                <label className="flex items-center gap-1.5 text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1.5">
-                  <BedDouble size={14} /> Preferred Room Sharing
-                </label>
-                <select
-                  value={roomPreference}
-                  onChange={(e) => setRoomPreference(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-brand-lime text-neutral-800 text-sm font-medium bg-white"
-                >
-                  <option value="Single Room">Single Room (Private)</option>
-                  <option value="Double Sharing (2 Beds)">Double Sharing (2 Beds)</option>
-                  <option value="Triple Sharing (3 Beds)">Triple Sharing (3 Beds)</option>
-                  <option value="4-Bed Dormitory">4-Bed Dormitory</option>
-                </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1.5">
+                    <Phone size={14} /> Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    placeholder="e.g. 9812345678"
+                    className="w-full px-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-brand-lime text-neutral-800 text-sm font-medium placeholder:text-neutral-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1.5">
+                    <Mail size={14} /> Email Address{' '}
+                    <span className="text-[10px] text-neutral-400 normal-case font-normal">
+                      (Optional)
+                    </span>
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="e.g. student@gmail.com"
+                    className="w-full px-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-brand-lime text-neutral-800 text-sm font-medium placeholder:text-neutral-400"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1.5">
+                    <Calendar size={14} /> Expected Check-in Date *
+                  </label>
+                  <input
+                    type="date"
+                    min={today}
+                    value={checkInDate}
+                    onChange={(e) => setCheckInDate(e.target.value)}
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-brand-lime text-neutral-800 text-sm font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1.5">
+                    <BedDouble size={14} /> Preferred Room Sharing
+                  </label>
+                  <select
+                    value={roomPreference}
+                    onChange={(e) => setRoomPreference(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-brand-lime text-neutral-800 text-sm font-medium bg-white"
+                  >
+                    <option value="Single Room">Single Room (Private)</option>
+                    <option value="Double Sharing (2 Beds)">Double Sharing (2 Beds)</option>
+                    <option value="Triple Sharing (3 Beds)">Triple Sharing (3 Beds)</option>
+                    <option value="4-Bed Dormitory">4-Bed Dormitory</option>
+                  </select>
+                </div>
               </div>
 
               <div>
                 <label className="flex items-center gap-1.5 text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1.5">
-                  <MessageSquare size={14} /> Remarks / Special Needs (Optional)
+                  <MessageSquare size={14} /> Remarks / Special Needs{' '}
+                  <span className="text-[10px] text-neutral-400 normal-case font-normal">
+                    (Optional)
+                  </span>
                 </label>
                 <textarea
                   rows={2}

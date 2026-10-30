@@ -6,6 +6,9 @@ export interface CreateBookingRequest {
   hostelId: string;
   checkInDate: string; // ISO date format YYYY-MM-DD
   remarks?: string;
+  studentName?: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface BookingHostelInfo {
@@ -104,7 +107,15 @@ export const createBooking = async (
   idempotencyKey?: string
 ): Promise<CreateBookingResponse> => {
   const key = idempotencyKey || generateIdempotencyKey();
-  const response = await apiClient.post<CreateBookingResponse>('/bookings', payload, {
+  // Strictly send only fields accepted by backend CreateBookingDto to pass DTO validation
+  const body: { hostelId: string; checkInDate: string; remarks?: string } = {
+    hostelId: payload.hostelId,
+    checkInDate: payload.checkInDate,
+  };
+  if (payload.remarks !== undefined) {
+    body.remarks = payload.remarks;
+  }
+  const response = await apiClient.post<CreateBookingResponse>('/bookings', body, {
     headers: {
       'Idempotency-Key': key,
     },

@@ -50,8 +50,11 @@ export interface Hostel {
   detailedFacilities: DetailedFacility[];
   image: string;
   description: string;
-  latitude?: number;
-  longitude?: number;
+  latitude?: number | null;
+  longitude?: number | null;
+  isLocationShared?: boolean;
+  locationUpdatedAt?: string | null;
+  meals?: import('../lib/api/hostels').HostelMeal[];
   phone?: string | null;
   email?: string | null;
   isActive?: boolean;
