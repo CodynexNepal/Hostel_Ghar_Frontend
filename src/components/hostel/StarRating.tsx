@@ -28,7 +28,6 @@ export default function StarRating({
   const [userRating, setUserRating] = useState<number | null>(null);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [showToast, setShowToast] = useState<boolean>(false);
-  const [isInteractiveOpen, setIsInteractiveOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Load user's previous rating and sync from backend
@@ -164,60 +163,24 @@ export default function StarRating({
           </div>
         )}
 
-        {/* Quick Add Star Button if not already rated */}
-        <button
-          type="button"
-          onClick={() => setIsInteractiveOpen(!isInteractiveOpen)}
-          className="text-xs font-semibold px-2 py-0.5 rounded-md border border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:border-neutral-300 transition-colors ml-1"
-          title="Click to add or change your star rating"
-        >
-          {userRating ? `Your star: ${userRating}★` : '+ Add Star'}
-        </button>
-      </div>
-
-      {/* Expanded Rating Drawer / Helper */}
-      {isInteractiveOpen && (
-        <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200 text-xs text-neutral-700 animate-in fade-in duration-150">
-          <p className="font-semibold text-neutral-900 mb-2">
-            {userRating ? 'Update your star rating:' : 'Add your star rating for this hostel:'}
-          </p>
-          <div className="flex items-center gap-2">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => {
-                  handleRate(s);
-                  setIsInteractiveOpen(false);
-                }}
-                className={`flex-1 py-1 px-2 rounded-lg font-bold border transition-all text-center ${
-                  userRating === s
-                    ? 'bg-amber-400 border-amber-500 text-neutral-900 shadow-sm'
-                    : 'bg-white border-neutral-200 hover:border-amber-400 text-neutral-800'
-                }`}
-              >
-                {s} ★
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Instant Feedback Toast */}
-      {showToast && (
-        <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg animate-in fade-in slide-in-from-top-1 duration-200">
-          {isSubmitting ? (
-            <Loader2 size={14} className="text-emerald-600 animate-spin" />
-          ) : (
-            <CheckCircle size={14} className="text-emerald-600" />
-          )}
-          <span>
-            {isSubmitting
-              ? `Submitting your ${userRating}★ rating to server...`
-              : `You added ${userRating} stars! Rating saved.`}
+        {/* Spinner when submitting rating */}
+        {isSubmitting && (
+          <span
+            className="inline-flex items-center ml-1 text-amber-500"
+            title="Submitting rating..."
+          >
+            <Loader2 size={16} className="animate-spin" />
           </span>
-        </div>
-      )}
+        )}
+
+        {/* Subtle saved indicator after rating */}
+        {!isSubmitting && showToast && (
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md animate-in fade-in duration-200 ml-1">
+            <CheckCircle size={13} className="text-emerald-600" />
+            <span>Saved ({userRating}★)</span>
+          </span>
+        )}
+      </div>
     </div>
   );
 }

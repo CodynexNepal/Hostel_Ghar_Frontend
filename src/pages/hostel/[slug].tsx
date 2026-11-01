@@ -80,10 +80,11 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
       image: apiHostel.logoUrl || initialHostel.image,
       priceFrom: apiHostel.priceFrom || initialHostel.priceFrom,
       monthlyPrice:
-        apiHostel.monthlyRent ??
-        apiHostel.hostelFee ??
-        apiHostel.monthlyPrice ??
-        initialHostel.monthlyPrice,
+        apiHostel.monthlyRent ||
+        apiHostel.hostelFee ||
+        apiHostel.monthlyPrice ||
+        initialHostel.monthlyPrice ||
+        0,
       totalBeds: apiHostel.totalBeds ?? apiHostel.beds?.total ?? initialHostel.totalBeds,
       availableBeds:
         apiHostel.availableBeds ?? apiHostel.beds?.available ?? initialHostel.availableBeds,
@@ -324,21 +325,28 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                       Standard Monthly Fee
                     </span>
                     <div className="flex items-baseline gap-2 mt-0.5">
-                      <span className="text-3xl sm:text-4xl font-extrabold text-brand-black">
-                        NPR {hostel.monthlyPrice.toLocaleString()}
-                      </span>
-                      <span className="text-sm text-neutral-500 font-semibold">/ month</span>
+                      {hostel.monthlyPrice > 0 ? (
+                        <>
+                          <span className="text-3xl sm:text-4xl font-extrabold text-brand-black">
+                            NPR {hostel.monthlyPrice.toLocaleString()}
+                          </span>
+                          <span className="text-sm text-neutral-500 font-semibold">/ month</span>
+                        </>
+                      ) : (
+                        <span className="text-2xl sm:text-3xl font-extrabold text-brand-black">
+                          Contact for price
+                        </span>
+                      )}
                     </div>
                   </div>
-                  {hostel.originalMonthlyPrice && (
+                  {hostel.originalMonthlyPrice && hostel.monthlyPrice > 0 && (
                     <span className="text-sm font-semibold text-neutral-400 line-through">
                       NPR {hostel.originalMonthlyPrice.toLocaleString()}
                     </span>
                   )}
                 </div>
                 <p className="text-xs text-neutral-600 mt-2">
-                  *Includes 4 daily meals, electricity, Wi-Fi & water. Nightly stay from NPR{' '}
-                  {hostel.priceFrom.toLocaleString()}/night.
+                  *Includes 4 daily meals, electricity, Wi-Fi & water.
                 </p>
               </div>
 
@@ -715,7 +723,15 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
           <div className="mt-10 max-w-3xl">
             <DirectAnswer
               question={`How much does ${hostel.name} cost and what are the bed details?`}
-              answer={`${hostel.name} in ${hostel.area} offers monthly packages from NPR ${hostel.monthlyPrice.toLocaleString()}/month and nightly stays at NPR ${hostel.priceFrom.toLocaleString()}/night. There are currently ${hostel.availableBeds} beds available out of ${hostel.totalBeds} total beds, with ${hostel.totalStudents} active students residing. Rated ${hostel.rating}/5 from verified stays.`}
+              answer={`${hostel.name} in ${hostel.area} offers monthly packages ${
+                hostel.monthlyPrice > 0
+                  ? `from NPR ${hostel.monthlyPrice.toLocaleString()}/month`
+                  : 'at competitive monthly rates'
+              }.${
+                hostel.totalBeds > 0
+                  ? ` There are currently ${hostel.availableBeds} beds available out of ${hostel.totalBeds} total beds, with ${hostel.totalStudents} active students residing.`
+                  : ''
+              } Rated ${hostel.rating}/5 from verified stays.`}
             />
           </div>
 
@@ -732,8 +748,14 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
           <div>
             <p className="text-[11px] text-neutral-500">Monthly Rent</p>
             <p className="text-base font-extrabold text-brand-black">
-              NPR {hostel.monthlyPrice.toLocaleString()}
-              <span className="text-xs font-normal text-neutral-500">/mo</span>
+              {hostel.monthlyPrice > 0 ? (
+                <>
+                  NPR {hostel.monthlyPrice.toLocaleString()}
+                  <span className="text-xs font-normal text-neutral-500">/mo</span>
+                </>
+              ) : (
+                'Contact for price'
+              )}
             </p>
           </div>
           <button
@@ -804,10 +826,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           'Nepal',
         priceFrom: data.priceFrom || staticHostel?.priceFrom || 1100,
         monthlyPrice:
-          data.monthlyRent ??
-          data.hostelFee ??
-          data.monthlyPrice ??
-          staticHostel?.monthlyPrice ??
+          data.monthlyRent ||
+          data.hostelFee ||
+          data.monthlyPrice ||
+          staticHostel?.monthlyPrice ||
           11000,
         originalPrice: staticHostel?.originalPrice ?? 1400,
         originalMonthlyPrice: staticHostel?.originalMonthlyPrice ?? 13000,

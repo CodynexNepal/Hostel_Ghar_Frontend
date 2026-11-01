@@ -480,3 +480,243 @@ export const getHostelLocation = async (hostelId: string): Promise<HostelLocatio
   const response = await apiClient.get<HostelLocationResponse>(`/hostels/${hostelId}/location`);
   return response.data;
 };
+
+export interface SubscriptionPlanLimits {
+  maxResidents: number | null;
+  maxHostels: number | null;
+}
+
+export interface SubscriptionFeatureFlags {
+  basicDashboard?: boolean;
+  basicHostelProfile?: boolean;
+  maxResidents?: number | null;
+  maxHostels?: number | null;
+  roomManagement?: boolean;
+  staffManagement?: boolean;
+  reportsAndAnalytics?: boolean;
+  basicPayments?: boolean;
+  expensesTracking?: boolean;
+  advancedAnalytics?: boolean;
+  reportsAndExports?: boolean;
+  invoicesAndReminders?: boolean;
+  multipleHostels?: boolean;
+  advancedAdministration?: boolean;
+  advancedReporting?: boolean;
+  prioritySupport?: boolean;
+  customIntegrations?: boolean;
+  [key: string]: any;
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  tagline: string;
+  price: number;
+  currency: string;
+  billingPeriod: string;
+  formattedPrice: string;
+  badge?: string;
+  isCurrentDefault?: boolean;
+  buttonText: string;
+  features: string[];
+  limits: SubscriptionPlanLimits;
+  featureFlags: SubscriptionFeatureFlags;
+  isCurrent?: boolean;
+}
+
+export interface SubscriptionPlansResponse {
+  success: boolean;
+  message?: string;
+  data: SubscriptionPlan[];
+}
+
+export const DEFAULT_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+  {
+    id: 'FREE',
+    name: 'Free',
+    tagline: 'Get started with hostel basics.',
+    price: 0,
+    currency: 'NPR',
+    billingPeriod: 'month',
+    formattedPrice: 'Free/mo',
+    badge: 'Current',
+    isCurrentDefault: true,
+    buttonText: 'Current Plan',
+    features: [
+      'Basic dashboard',
+      'Basic hostel profile',
+      'Up to 10 residents',
+      'Room management',
+      'Staff management',
+      'Reports & analytics',
+    ],
+    limits: {
+      maxResidents: 10,
+      maxHostels: 1,
+    },
+    featureFlags: {
+      basicDashboard: true,
+      basicHostelProfile: true,
+      maxResidents: 10,
+      maxHostels: 1,
+      roomManagement: true,
+      staffManagement: true,
+      reportsAndAnalytics: true,
+      basicPayments: false,
+      expensesTracking: false,
+      advancedAnalytics: false,
+      reportsAndExports: false,
+      invoicesAndReminders: false,
+      multipleHostels: false,
+      advancedAdministration: false,
+      advancedReporting: false,
+      prioritySupport: false,
+      customIntegrations: false,
+    },
+    isCurrent: false,
+  },
+  {
+    id: 'BASIC',
+    name: 'Basic',
+    tagline: 'For small hostels getting organized.',
+    price: 999,
+    currency: 'NPR',
+    billingPeriod: 'month',
+    formattedPrice: 'Rs. 999/mo',
+    buttonText: 'Upgrade to Basic',
+    features: [
+      'Up to 60 residents',
+      'Room management',
+      'Basic payments',
+      'Expenses tracking',
+      'Reports & analytics',
+    ],
+    limits: {
+      maxResidents: 60,
+      maxHostels: 1,
+    },
+    featureFlags: {
+      basicDashboard: true,
+      basicHostelProfile: true,
+      maxResidents: 60,
+      maxHostels: 1,
+      roomManagement: true,
+      staffManagement: false,
+      reportsAndAnalytics: true,
+      basicPayments: true,
+      expensesTracking: true,
+      advancedAnalytics: false,
+      reportsAndExports: false,
+      invoicesAndReminders: false,
+      multipleHostels: false,
+      advancedAdministration: false,
+      advancedReporting: false,
+      prioritySupport: false,
+      customIntegrations: false,
+    },
+    isCurrent: false,
+  },
+  {
+    id: 'PRO',
+    name: 'Pro',
+    tagline: 'For growing hostels that need automation.',
+    badge: 'Popular',
+    price: 1999,
+    currency: 'NPR',
+    billingPeriod: 'month',
+    formattedPrice: 'Rs. 1,999/mo',
+    buttonText: 'Current Plan',
+    features: [
+      'Unlimited residents',
+      'Staff management',
+      'Advanced analytics',
+      'Reports & exports',
+      'Invoices & reminders',
+    ],
+    limits: {
+      maxResidents: null,
+      maxHostels: 1,
+    },
+    featureFlags: {
+      basicDashboard: true,
+      basicHostelProfile: true,
+      maxResidents: null,
+      maxHostels: 1,
+      roomManagement: true,
+      staffManagement: true,
+      reportsAndAnalytics: true,
+      basicPayments: true,
+      expensesTracking: true,
+      advancedAnalytics: true,
+      reportsAndExports: true,
+      invoicesAndReminders: true,
+      multipleHostels: false,
+      advancedAdministration: false,
+      advancedReporting: false,
+      prioritySupport: false,
+      customIntegrations: false,
+    },
+    isCurrent: true,
+  },
+  {
+    id: 'ENTERPRISE',
+    name: 'Enterprise',
+    tagline: 'For groups and multi-hostel operators.',
+    price: 4999,
+    currency: 'NPR',
+    billingPeriod: 'month',
+    formattedPrice: 'Rs. 4,999/mo',
+    buttonText: 'Contact Sales',
+    features: [
+      'Multiple hostels',
+      'Advanced administration',
+      'Advanced reporting',
+      'Priority support',
+      'Custom integrations',
+    ],
+    limits: {
+      maxResidents: null,
+      maxHostels: null,
+    },
+    featureFlags: {
+      basicDashboard: true,
+      basicHostelProfile: true,
+      maxResidents: null,
+      maxHostels: null,
+      roomManagement: true,
+      staffManagement: true,
+      reportsAndAnalytics: true,
+      basicPayments: true,
+      expensesTracking: true,
+      advancedAnalytics: true,
+      reportsAndExports: true,
+      invoicesAndReminders: true,
+      multipleHostels: true,
+      advancedAdministration: true,
+      advancedReporting: true,
+      prioritySupport: true,
+      customIntegrations: true,
+    },
+    isCurrent: false,
+  },
+];
+
+/**
+ * Fetches subscription plans from the backend.
+ * GET /api/v1/hostel-ghar/subscriptions/plans
+ */
+export const getSubscriptionPlans = async (): Promise<SubscriptionPlansResponse> => {
+  try {
+    const response = await apiClient.get<SubscriptionPlansResponse>('/subscriptions/plans');
+    if (response.data && response.data.success && Array.isArray(response.data.data)) {
+      return response.data;
+    }
+  } catch (err) {
+    console.warn('Failed to fetch subscription plans from backend, using default fallback:', err);
+  }
+  return {
+    success: true,
+    message: 'Subscription plans fetched from fallback.',
+    data: DEFAULT_SUBSCRIPTION_PLANS,
+  };
+};

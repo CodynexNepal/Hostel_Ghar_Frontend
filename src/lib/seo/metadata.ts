@@ -56,7 +56,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   '/pricing': {
     title: 'Simple Pricing for Hostel Owners',
     description:
-      'Hostel Ghar pricing: Starter is free forever. Professional NPR 2,999/mo with unlimited residents & fee automation. Enterprise custom. 14-day free trial, no credit card.',
+      'Hostel Ghar pricing: Free plan available. Basic at NPR 999/mo, Pro at NPR 1,999/mo with unlimited residents & fee automation, Enterprise at NPR 4,999/mo for groups and multi-hostels.',
     keywords: ['hostel management pricing Nepal', 'hostel software price', 'hostel ghar pricing'],
     changefreq: 'weekly',
     priority: 0.8,

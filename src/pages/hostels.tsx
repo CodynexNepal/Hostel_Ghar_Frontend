@@ -305,13 +305,20 @@ const HostelsPage = () => {
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [selectedRoomType, setSelectedRoomType] = useState('All Types');
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [priceRange, setPriceRange] = useState([0, 50000]);
   const [minRating, setMinRating] = useState(0);
   const [sortBy, setSortBy] = useState('recommended');
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [bookingHostel, setBookingHostel] = useState<HostelCardData | null>(null);
+
+  // Responsive: Open filters by default on desktops and large devices (>= 1024px), closed on mobile
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setShowFilters(window.innerWidth >= 1024);
+    }
+  }, []);
 
   // Pagination + API state using custom Axios hook
   const [page, setPage] = useState(1);
@@ -353,8 +360,9 @@ const HostelsPage = () => {
     setSelectedLocation('All Locations');
     setSelectedRoomType('All Types');
     setSelectedAmenities([]);
-    setPriceRange([0, 5000]);
+    setPriceRange([0, 50000]);
     setMinRating(0);
+    setSortBy('recommended');
     setPage(1);
   };
 
@@ -362,29 +370,71 @@ const HostelsPage = () => {
     selectedLocation !== 'All Locations',
     selectedRoomType !== 'All Types',
     selectedAmenities.length > 0,
-    priceRange[0] > 0 || priceRange[1] < 5000,
+    priceRange[0] > 0 || (priceRange[1] > 0 && priceRange[1] < 50000),
     minRating > 0,
   ].filter(Boolean).length;
 
-  // Client-side filtering over loaded page results
-  const filteredHostels = hostels.filter((h) => {
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      const match = h.name.toLowerCase().includes(q) || h.location.toLowerCase().includes(q);
-      if (!match) return false;
-    }
-    if (selectedLocation !== 'All Locations') {
-      if (!h.location.toLowerCase().includes(selectedLocation.toLowerCase())) {
-        return false;
-      }
-    }
-    if (selectedRoomType !== 'All Types') {
-      if (!h.roomType.toLowerCase().includes(selectedRoomType.toLowerCase())) {
-        return false;
-      }
-    }
-    return true;
-  });
+  // Client-side filtering & sorting over loaded page results
+  const filteredHostels = useMemo(() => {
+    return hostels
+      .filter((h) => {
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim();
+          const match = h.name.toLowerCase().includes(q) || h.location.toLowerCase().includes(q);
+          if (!match) return false;
+        }
+        if (selectedLocation !== 'All Locations') {
+          if (!h.location.toLowerCase().includes(selectedLocation.toLowerCase())) {
+            return false;
+          }
+        }
+        if (selectedRoomType !== 'All Types') {
+          if (!h.roomType.toLowerCase().includes(selectedRoomType.toLowerCase())) {
+            return false;
+          }
+        }
+        // Rating filter
+        if (minRating > 0 && (h.rating || 0) < minRating) {
+          return false;
+        }
+        // Price filter (based on monthlyPrice or fallback price)
+        const effectivePrice = h.monthlyPrice > 0 ? h.monthlyPrice : h.price;
+        if (effectivePrice > 0) {
+          if (priceRange[0] > 0 && effectivePrice < priceRange[0]) {
+            return false;
+          }
+          if (priceRange[1] > 0 && priceRange[1] < 50000 && effectivePrice > priceRange[1]) {
+            return false;
+          }
+        }
+        // Amenities filter
+        if (selectedAmenities.length > 0) {
+          const matchesAmenities = selectedAmenities.every((amenity) =>
+            h.amenities?.some((a) => a.toLowerCase().includes(amenity.toLowerCase()))
+          );
+          if (!matchesAmenities) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        const priceA = a.monthlyPrice > 0 ? a.monthlyPrice : a.price;
+        const priceB = b.monthlyPrice > 0 ? b.monthlyPrice : b.price;
+        if (sortBy === 'price-low') return priceA - priceB;
+        if (sortBy === 'price-high') return priceB - priceA;
+        if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+        if (sortBy === 'reviews') return (b.reviews || 0) - (a.reviews || 0);
+        return 0;
+      });
+  }, [
+    hostels,
+    searchQuery,
+    selectedLocation,
+    selectedRoomType,
+    minRating,
+    priceRange,
+    selectedAmenities,
+    sortBy,
+  ]);
 
   const totalItems = pagination?.totalItems ?? filteredHostels.length;
   const totalPages = pagination?.totalPages ?? 1;
@@ -535,10 +585,10 @@ const HostelsPage = () => {
               </div>
             </div>
 
-            <div className="flex gap-6">
+            <div className="flex flex-col lg:flex-row gap-6">
               {showFilters && (
-                <div className="w-72 flex-shrink-0">
-                  <div className="bg-white rounded-2xl border border-neutral-100 p-6 sticky top-24">
+                <div className="w-full lg:w-72 flex-shrink-0">
+                  <div className="bg-white rounded-2xl border border-neutral-100 p-6 lg:sticky lg:top-24">
                     <div className="flex items-center justify-between mb-6">
                       <h3 className="text-lg font-bold text-brand-black">Filters</h3>
                       {activeFiltersCount > 0 && (
@@ -551,14 +601,24 @@ const HostelsPage = () => {
                       )}
                     </div>
                     <div className="mb-6">
-                      <h4 className="text-sm font-bold text-brand-black mb-3">Price Range</h4>
+                      <h4 className="text-sm font-bold text-brand-black mb-3">Price Range (NPR)</h4>
                       <div className="flex items-center gap-3">
                         <div className="flex-1">
                           <label className="text-xs text-neutral-500 mb-1 block">Min</label>
                           <input
                             type="number"
-                            value={priceRange[0]}
-                            onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
+                            min="0"
+                            placeholder="0"
+                            value={priceRange[0] === 0 ? '' : priceRange[0]}
+                            onKeyDown={(e) => {
+                              if (['-', 'e', 'E', '+'].includes(e.key)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            onChange={(e) => {
+                              const val = Math.max(0, parseInt(e.target.value, 10) || 0);
+                              setPriceRange([val, priceRange[1]]);
+                            }}
                             className="w-full px-3 py-2 rounded-lg border border-neutral-200 text-sm focus:border-brand-lime outline-none"
                           />
                         </div>
@@ -567,8 +627,19 @@ const HostelsPage = () => {
                           <label className="text-xs text-neutral-500 mb-1 block">Max</label>
                           <input
                             type="number"
-                            value={priceRange[1]}
-                            onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+                            min="0"
+                            placeholder="50000"
+                            value={priceRange[1] === 50000 ? '' : priceRange[1]}
+                            onKeyDown={(e) => {
+                              if (['-', 'e', 'E', '+'].includes(e.key)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              const val = raw === '' ? 50000 : Math.max(0, parseInt(raw, 10) || 0);
+                              setPriceRange([priceRange[0], val]);
+                            }}
                             className="w-full px-3 py-2 rounded-lg border border-neutral-200 text-sm focus:border-brand-lime outline-none"
                           />
                         </div>

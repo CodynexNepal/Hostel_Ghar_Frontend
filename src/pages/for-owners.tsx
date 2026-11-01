@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
@@ -123,37 +123,55 @@ const testimonials = [
 
 const pricingPlans = [
   {
-    name: 'Starter',
+    name: 'Free',
     price: 'Free',
-    period: 'forever',
-    description: 'For small hostels',
-    features: ['Up to 20 residents', 'Basic dashboard', 'Fee tracking', 'Email support'],
-    cta: 'Get Started',
+    period: '/mo',
+    description: 'Get started with hostel basics',
+    features: ['Up to 10 residents', 'Basic dashboard', 'Room management', 'Reports & analytics'],
+    cta: 'Get Started Free',
     popular: false,
+    link: '/register',
   },
   {
-    name: 'Professional',
-    price: 'NPR 2,999',
-    period: '/month',
-    description: 'For growing hostels',
+    name: 'Basic',
+    price: 'NPR 999',
+    period: '/mo',
+    description: 'For small hostels getting organized',
+    features: ['Up to 60 residents', 'Room management', 'Basic payments', 'Expenses tracking'],
+    cta: 'Upgrade to Basic',
+    popular: false,
+    link: '/register',
+  },
+  {
+    name: 'Pro',
+    price: 'NPR 1,999',
+    period: '/mo',
+    description: 'For growing hostels needing automation',
     features: [
       'Unlimited residents',
+      'Staff management',
       'Advanced analytics',
-      'Auto fee generation',
-      'Leave management',
-      'Priority support',
+      'Reports & exports',
+      'Invoices & reminders',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Get Pro Plan',
     popular: true,
+    link: '/register',
   },
   {
     name: 'Enterprise',
-    price: 'Custom',
-    period: 'pricing',
-    description: 'For large chains',
-    features: ['Everything in Pro', 'Multi-hostel', 'API access', 'Dedicated manager'],
+    price: 'NPR 4,999',
+    period: '/mo',
+    description: 'For groups & multi-hostel operators',
+    features: [
+      'Multiple hostels',
+      'Advanced administration',
+      'Priority support',
+      'Custom integrations',
+    ],
     cta: 'Contact Sales',
     popular: false,
+    link: '/contact',
   },
 ];
 
@@ -396,54 +414,61 @@ const ForOwnersPage = () => {
                 Simple Pricing
               </h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {pricingPlans.map((plan) => (
                 <div
                   key={plan.name}
-                  className={`relative p-6 rounded-2xl border transition-all duration-300 ${plan.popular ? 'bg-brand-black text-white border-brand-black scale-105 shadow-hard' : 'bg-white border-neutral-100 hover:border-brand-lime/50'}`}
+                  className={`relative p-6 rounded-2xl border transition-all duration-300 flex flex-col justify-between ${plan.popular ? 'bg-brand-black text-white border-brand-black scale-105 shadow-hard' : 'bg-white border-neutral-100 hover:border-brand-lime/50'}`}
                 >
-                  {plan.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-brand-lime text-brand-black text-xs font-bold rounded-full">
-                      Most Popular
-                    </span>
-                  )}
-                  <h3
-                    className={`text-xl font-bold mb-2 ${plan.popular ? 'text-white' : 'text-brand-black'}`}
-                  >
-                    {plan.name}
-                  </h3>
-                  <div className="flex items-baseline gap-1 mb-2">
-                    <span
-                      className={`text-3xl font-extrabold ${plan.popular ? 'text-brand-lime' : 'text-brand-black'}`}
+                  <div>
+                    {plan.popular && (
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-brand-lime text-brand-black text-xs font-bold rounded-full">
+                        Most Popular
+                      </span>
+                    )}
+                    <h3
+                      className={`text-xl font-bold mb-2 ${plan.popular ? 'text-white' : 'text-brand-black'}`}
                     >
-                      {plan.price}
-                    </span>
-                    <span
-                      className={`text-sm ${plan.popular ? 'text-neutral-400' : 'text-neutral-500'}`}
+                      {plan.name}
+                    </h3>
+                    <div className="flex items-baseline gap-1 mb-2">
+                      <span
+                        className={`text-3xl font-extrabold ${plan.popular ? 'text-brand-lime' : 'text-brand-black'}`}
+                      >
+                        {plan.price}
+                      </span>
+                      <span
+                        className={`text-sm ${plan.popular ? 'text-neutral-400' : 'text-neutral-500'}`}
+                      >
+                        {plan.period}
+                      </span>
+                    </div>
+                    <p
+                      className={`text-sm mb-6 ${plan.popular ? 'text-neutral-400' : 'text-neutral-500'}`}
                     >
-                      {plan.period}
-                    </span>
+                      {plan.description}
+                    </p>
+                    <ul className="space-y-3 mb-6">
+                      {plan.features.map((f) => (
+                        <li key={f} className="flex items-center gap-2 text-sm">
+                          <CheckCircle
+                            size={16}
+                            strokeWidth={2.5}
+                            className="text-brand-lime flex-shrink-0"
+                          />
+                          <span className={plan.popular ? 'text-neutral-300' : 'text-neutral-600'}>
+                            {f}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <p
-                    className={`text-sm mb-6 ${plan.popular ? 'text-neutral-400' : 'text-neutral-500'}`}
-                  >
-                    {plan.description}
-                  </p>
-                  <ul className="space-y-3 mb-6">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm">
-                        <CheckCircle size={16} strokeWidth={2.5} className="text-brand-lime" />
-                        <span className={plan.popular ? 'text-neutral-300' : 'text-neutral-600'}>
-                          {f}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${plan.popular ? 'bg-brand-lime text-brand-black hover:bg-brand-lime/85' : 'bg-brand-lime/10 text-brand-black hover:bg-brand-lime/20'}`}
+                  <Link
+                    href={plan.link}
+                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all text-center block ${plan.popular ? 'bg-brand-lime text-brand-black hover:bg-brand-lime/85' : 'bg-brand-lime/10 text-brand-black hover:bg-brand-lime/20'}`}
                   >
                     {plan.cta}
-                  </button>
+                  </Link>
                 </div>
               ))}
             </div>
