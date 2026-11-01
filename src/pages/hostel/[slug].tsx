@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -43,8 +43,15 @@ import {
   ArrowDown,
   Sun,
   Moon,
+  Loader2,
 } from 'lucide-react';
-import type { DayOfWeek, HostelMeal } from '@/lib/api/hostels';
+import {
+  type DayOfWeek,
+  type HostelMeal,
+  type DailyMealSlot,
+  getHostelDailyMeals,
+  saveHostelDailyMeals,
+} from '@/lib/api/hostels';
 
 const WEEKDAY_NAMES: Array<{ key: DayOfWeek; name: string; nepali: string }> = [
   { key: 'SUNDAY', name: 'Sunday', nepali: 'आइतबार' },
@@ -273,6 +280,9 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
 export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedMealDay, setSelectedMealDay] = useState<DayOfWeek>('SUNDAY');
+  const [isSavingSlots, setIsSavingSlots] = useState(false);
+  const [dayScheduleMap, setDayScheduleMap] = useState<Record<string, DailyMealSlot[]>>({});
+  const [isDayScheduleLoading, setIsDayScheduleLoading] = useState(false);
 
   // Daily Serving Timetable state with 4 active meals
   const [mealSlots, setMealSlots] = useState<MealSlotItem[]>([
@@ -314,25 +324,15 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
     },
   ]);
 
-  // Reorder slots chronologically using arrow buttons
-  const moveSlot = (index: number, direction: 'up' | 'down') => {
-    setMealSlots((prev) => {
-      const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
-      const next = [...prev];
-      const temp = next[index];
-      next[index] = next[targetIndex];
-      next[targetIndex] = temp;
-      return next.map((slot, i) => ({ ...slot, order: i + 1 }));
-    });
-  };
-
   // Hook to call the hostel endpoint with Axios
   const {
     hostel: apiHostel,
     facilities: apiFacilities,
     meals: apiMeals,
     hasMeals: apiHasMeals,
+    dailyMeals: apiDailyMeals,
+    hasDailyMeals: apiHasDailyMeals,
+    configuredDays: apiConfiguredDays,
     location: apiLocation,
     loading: isHostelLoading,
     error: apiError,
@@ -373,9 +373,117 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
           ? apiHostel.isLocationShared
           : initialHostel.isLocationShared,
       meals: apiHostel.meals || initialHostel.meals,
+      dailyMeals:
+        apiDailyMeals && apiDailyMeals.length > 0 ? apiDailyMeals : initialHostel.dailyMeals,
       owner: (apiHostel.owner as any) ?? initialHostel.owner,
     };
-  }, [apiHostel, initialHostel]);
+  }, [apiHostel, apiDailyMeals, initialHostel]);
+
+  // Synchronize mealSlots with real backend daily meal schedule
+  useEffect(() => {
+    const sourceSlots =
+      apiDailyMeals && apiDailyMeals.length > 0
+        ? apiDailyMeals
+        : initialHostel.dailyMeals && initialHostel.dailyMeals.length > 0
+        ? initialHostel.dailyMeals
+        : null;
+
+    if (sourceSlots && sourceSlots.length > 0) {
+      const sorted = [...sourceSlots].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+      setMealSlots(
+        sorted.map((slot, idx) => ({
+          id: slot.id || `slot-${idx + 1}`,
+          order: slot.orderIndex || idx + 1,
+          slotName: slot.mealName,
+          slotType:
+            slot.mealNameEn ||
+            (idx === 0
+              ? 'Breakfast'
+              : idx === 1
+              ? 'Main Meal'
+              : idx === 2
+              ? 'Evening Khaja'
+              : 'Evening Meal'),
+          servingWindow: slot.time,
+          menuDescription:
+            slot.menuDescription ||
+            (idx === 0
+              ? 'Milk Tea, Boiled Eggs, Toast with Jam, or Bread & Butter'
+              : idx === 1
+              ? 'Steamed Rice, Lentils (Dal), Seasonal Curry, Papad, and Fresh Pickle'
+              : idx === 2
+              ? 'Chowmein, Samosa, or Biscuits served with Hot Tea'
+              : 'Steamed Rice, Yellow Dal, Chicken / Paneer Curry, and Seasonal Green Saag'),
+          status: slot.isActive !== false ? 'Active' : 'Inactive',
+        }))
+      );
+    }
+  }, [apiDailyMeals, initialHostel.dailyMeals]);
+
+  // Reorder slots chronologically using arrow buttons and persist to backend
+  const moveSlot = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= mealSlots.length) return;
+
+    const next = [...mealSlots];
+    const temp = next[index];
+    next[index] = next[targetIndex];
+    next[targetIndex] = temp;
+    const reordered = next.map((slot, i) => ({ ...slot, order: i + 1 }));
+    setMealSlots(reordered);
+
+    const hostelId = hostel.id || initialHostel.id;
+    if (hostelId) {
+      try {
+        setIsSavingSlots(true);
+        const payload: DailyMealSlot[] = reordered.map((s, idx) => ({
+          id: s.id.startsWith('slot-') ? undefined : s.id,
+          mealName: s.slotName,
+          mealNameEn: s.slotType,
+          time: s.servingWindow,
+          menuDescription: s.menuDescription,
+          isActive: s.status === 'Active',
+          orderIndex: idx + 1,
+        }));
+        await saveHostelDailyMeals(hostelId, payload, 'ALL');
+      } catch {
+        // Optimistic UI fallback: keep reordered list responsive even if viewer lacks mutation role
+      } finally {
+        setIsSavingSlots(false);
+      }
+    }
+  };
+
+  // Fetch real day-specific meal schedule from backend when day tab changes
+  useEffect(() => {
+    const hostelId = hostel.id || initialHostel.id;
+    if (!hostelId) return;
+
+    let isCancelled = false;
+    const loadDaySchedule = async () => {
+      try {
+        setIsDayScheduleLoading(true);
+        const res = await getHostelDailyMeals(hostelId, selectedMealDay);
+        if (!isCancelled && res.success && res.data?.schedule && res.data.schedule.length > 0) {
+          setDayScheduleMap((prev) => ({
+            ...prev,
+            [selectedMealDay]: res.data.schedule,
+          }));
+        }
+      } catch {
+        // Fallback gracefully to day plan
+      } finally {
+        if (!isCancelled) {
+          setIsDayScheduleLoading(false);
+        }
+      }
+    };
+
+    loadDaySchedule();
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedMealDay, hostel.id, initialHostel.id]);
 
   // Geographic location resolution: strictly hide coordinates if isLocationShared is not true
   const isLocationShared = Boolean(
@@ -742,6 +850,12 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                   </p>
                 </div>
                 <div className="flex items-center gap-2 text-xs font-bold">
+                  {isSavingSlots && (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 mr-1">
+                      <Loader2 size={13} className="animate-spin text-brand-black" />
+                      Saving order...
+                    </span>
+                  )}
                   <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                     {mealSlots.filter((s) => s.status === 'Active').length} Active
                   </span>
@@ -838,8 +952,14 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                     Select any day below to inspect all 4 planned meal servings (Sunday through Saturday)
                   </p>
                 </div>
-                <span className="text-xs font-semibold text-neutral-500">
-                  Showing menu for: <strong className="text-brand-black">{WEEKDAY_NAMES.find(w => w.key === selectedMealDay)?.name}</strong>
+                <span className="text-xs font-semibold text-neutral-500 flex items-center gap-1.5">
+                  {isDayScheduleLoading && (
+                    <Loader2 size={13} className="animate-spin text-brand-black" />
+                  )}
+                  Showing menu for:{' '}
+                  <strong className="text-brand-black">
+                    {WEEKDAY_NAMES.find((w) => w.key === selectedMealDay)?.name}
+                  </strong>
                 </span>
               </div>
 
@@ -874,25 +994,42 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
               {(() => {
                 const dayPlan = DEFAULT_WEEKLY_4_MEALS[selectedMealDay];
                 const apiDayMeal = effectiveMeals.find((m) => m.dayOfWeek === selectedMealDay);
+                const liveDaySlots = dayScheduleMap[selectedMealDay];
+                const sortedDaySlots = liveDaySlots
+                  ? [...liveDaySlots].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0))
+                  : null;
 
-                // If backend has custom description for breakfast/main, merge it
+                const bSlot = sortedDaySlots?.find((s) => s.orderIndex === 1) || sortedDaySlots?.[0];
+                const lSlot = sortedDaySlots?.find((s) => s.orderIndex === 2) || sortedDaySlots?.[1];
+                const sSlot = sortedDaySlots?.find((s) => s.orderIndex === 3) || sortedDaySlots?.[2];
+                const dSlot = sortedDaySlots?.find((s) => s.orderIndex === 4) || sortedDaySlots?.[3];
+
+                // If backend has custom description for breakfast/main or daily slots, merge them
                 const breakfastMenu =
-                  apiDayMeal?.breakfastDescription?.trim() || dayPlan.breakfast.description;
-                const breakfastTime = apiDayMeal?.breakfastTime?.trim() || dayPlan.breakfast.time;
-                const breakfastNotes = apiDayMeal?.breakfastNotes?.trim() || dayPlan.breakfast.notes;
+                  bSlot?.menuDescription?.trim() ||
+                  apiDayMeal?.breakfastDescription?.trim() ||
+                  dayPlan.breakfast.description;
+                const breakfastTime =
+                  bSlot?.time?.trim() || apiDayMeal?.breakfastTime?.trim() || dayPlan.breakfast.time;
+                const breakfastNotes =
+                  bSlot?.mealNameEn?.trim() || apiDayMeal?.breakfastNotes?.trim() || dayPlan.breakfast.notes;
 
-                const lunchMenu = dayPlan.lunch.description;
-                const lunchTime = dayPlan.lunch.time;
-                const lunchNotes = dayPlan.lunch.notes;
+                const lunchMenu = lSlot?.menuDescription?.trim() || dayPlan.lunch.description;
+                const lunchTime = lSlot?.time?.trim() || dayPlan.lunch.time;
+                const lunchNotes = lSlot?.mealNameEn?.trim() || dayPlan.lunch.notes;
 
-                const snackMenu = dayPlan.snack.description;
-                const snackTime = dayPlan.snack.time;
-                const snackNotes = dayPlan.snack.notes;
+                const snackMenu = sSlot?.menuDescription?.trim() || dayPlan.snack.description;
+                const snackTime = sSlot?.time?.trim() || dayPlan.snack.time;
+                const snackNotes = sSlot?.mealNameEn?.trim() || dayPlan.snack.notes;
 
                 const dinnerMenu =
-                  apiDayMeal?.mainMealDescription?.trim() || dayPlan.dinner.description;
-                const dinnerTime = apiDayMeal?.mainMealTime?.trim() || dayPlan.dinner.time;
-                const dinnerNotes = apiDayMeal?.mainMealNotes?.trim() || dayPlan.dinner.notes;
+                  dSlot?.menuDescription?.trim() ||
+                  apiDayMeal?.mainMealDescription?.trim() ||
+                  dayPlan.dinner.description;
+                const dinnerTime =
+                  dSlot?.time?.trim() || apiDayMeal?.mainMealTime?.trim() || dayPlan.dinner.time;
+                const dinnerNotes =
+                  dSlot?.mealNameEn?.trim() || apiDayMeal?.mainMealNotes?.trim() || dayPlan.dinner.notes;
 
                 const dayMealsCards = [
                   {
@@ -1186,9 +1323,19 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   // 1. Fetch from actual production backend API endpoint first
   try {
-    const res = await getHostelById(slug);
-    if (res?.data) {
-      const data = res.data;
+    const [resSettled, dailyMealsSettled] = await Promise.allSettled([
+      getHostelById(slug),
+      getHostelDailyMeals(slug),
+    ]);
+
+    if (resSettled.status === 'fulfilled' && resSettled.value?.data) {
+      const data = resSettled.value.data;
+      const fetchedDailyMeals =
+        dailyMealsSettled.status === 'fulfilled' &&
+        dailyMealsSettled.value?.data?.schedule &&
+        dailyMealsSettled.value.data.schedule.length > 0
+          ? dailyMealsSettled.value.data.schedule
+          : [];
       const apiHostel: Hostel = {
         id: data.id,
         slug: data.id,
@@ -1255,6 +1402,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         isLocationShared: Boolean(data.isLocationShared),
         locationUpdatedAt: data.isLocationShared ? data.locationUpdatedAt ?? null : null,
         meals: data.meals || [],
+        dailyMeals: fetchedDailyMeals,
         ...(data.createdAt || staticHostel?.createdAt
           ? { createdAt: data.createdAt || staticHostel?.createdAt }
           : {}),

@@ -10,6 +10,8 @@ import {
   HostelFacility,
   HostelMeal,
   WeeklyMealResponse,
+  DailyMealSlot,
+  HostelDailyMealResponse,
   HostelLocationData,
   HostelLocationResponse,
 } from '@/lib/api/hostels';
@@ -112,6 +114,9 @@ export interface UseHostelReturn {
   facilities: HostelFacility[];
   meals: HostelMeal[];
   hasMeals: boolean;
+  dailyMeals: DailyMealSlot[];
+  hasDailyMeals: boolean;
+  configuredDays: string[];
   location: HostelLocationData | null;
   loading: boolean;
   error: string | null;
@@ -127,6 +132,9 @@ export function useHostel(hostelId?: string): UseHostelReturn {
   const [facilities, setFacilities] = useState<HostelFacility[]>([]);
   const [meals, setMeals] = useState<HostelMeal[]>([]);
   const [hasMeals, setHasMeals] = useState<boolean>(false);
+  const [dailyMeals, setDailyMeals] = useState<DailyMealSlot[]>([]);
+  const [hasDailyMeals, setHasDailyMeals] = useState<boolean>(false);
+  const [configuredDays, setConfiguredDays] = useState<string[]>([]);
   const [location, setLocation] = useState<HostelLocationData | null>(null);
   const [loading, setLoading] = useState<boolean>(Boolean(hostelId));
   const [error, setError] = useState<string | null>(null);
@@ -165,6 +173,20 @@ export function useHostel(hostelId?: string): UseHostelReturn {
         }
       } catch {
         // Meals fallback handled gracefully
+      }
+
+      // Fetch daily meal timetable with Axios
+      try {
+        const dailyRes = await apiClient.get<HostelDailyMealResponse>(
+          `/hostels/${hostelId}/meals/daily`
+        );
+        if (dailyRes.data && dailyRes.data.success && dailyRes.data.data) {
+          setDailyMeals(dailyRes.data.data.schedule || []);
+          setHasDailyMeals(Boolean(dailyRes.data.data.hasSchedule));
+          setConfiguredDays(dailyRes.data.data.configuredDays || []);
+        }
+      } catch {
+        // Daily meals fallback handled gracefully
       }
 
       // Fetch location with Axios
@@ -208,6 +230,9 @@ export function useHostel(hostelId?: string): UseHostelReturn {
     facilities,
     meals,
     hasMeals,
+    dailyMeals,
+    hasDailyMeals,
+    configuredDays,
     location,
     loading,
     error,

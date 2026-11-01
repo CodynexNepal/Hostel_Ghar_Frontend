@@ -101,6 +101,7 @@ export interface HostelDetail extends Omit<Hostel, 'facilities'> {
   isLocationShared?: boolean;
   locationUpdatedAt?: string | null;
   meals?: HostelMeal[];
+  dailyMeals?: DailyMealSlot[];
 }
 
 export type DayOfWeek =
@@ -135,6 +136,34 @@ export interface WeeklyMealScheduleData {
 export interface WeeklyMealResponse {
   success: boolean;
   data: WeeklyMealScheduleData;
+}
+
+export interface DailyMealSlot {
+  id?: string | null;
+  dayOfWeek?: string;
+  mealName: string;
+  mealNameEn?: string | null;
+  time: string;
+  menuDescription?: string | null;
+  isActive: boolean;
+  orderIndex: number;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface DailyScheduleResponse {
+  hostelId: string;
+  dayOfWeek?: string;
+  hasSchedule: boolean;
+  isConfigured: boolean;
+  lastUpdatedAt: string | null;
+  schedule: DailyMealSlot[];
+  configuredDays?: string[];
+}
+
+export interface HostelDailyMealResponse {
+  success: boolean;
+  data: DailyScheduleResponse;
 }
 
 export interface HostelLocationData {
@@ -461,13 +490,34 @@ export const getHostelMeals = async (hostelId: string): Promise<WeeklyMealRespon
 
 /**
  * Fetches the daily meal schedule (दैनिक भोजन तालिका) for a hostel.
- * GET /api/v1/hostel-ghar/hostels/:id/meals/daily
+ * GET /api/v1/hostel-ghar/hostels/:id/meals/daily?dayOfWeek=...
  */
 export const getHostelDailyMeals = async (
-  hostelId: string
-): Promise<{ success: boolean; data: any }> => {
-  const response = await apiClient.get<{ success: boolean; data: any }>(
-    `/hostels/${hostelId}/meals/daily`
+  hostelId: string,
+  dayOfWeek?: string
+): Promise<HostelDailyMealResponse> => {
+  const query = dayOfWeek ? `?dayOfWeek=${encodeURIComponent(dayOfWeek)}` : '';
+  const response = await apiClient.get<HostelDailyMealResponse>(
+    `/hostels/${hostelId}/meals/daily${query}`
+  );
+  return response.data;
+};
+
+/**
+ * Updates or reorders daily meals for a hostel.
+ * PUT /api/v1/hostel-ghar/hostels/:id/meals/daily
+ */
+export const saveHostelDailyMeals = async (
+  hostelId: string,
+  meals: DailyMealSlot[],
+  dayOfWeek?: string
+): Promise<HostelDailyMealResponse> => {
+  const response = await apiClient.put<HostelDailyMealResponse>(
+    `/hostels/${hostelId}/meals/daily`,
+    {
+      dayOfWeek: dayOfWeek || 'ALL',
+      meals,
+    }
   );
   return response.data;
 };

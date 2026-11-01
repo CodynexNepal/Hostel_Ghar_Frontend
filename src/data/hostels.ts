@@ -55,6 +55,7 @@ export interface Hostel {
   isLocationShared?: boolean;
   locationUpdatedAt?: string | null;
   meals?: import('../lib/api/hostels').HostelMeal[];
+  dailyMeals?: import('../lib/api/hostels').DailyMealSlot[];
   phone?: string | null;
   email?: string | null;
   isActive?: boolean;
