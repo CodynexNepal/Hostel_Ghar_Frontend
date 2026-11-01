@@ -39,6 +39,10 @@ import {
   Utensils,
   Calendar,
   Globe,
+  ArrowUp,
+  ArrowDown,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import type { DayOfWeek, HostelMeal } from '@/lib/api/hostels';
 
@@ -52,9 +56,276 @@ const WEEKDAY_NAMES: Array<{ key: DayOfWeek; name: string; nepali: string }> = [
   { key: 'SATURDAY', name: 'Saturday', nepali: 'शनिबार' },
 ];
 
+export interface MealSlotItem {
+  id: string;
+  order: number;
+  slotName: string;
+  slotType: string;
+  servingWindow: string;
+  menuDescription: string;
+  status: 'Active' | 'Inactive';
+}
+
+export interface DayMealPlan {
+  dayKey: DayOfWeek;
+  name: string;
+  nepali: string;
+  breakfast: {
+    time: string;
+    description: string;
+    notes?: string;
+  };
+  lunch: {
+    time: string;
+    description: string;
+    notes?: string;
+  };
+  snack: {
+    time: string;
+    description: string;
+    notes?: string;
+  };
+  dinner: {
+    time: string;
+    description: string;
+    notes?: string;
+  };
+}
+
+const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
+  SUNDAY: {
+    dayKey: 'SUNDAY',
+    name: 'Sunday',
+    nepali: 'आइतबार',
+    breakfast: {
+      time: '7:00 AM – 8:00 AM',
+      description: 'Milk Tea, Boiled Eggs, Toast with Jam, or Bread & Butter',
+      notes: 'Freshly brewed milk tea & butter toast',
+    },
+    lunch: {
+      time: '12:00 PM – 1:30 PM',
+      description: 'Steamed Rice, Lentils (Dal), Seasonal Curry, Papad, and Fresh Pickle',
+      notes: 'Unlimited rice & dal refill for residents',
+    },
+    snack: {
+      time: '4:00 PM – 5:00 PM',
+      description: 'Chowmein, Samosa, or Biscuits served with Hot Tea',
+      notes: 'Evening Khaja refreshment',
+    },
+    dinner: {
+      time: '7:30 PM – 9:00 PM',
+      description: 'Steamed Rice, Yellow Dal, Chicken / Paneer Curry, and Seasonal Green Saag',
+      notes: 'Non-veg & Veg options cooked separately',
+    },
+  },
+  MONDAY: {
+    dayKey: 'MONDAY',
+    name: 'Monday',
+    nepali: 'सोमबार',
+    breakfast: {
+      time: '7:00 AM – 8:00 AM',
+      description: 'Milk Tea / Black Coffee, Aloo Paratha with Curd (Dahi) & Mint Pickle',
+      notes: 'Hot stuffed potato parathas',
+    },
+    lunch: {
+      time: '12:00 PM – 1:30 PM',
+      description: 'Steamed Rice, Black Lentil (Masyang/Maas Dal), Seasonal Aloo-Gobi Curry, Papad & Fresh Chutney',
+      notes: 'Traditional Nepali Thakali-style dal bhat',
+    },
+    snack: {
+      time: '4:00 PM – 5:00 PM',
+      description: 'Fresh Fried Samosa with Tangy Tomato Chutney and Spiced Milk Tea',
+      notes: 'Freshly fried crispy samosas',
+    },
+    dinner: {
+      time: '7:30 PM – 9:00 PM',
+      description: 'Steamed Rice, Rahar Dal, Egg Curry / Mushroom Masala, and Fresh Green Rayo Saag',
+      notes: 'Nutritious green vegetables daily',
+    },
+  },
+  TUESDAY: {
+    dayKey: 'TUESDAY',
+    name: 'Tuesday',
+    nepali: 'मंगलबार',
+    breakfast: {
+      time: '7:00 AM – 8:00 AM',
+      description: 'Milk Tea, Veg Poha (Flattened Rice) with Peanuts & Boiled Chickpeas (Chana)',
+      notes: 'Protein-packed morning meal',
+    },
+    lunch: {
+      time: '12:00 PM – 1:30 PM',
+      description: 'Steamed Rice, Musuro Dal, Aloo Bodi Tama (Bamboo Shoot Curry), Papad & Gundruk Achar',
+      notes: 'Authentic Nepali Bodi Tama flavor',
+    },
+    snack: {
+      time: '4:00 PM – 5:00 PM',
+      description: 'Crispy Vegetable Pakoda with Fresh Mint Chutney & Cardamom Tea',
+      notes: 'Hot crunchy evening pakodas',
+    },
+    dinner: {
+      time: '7:30 PM – 9:00 PM',
+      description: 'Steamed Rice, Yellow Dal, Chicken Curry / Paneer Mattar, and Fried Bitter Gourd (Karela)',
+      notes: 'Delicious gravy with steamed rice',
+    },
+  },
+  WEDNESDAY: {
+    dayKey: 'WEDNESDAY',
+    name: 'Wednesday',
+    nepali: 'बुधबार',
+    breakfast: {
+      time: '7:00 AM – 8:00 AM',
+      description: 'Milk Tea, French Toast or Bread Omelette, Seasonal Fruit / Banana',
+      notes: 'Toast prepared to order',
+    },
+    lunch: {
+      time: '12:00 PM – 1:30 PM',
+      description: 'Steamed Rice, Kalo Dal, Cauliflower & Green Peas Curry, Papad, Fresh Lapsi Pickle',
+      notes: 'Balanced wholesome lunch',
+    },
+    snack: {
+      time: '4:00 PM – 5:00 PM',
+      description: 'Spicy Veg Chowmein / Veg Thukpa with Hot Milk Tea',
+      notes: 'Freshly tossed noodles',
+    },
+    dinner: {
+      time: '7:30 PM – 9:00 PM',
+      description: 'Steamed Rice, Moong Dal, Fish Gravy / Tofu Curry, and Seasonal Green Saag',
+      notes: 'Choice of fresh fish or tofu',
+    },
+  },
+  THURSDAY: {
+    dayKey: 'THURSDAY',
+    name: 'Thursday',
+    nepali: 'बिहीबार',
+    breakfast: {
+      time: '7:00 AM – 8:00 AM',
+      description: 'Milk Tea, Soft Puris with Spiced Potato Curry (Aloo Tarkari)',
+      notes: 'Popular hot breakfast combo',
+    },
+    lunch: {
+      time: '12:00 PM – 1:30 PM',
+      description: 'Steamed Rice, Mixed Panchratna Dal, Bhindi (Okra) Fry, Fresh Cucumber Salad & Curd',
+      notes: 'Refreshing cooling lunch',
+    },
+    snack: {
+      time: '4:00 PM – 5:00 PM',
+      description: 'Steamed Vegetable Momos (6 pcs) with Spicy Sesame Tomato Sauce & Black Tea',
+      notes: 'Student favorite momo afternoon',
+    },
+    dinner: {
+      time: '7:30 PM – 9:00 PM',
+      description: 'Steamed Rice, Yellow Dal Tadka, Chicken Masala / Rajma Curry, and Mustard Saag',
+      notes: 'Hearty evening dinner',
+    },
+  },
+  FRIDAY: {
+    dayKey: 'FRIDAY',
+    name: 'Friday',
+    nepali: 'शुक्रबार',
+    breakfast: {
+      time: '7:00 AM – 8:00 AM',
+      description: 'Milk Tea, Oatmeal Porridge with Honey / Hard Boiled Eggs & Toasted Bread',
+      notes: 'Healthy balanced start',
+    },
+    lunch: {
+      time: '12:00 PM – 1:30 PM',
+      description: 'Steamed Rice, Rahar Dal, Aloo Dum, Crispy Papad & Spicy Mango Pickle',
+      notes: 'Delicious rich gravy',
+    },
+    snack: {
+      time: '4:00 PM – 5:00 PM',
+      description: 'Crunchy Chana Chatpate / Biscuits served with Spiced Milk Tea',
+      notes: 'Tangy zesty Nepali snack',
+    },
+    dinner: {
+      time: '7:30 PM – 9:00 PM',
+      description: 'Special Friday Feast: Steamed Basmati Rice, Rich Dal, Butter Chicken / Paneer Butter Masala, Fresh Salad & Kheer Dessert',
+      notes: 'Weekly Friday special sweet dish',
+    },
+  },
+  SATURDAY: {
+    dayKey: 'SATURDAY',
+    name: 'Saturday',
+    nepali: 'शनिबार',
+    breakfast: {
+      time: '8:00 AM – 9:30 AM',
+      description: 'Special Weekend Breakfast: Milk Tea, Aloo Paratha with Butter, Boiled Eggs & Toast with Jam',
+      notes: 'Relaxed extended weekend breakfast window',
+    },
+    lunch: {
+      time: '12:30 PM – 2:00 PM',
+      description: 'Steamed Rice, Yellow Lentil (Dal), Seasonal Mix Tarkari, Papad & Lemon Pickle',
+      notes: 'Weekend relaxed lunch schedule',
+    },
+    snack: {
+      time: '4:00 PM – 5:00 PM',
+      description: 'Vegetable Chowmein or Crispy Samosa with Hot Ginger Tea',
+      notes: 'Freshly prepared evening snack',
+    },
+    dinner: {
+      time: '7:30 PM – 9:00 PM',
+      description: 'Steamed Rice, Yellow Dal, Egg Curry / Fresh Paneer Curry, and Seasonal Green Saag',
+      notes: 'Comforting home-style weekend dinner',
+    },
+  },
+};
+
 export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedMealDay, setSelectedMealDay] = useState<DayOfWeek>('SUNDAY');
+
+  // Daily Serving Timetable state with 4 active meals
+  const [mealSlots, setMealSlots] = useState<MealSlotItem[]>([
+    {
+      id: 'breakfast',
+      order: 1,
+      slotName: 'Morning Breakfast',
+      slotType: 'Breakfast',
+      servingWindow: '7:00 AM – 8:00 AM',
+      menuDescription: 'Milk Tea, Boiled Eggs, Toast with Jam, or Bread & Butter',
+      status: 'Active',
+    },
+    {
+      id: 'lunch',
+      order: 2,
+      slotName: 'Lunch',
+      slotType: 'Main Meal',
+      servingWindow: '12:00 PM – 1:30 PM',
+      menuDescription: 'Steamed Rice, Lentils (Dal), Seasonal Curry, Papad, and Fresh Pickle',
+      status: 'Active',
+    },
+    {
+      id: 'snack',
+      order: 3,
+      slotName: 'Afternoon Snack',
+      slotType: 'Evening Khaja',
+      servingWindow: '4:00 PM – 5:00 PM',
+      menuDescription: 'Chowmein, Samosa, or Biscuits served with Hot Tea',
+      status: 'Active',
+    },
+    {
+      id: 'dinner',
+      order: 4,
+      slotName: 'Dinner',
+      slotType: 'Evening Meal',
+      servingWindow: '7:30 PM – 9:00 PM',
+      menuDescription: 'Steamed Rice, Yellow Dal, Chicken / Paneer Curry, and Seasonal Green Saag',
+      status: 'Active',
+    },
+  ]);
+
+  // Reorder slots chronologically using arrow buttons
+  const moveSlot = (index: number, direction: 'up' | 'down') => {
+    setMealSlots((prev) => {
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const next = [...prev];
+      const temp = next[index];
+      next[index] = next[targetIndex];
+      next[targetIndex] = temp;
+      return next.map((slot, i) => ({ ...slot, order: i + 1 }));
+    });
+  };
 
   // Hook to call the hostel endpoint with Axios
   const {
@@ -438,174 +709,279 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
             </div>
           </section>
 
-          {/* Section: Weekly Meals & Menu */}
-          <section className="mt-14 pt-10 border-t border-neutral-100">
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+          {/* Section: Meals & Menu (Daily Timetable + 7-Day Schedule) */}
+          <section className="mt-14 pt-10 border-t border-neutral-100 space-y-8">
+            <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="p-1.5 rounded-lg bg-brand-lime/30 text-brand-black">
                     <Utensils size={18} />
                   </span>
                   <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight">
-                    Weekly Meals & Menu
+                    Weekly Meals & 4-Time Diet Menu
                   </h2>
                 </div>
                 <p className="text-sm text-neutral-500">
-                  Nutritious, hygienic breakfast and main meals prepared fresh daily for residents.
+                  Nutritious, hygienic 4 daily cooked meals prepared fresh daily for hostel residents.
                 </p>
               </div>
-              <span className="px-3.5 py-1.5 rounded-full bg-neutral-100 text-neutral-800 text-xs font-bold border border-neutral-200">
-                Sunday – Saturday Diet
+              <span className="px-3.5 py-1.5 rounded-full bg-brand-lime/20 text-brand-black text-xs font-bold border border-brand-lime/40">
+                4 Daily Meals Included
               </span>
             </div>
 
-            {!hasConfiguredMeals ? (
-              <div className="p-8 rounded-3xl bg-neutral-50 border border-neutral-200/80 text-center space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-100/80 text-amber-700 flex items-center justify-center mx-auto">
-                  <Utensils size={24} />
+            {/* Daily Serving Timetable (4 Meals) with Chronological Slot Reordering */}
+            <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-xs">
+              <div className="p-5 border-b border-neutral-100 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-neutral-50/70 to-white">
+                <div>
+                  <h3 className="text-lg font-extrabold text-brand-black flex items-center gap-2">
+                    Daily Serving Timetable (4 Meals)
+                  </h3>
+                  <p className="text-xs text-neutral-500 mt-0.5">
+                    — Use arrow buttons to reorder slots chronologically
+                  </p>
                 </div>
-                <h3 className="font-bold text-neutral-800 text-base">Meal Schedule Coming Soon</h3>
-                <p className="text-neutral-500 text-sm max-w-md mx-auto leading-relaxed">
-                  The weekly meal menu for this hostel has not been published yet. Please contact
-                  the property directly for breakfast and mess timings.
-                </p>
-                {hostel.phone && (
-                  <div className="pt-2">
-                    <a
-                      href={`tel:${hostel.phone}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl bg-white border border-neutral-200 text-brand-black hover:border-brand-lime transition-all shadow-xs"
-                    >
-                      <Phone size={13} /> Call {hostel.phone} for Mess Info
-                    </a>
-                  </div>
-                )}
+                <div className="flex items-center gap-2 text-xs font-bold">
+                  <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    {mealSlots.filter((s) => s.status === 'Active').length} Active
+                  </span>
+                  <span className="text-neutral-300">|</span>
+                  <span className="px-3 py-1 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200">
+                    {mealSlots.filter((s) => s.status === 'Inactive').length} Inactive
+                  </span>
+                </div>
               </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Weekday Selector Tabs */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-neutral-200/70">
-                  {WEEKDAY_NAMES.map((day) => {
-                    const dayMeal = effectiveMeals.find((m) => m.dayOfWeek === day.key);
-                    const isConfigured =
-                      dayMeal &&
-                      ((dayMeal.breakfastDescription &&
-                        dayMeal.breakfastDescription.trim().length > 0) ||
-                        (dayMeal.mainMealDescription &&
-                          dayMeal.mainMealDescription.trim().length > 0));
-                    const isSelected = selectedMealDay === day.key;
 
-                    return (
-                      <button
-                        key={day.key}
-                        type="button"
-                        onClick={() => setSelectedMealDay(day.key)}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                          isSelected
-                            ? 'bg-brand-black text-white shadow-sm'
-                            : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200/80'
-                        }`}
-                      >
-                        <span>{day.name}</span>
-                        <span className="text-[10px] opacity-75 font-normal">({day.nepali})</span>
-                        {isConfigured && (
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              isSelected ? 'bg-brand-lime' : 'bg-emerald-500'
-                            }`}
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs sm:text-sm">
+                  <thead>
+                    <tr className="border-b border-neutral-200 text-neutral-500 text-xs uppercase tracking-wider bg-neutral-50/80">
+                      <th className="py-3.5 px-4 font-bold w-16 text-center">Order</th>
+                      <th className="py-3.5 px-4 font-bold">Meal Slot</th>
+                      <th className="py-3.5 px-4 font-bold">Serving Window</th>
+                      <th className="py-3.5 px-4 font-bold">Menu Description</th>
+                      <th className="py-3.5 px-3 font-bold text-center">Status</th>
+                      <th className="py-3.5 px-3 font-bold text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100">
+                    {mealSlots.map((slot, idx) => (
+                      <tr key={slot.id} className="hover:bg-neutral-50/70 transition-colors">
+                        <td className="py-4 px-4 text-center">
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-neutral-100 font-extrabold text-neutral-800 text-xs">
+                            {slot.order}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <p className="font-extrabold text-brand-black text-sm">{slot.slotName}</p>
+                          <span className="inline-block text-[11px] text-neutral-500 font-medium">
+                            {slot.slotType}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-neutral-100 font-semibold text-neutral-800 text-xs">
+                            <Clock size={13} className="text-neutral-500" />
+                            {slot.servingWindow}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-neutral-700 max-w-md">
+                          <p className="leading-snug text-xs sm:text-sm font-medium">
+                            {slot.menuDescription}
+                          </p>
+                        </td>
+                        <td className="py-4 px-3 text-center">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            {slot.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-3 text-center whitespace-nowrap">
+                          <div className="inline-flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveSlot(idx, 'up')}
+                              disabled={idx === 0}
+                              className="p-1.5 rounded-lg border border-neutral-200 hover:border-brand-lime hover:bg-brand-lime/20 text-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                              title="Move slot up"
+                              aria-label={`Move ${slot.slotName} up`}
+                            >
+                              <ArrowUp size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveSlot(idx, 'down')}
+                              disabled={idx === mealSlots.length - 1}
+                              className="p-1.5 rounded-lg border border-neutral-200 hover:border-brand-lime hover:bg-brand-lime/20 text-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                              title="Move slot down"
+                              aria-label={`Move ${slot.slotName} down`}
+                            >
+                              <ArrowDown size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 7-Day Day-by-Day Meal Schedule Browser */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h4 className="text-base sm:text-lg font-extrabold text-brand-black flex items-center gap-2">
+                    <Calendar size={18} className="text-brand-black" /> 7-Day Weekly Diet Menu
+                  </h4>
+                  <p className="text-xs text-neutral-500">
+                    Select any day below to inspect all 4 planned meal servings (Sunday through Saturday)
+                  </p>
                 </div>
+                <span className="text-xs font-semibold text-neutral-500">
+                  Showing menu for: <strong className="text-brand-black">{WEEKDAY_NAMES.find(w => w.key === selectedMealDay)?.name}</strong>
+                </span>
+              </div>
 
-                {/* Day Meals View */}
-                {(() => {
-                  const dayMeal = effectiveMeals.find((m) => m.dayOfWeek === selectedMealDay);
-                  const selectedConfig = WEEKDAY_NAMES.find((w) => w.key === selectedMealDay);
-                  const hasBreakfast = Boolean(dayMeal?.breakfastDescription?.trim());
-                  const hasMain = Boolean(dayMeal?.mainMealDescription?.trim());
-
-                  if (!hasBreakfast && !hasMain) {
-                    return (
-                      <div className="p-6 rounded-2xl bg-neutral-50 border border-dashed border-neutral-200 text-center text-neutral-500 text-sm">
-                        <p className="font-semibold text-neutral-700">
-                          {selectedConfig?.name} Menu Not Specifically Listed
-                        </p>
-                        <p className="text-xs text-neutral-400 mt-1">
-                          Standard regular mess dining applies for this day. Ask the hostel warden
-                          upon check-in.
-                        </p>
-                      </div>
-                    );
-                  }
-
+              {/* Weekday Selector Tabs */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-neutral-200/70">
+                {WEEKDAY_NAMES.map((day) => {
+                  const isSelected = selectedMealDay === day.key;
                   return (
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      {/* Breakfast Card */}
-                      {hasBreakfast && (
-                        <div className="p-5 rounded-2xl bg-white border border-neutral-200/80 shadow-xs hover:border-brand-lime/80 transition-all space-y-3">
-                          <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
-                            <div className="flex items-center gap-2">
-                              <span className="p-1.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-100">
-                                <Coffee size={16} />
-                              </span>
-                              <div>
-                                <h3 className="font-bold text-neutral-900 text-sm">Breakfast</h3>
-                                <p className="text-[11px] text-neutral-400">Morning Refreshment</p>
-                              </div>
-                            </div>
-                            {dayMeal?.breakfastTime && (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-neutral-100 text-neutral-700">
-                                <Clock size={11} /> {dayMeal.breakfastTime}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-neutral-700 text-sm leading-relaxed whitespace-pre-line">
-                            {dayMeal?.breakfastDescription}
-                          </p>
-                          {dayMeal?.breakfastNotes && (
-                            <p className="text-xs text-neutral-400 italic pt-1 border-t border-neutral-50">
-                              Note: {dayMeal.breakfastNotes}
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Main Meal Card */}
-                      {hasMain && (
-                        <div className="p-5 rounded-2xl bg-white border border-neutral-200/80 shadow-xs hover:border-brand-lime/80 transition-all space-y-3">
-                          <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
-                            <div className="flex items-center gap-2">
-                              <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
-                                <Utensils size={16} />
-                              </span>
-                              <div>
-                                <h3 className="font-bold text-neutral-900 text-sm">Main Meal</h3>
-                                <p className="text-[11px] text-neutral-400">Lunch / Dinner</p>
-                              </div>
-                            </div>
-                            {dayMeal?.mainMealTime && (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-neutral-100 text-neutral-700">
-                                <Clock size={11} /> {dayMeal.mainMealTime}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-neutral-700 text-sm leading-relaxed whitespace-pre-line">
-                            {dayMeal?.mainMealDescription}
-                          </p>
-                          {dayMeal?.mainMealNotes && (
-                            <p className="text-xs text-neutral-400 italic pt-1 border-t border-neutral-50">
-                              Note: {dayMeal.mainMealNotes}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                    <button
+                      key={day.key}
+                      type="button"
+                      onClick={() => setSelectedMealDay(day.key)}
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                        isSelected
+                          ? 'bg-brand-black text-white shadow-sm'
+                          : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200/80'
+                      }`}
+                    >
+                      <span>{day.name}</span>
+                      <span className="text-[10px] opacity-75 font-normal">({day.nepali})</span>
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          isSelected ? 'bg-brand-lime' : 'bg-emerald-500'
+                        }`}
+                      />
+                    </button>
                   );
-                })()}
+                })}
               </div>
-            )}
+
+              {/* 4 Cards for Selected Day */}
+              {(() => {
+                const dayPlan = DEFAULT_WEEKLY_4_MEALS[selectedMealDay];
+                const apiDayMeal = effectiveMeals.find((m) => m.dayOfWeek === selectedMealDay);
+
+                // If backend has custom description for breakfast/main, merge it
+                const breakfastMenu =
+                  apiDayMeal?.breakfastDescription?.trim() || dayPlan.breakfast.description;
+                const breakfastTime = apiDayMeal?.breakfastTime?.trim() || dayPlan.breakfast.time;
+                const breakfastNotes = apiDayMeal?.breakfastNotes?.trim() || dayPlan.breakfast.notes;
+
+                const lunchMenu = dayPlan.lunch.description;
+                const lunchTime = dayPlan.lunch.time;
+                const lunchNotes = dayPlan.lunch.notes;
+
+                const snackMenu = dayPlan.snack.description;
+                const snackTime = dayPlan.snack.time;
+                const snackNotes = dayPlan.snack.notes;
+
+                const dinnerMenu =
+                  apiDayMeal?.mainMealDescription?.trim() || dayPlan.dinner.description;
+                const dinnerTime = apiDayMeal?.mainMealTime?.trim() || dayPlan.dinner.time;
+                const dinnerNotes = apiDayMeal?.mainMealNotes?.trim() || dayPlan.dinner.notes;
+
+                const dayMealsCards = [
+                  {
+                    order: 1,
+                    name: 'Morning Breakfast',
+                    type: 'Breakfast',
+                    time: breakfastTime,
+                    menu: breakfastMenu,
+                    notes: breakfastNotes,
+                    icon: <Coffee size={18} className="text-amber-600" />,
+                    bg: 'bg-amber-50/50 border-amber-200/80',
+                    badgeBg: 'bg-amber-100 text-amber-800',
+                  },
+                  {
+                    order: 2,
+                    name: 'Lunch',
+                    type: 'Main Meal',
+                    time: lunchTime,
+                    menu: lunchMenu,
+                    notes: lunchNotes,
+                    icon: <Utensils size={18} className="text-emerald-600" />,
+                    bg: 'bg-emerald-50/50 border-emerald-200/80',
+                    badgeBg: 'bg-emerald-100 text-emerald-800',
+                  },
+                  {
+                    order: 3,
+                    name: 'Afternoon Snack',
+                    type: 'Evening Khaja',
+                    time: snackTime,
+                    menu: snackMenu,
+                    notes: snackNotes,
+                    icon: <Sun size={18} className="text-orange-600" />,
+                    bg: 'bg-orange-50/50 border-orange-200/80',
+                    badgeBg: 'bg-orange-100 text-orange-800',
+                  },
+                  {
+                    order: 4,
+                    name: 'Dinner',
+                    type: 'Evening Meal',
+                    time: dinnerTime,
+                    menu: dinnerMenu,
+                    notes: dinnerNotes,
+                    icon: <Moon size={18} className="text-indigo-600" />,
+                    bg: 'bg-indigo-50/50 border-indigo-200/80',
+                    badgeBg: 'bg-indigo-100 text-indigo-800',
+                  },
+                ];
+
+                return (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {dayMealsCards.map((m) => (
+                      <div
+                        key={m.name}
+                        className={`p-5 rounded-2xl bg-white border ${m.bg} shadow-xs hover:shadow-md transition-all flex flex-col justify-between`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between border-b border-neutral-100 pb-2.5 mb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className="p-1.5 rounded-lg bg-white border border-neutral-200/80 shadow-2xs">
+                                {m.icon}
+                              </span>
+                              <div>
+                                <h4 className="font-extrabold text-brand-black text-sm">{m.name}</h4>
+                                <p className="text-[11px] text-neutral-500 font-medium">{m.type}</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mb-2.5">
+                            <span
+                              className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${m.badgeBg}`}
+                            >
+                              <Clock size={11} /> {m.time}
+                            </span>
+                          </div>
+                          <p className="text-neutral-700 text-xs sm:text-sm leading-relaxed font-medium">
+                            {m.menu}
+                          </p>
+                        </div>
+                        {m.notes && (
+                          <p className="text-[11px] text-neutral-500 italic pt-2 mt-3 border-t border-neutral-100">
+                            Note: {m.notes}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
           </section>
 
           {/* Section: Hostel Location */}
