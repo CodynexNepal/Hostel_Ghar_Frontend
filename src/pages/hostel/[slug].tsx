@@ -39,8 +39,6 @@ import {
   Utensils,
   Calendar,
   Globe,
-  ArrowUp,
-  ArrowDown,
   Sun,
   Moon,
   Loader2,
@@ -50,7 +48,6 @@ import {
   type HostelMeal,
   type DailyMealSlot,
   getHostelDailyMeals,
-  saveHostelDailyMeals,
 } from '@/lib/api/hostels';
 
 const WEEKDAY_NAMES: Array<{ key: DayOfWeek; name: string; nepali: string }> = [
@@ -62,17 +59,6 @@ const WEEKDAY_NAMES: Array<{ key: DayOfWeek; name: string; nepali: string }> = [
   { key: 'FRIDAY', name: 'Friday', nepali: 'शुक्रबार' },
   { key: 'SATURDAY', name: 'Saturday', nepali: 'शनिबार' },
 ];
-
-export interface MealSlotItem {
-  id: string;
-  order: number;
-  dayOfWeek?: string;
-  slotName: string;
-  slotType: string;
-  servingWindow: string;
-  menuDescription: string;
-  status: 'Active' | 'Inactive';
-}
 
 export interface DayMealPlan {
   dayKey: DayOfWeek;
@@ -290,49 +276,8 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
 export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedMealDay, setSelectedMealDay] = useState<DayOfWeek>('SUNDAY');
-  const [isSavingSlots, setIsSavingSlots] = useState(false);
   const [dayScheduleMap, setDayScheduleMap] = useState<Record<string, DailyMealSlot[]>>({});
   const [isDayScheduleLoading, setIsDayScheduleLoading] = useState(false);
-
-  // Daily Serving Timetable state with 4 active meals
-  const [mealSlots, setMealSlots] = useState<MealSlotItem[]>([
-    {
-      id: 'breakfast',
-      order: 1,
-      slotName: 'Morning Breakfast',
-      slotType: 'Breakfast',
-      servingWindow: '7:00 AM – 8:00 AM',
-      menuDescription: 'Milk Tea, Boiled Eggs, Toast with Jam, or Bread & Butter',
-      status: 'Active',
-    },
-    {
-      id: 'lunch',
-      order: 2,
-      slotName: 'Lunch',
-      slotType: 'Main Meal',
-      servingWindow: '12:00 PM – 1:30 PM',
-      menuDescription: 'Steamed Rice, Lentils (Dal), Seasonal Curry, Papad, and Fresh Pickle',
-      status: 'Active',
-    },
-    {
-      id: 'snack',
-      order: 3,
-      slotName: 'Afternoon Snack',
-      slotType: 'Evening Khaja',
-      servingWindow: '4:00 PM – 5:00 PM',
-      menuDescription: 'Chowmein, Samosa, or Biscuits served with Hot Tea',
-      status: 'Active',
-    },
-    {
-      id: 'dinner',
-      order: 4,
-      slotName: 'Dinner',
-      slotType: 'Evening Meal',
-      servingWindow: '7:30 PM – 9:00 PM',
-      menuDescription: 'Steamed Rice, Yellow Dal, Chicken / Paneer Curry, and Seasonal Green Saag',
-      status: 'Active',
-    },
-  ]);
 
   // Hook to call the hostel endpoint with Axios
   const {
@@ -388,83 +333,6 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
       owner: (apiHostel.owner as any) ?? initialHostel.owner,
     };
   }, [apiHostel, apiDailyMeals, initialHostel]);
-
-  // Synchronize mealSlots with real backend daily meal schedule
-  useEffect(() => {
-    const sourceSlots =
-      apiDailyMeals && apiDailyMeals.length > 0
-        ? apiDailyMeals
-        : initialHostel.dailyMeals && initialHostel.dailyMeals.length > 0
-          ? initialHostel.dailyMeals
-          : null;
-
-    if (sourceSlots && sourceSlots.length > 0) {
-      const sorted = [...sourceSlots].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
-      setMealSlots(
-        sorted.map((slot, idx) => ({
-          id: slot.id || `slot-${idx + 1}`,
-          order: slot.orderIndex || idx + 1,
-          dayOfWeek: slot.dayOfWeek || 'ALL',
-          slotName: slot.mealName,
-          slotType:
-            slot.mealNameEn ||
-            (idx === 0
-              ? 'Breakfast'
-              : idx === 1
-                ? 'Main Meal'
-                : idx === 2
-                  ? 'Evening Khaja'
-                  : 'Evening Meal'),
-          servingWindow: slot.time,
-          menuDescription:
-            slot.menuDescription ||
-            (idx === 0
-              ? 'Milk Tea, Boiled Eggs, Toast with Jam, or Bread & Butter'
-              : idx === 1
-                ? 'Steamed Rice, Lentils (Dal), Seasonal Curry, Papad, and Fresh Pickle'
-                : idx === 2
-                  ? 'Chowmein, Samosa, or Biscuits served with Hot Tea'
-                  : 'Steamed Rice, Yellow Dal, Chicken / Paneer Curry, and Seasonal Green Saag'),
-          status: slot.isActive !== false ? 'Active' : 'Inactive',
-        }))
-      );
-    }
-  }, [apiDailyMeals, initialHostel.dailyMeals]);
-
-  // Reorder slots chronologically using arrow buttons and persist to backend
-  const moveSlot = async (index: number, direction: 'up' | 'down') => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= mealSlots.length) return;
-
-    const next = [...mealSlots];
-    const temp = next[index];
-    next[index] = next[targetIndex];
-    next[targetIndex] = temp;
-    const reordered = next.map((slot, i) => ({ ...slot, order: i + 1 }));
-    setMealSlots(reordered);
-
-    const hostelId = hostel.id || initialHostel.id;
-    if (hostelId) {
-      try {
-        setIsSavingSlots(true);
-        const payload: DailyMealSlot[] = reordered.map((s, idx) => ({
-          id: s.id.startsWith('slot-') ? undefined : s.id,
-          dayOfWeek: s.dayOfWeek || 'ALL',
-          mealName: s.slotName,
-          mealNameEn: s.slotType,
-          time: s.servingWindow,
-          menuDescription: s.menuDescription,
-          isActive: s.status === 'Active',
-          orderIndex: idx + 1,
-        }));
-        await saveHostelDailyMeals(hostelId, payload, 'ALL');
-      } catch {
-        // Optimistic UI fallback: keep reordered list responsive even if viewer lacks mutation role
-      } finally {
-        setIsSavingSlots(false);
-      }
-    }
-  };
 
   // Fetch real day-specific meal schedule from backend when day tab changes
   useEffect(() => {
@@ -849,123 +717,6 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
               <span className="px-3.5 py-1.5 rounded-full bg-brand-lime/20 text-brand-black text-xs font-bold border border-brand-lime/40">
                 4 Daily Meals Included
               </span>
-            </div>
-
-            {/* Daily Serving Timetable (4 Meals) with Chronological Slot Reordering */}
-            <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-xs">
-              <div className="p-5 border-b border-neutral-100 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-neutral-50/70 to-white">
-                <div>
-                  <h3 className="text-lg font-extrabold text-brand-black flex items-center gap-2">
-                    Daily Serving Timetable (4 Meals)
-                  </h3>
-                  <p className="text-xs text-neutral-500 mt-0.5">
-                    — Use arrow buttons to reorder slots chronologically
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-bold">
-                  {isSavingSlots && (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 mr-1">
-                      <Loader2 size={13} className="animate-spin text-brand-black" />
-                      Saving order...
-                    </span>
-                  )}
-                  <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    {mealSlots.filter((s) => s.status === 'Active').length} Active
-                  </span>
-                  <span className="text-neutral-300">|</span>
-                  <span className="px-3 py-1 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200">
-                    {mealSlots.filter((s) => s.status === 'Inactive').length} Inactive
-                  </span>
-                </div>
-              </div>
-
-              {/* Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs sm:text-sm">
-                  <thead>
-                    <tr className="border-b border-neutral-200 text-neutral-500 text-xs uppercase tracking-wider bg-neutral-50/80">
-                      <th className="py-3.5 px-4 font-bold w-16 text-center">Order</th>
-                      <th className="py-3.5 px-4 font-bold">Meal Slot</th>
-                      <th className="py-3.5 px-4 font-bold">Serving Window</th>
-                      <th className="py-3.5 px-4 font-bold">Menu Description</th>
-                      <th className="py-3.5 px-3 font-bold text-center">Status</th>
-                      <th className="py-3.5 px-3 font-bold text-center">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {mealSlots.map((slot, idx) => (
-                      <tr key={slot.id} className="hover:bg-neutral-50/70 transition-colors">
-                        <td className="py-4 px-4 text-center">
-                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-neutral-100 font-extrabold text-neutral-800 text-xs">
-                            {slot.order}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <p className="font-extrabold text-brand-black text-sm">{slot.slotName}</p>
-                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                            <span
-                              className={`inline-flex items-center rounded px-1.5 py-0.2 text-[10px] font-bold ${
-                                slot.dayOfWeek && slot.dayOfWeek !== 'ALL'
-                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                                  : 'bg-neutral-100 text-neutral-600 border border-neutral-200'
-                              }`}
-                            >
-                              {slot.dayOfWeek && slot.dayOfWeek !== 'ALL'
-                                ? WEEKDAY_NAMES.find((w) => w.key === slot.dayOfWeek)?.name ||
-                                  slot.dayOfWeek
-                                : 'All Days'}
-                            </span>
-                            <span className="inline-block text-[11px] text-neutral-500 font-medium">
-                              {slot.slotType}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 whitespace-nowrap">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-neutral-100 font-semibold text-neutral-800 text-xs">
-                            <Clock size={13} className="text-neutral-500" />
-                            {slot.servingWindow}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4 text-neutral-700 max-w-md">
-                          <p className="leading-snug text-xs sm:text-sm font-medium">
-                            {slot.menuDescription}
-                          </p>
-                        </td>
-                        <td className="py-4 px-3 text-center">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            {slot.status}
-                          </span>
-                        </td>
-                        <td className="py-4 px-3 text-center whitespace-nowrap">
-                          <div className="inline-flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => moveSlot(idx, 'up')}
-                              disabled={idx === 0}
-                              className="p-1.5 rounded-lg border border-neutral-200 hover:border-brand-lime hover:bg-brand-lime/20 text-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                              title="Move slot up"
-                              aria-label={`Move ${slot.slotName} up`}
-                            >
-                              <ArrowUp size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveSlot(idx, 'down')}
-                              disabled={idx === mealSlots.length - 1}
-                              className="p-1.5 rounded-lg border border-neutral-200 hover:border-brand-lime hover:bg-brand-lime/20 text-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                              title="Move slot down"
-                              aria-label={`Move ${slot.slotName} down`}
-                            >
-                              <ArrowDown size={14} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
             </div>
 
             {/* 7-Day Day-by-Day Meal Schedule Browser */}
