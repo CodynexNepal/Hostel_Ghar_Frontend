@@ -66,6 +66,7 @@ const WEEKDAY_NAMES: Array<{ key: DayOfWeek; name: string; nepali: string }> = [
 export interface MealSlotItem {
   id: string;
   order: number;
+  dayOfWeek?: string;
   slotName: string;
   slotType: string;
   servingWindow: string;
@@ -136,7 +137,8 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
     },
     lunch: {
       time: '12:00 PM – 1:30 PM',
-      description: 'Steamed Rice, Black Lentil (Masyang/Maas Dal), Seasonal Aloo-Gobi Curry, Papad & Fresh Chutney',
+      description:
+        'Steamed Rice, Black Lentil (Masyang/Maas Dal), Seasonal Aloo-Gobi Curry, Papad & Fresh Chutney',
       notes: 'Traditional Nepali Thakali-style dal bhat',
     },
     snack: {
@@ -146,7 +148,8 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
     },
     dinner: {
       time: '7:30 PM – 9:00 PM',
-      description: 'Steamed Rice, Rahar Dal, Egg Curry / Mushroom Masala, and Fresh Green Rayo Saag',
+      description:
+        'Steamed Rice, Rahar Dal, Egg Curry / Mushroom Masala, and Fresh Green Rayo Saag',
       notes: 'Nutritious green vegetables daily',
     },
   },
@@ -161,7 +164,8 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
     },
     lunch: {
       time: '12:00 PM – 1:30 PM',
-      description: 'Steamed Rice, Musuro Dal, Aloo Bodi Tama (Bamboo Shoot Curry), Papad & Gundruk Achar',
+      description:
+        'Steamed Rice, Musuro Dal, Aloo Bodi Tama (Bamboo Shoot Curry), Papad & Gundruk Achar',
       notes: 'Authentic Nepali Bodi Tama flavor',
     },
     snack: {
@@ -171,7 +175,8 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
     },
     dinner: {
       time: '7:30 PM – 9:00 PM',
-      description: 'Steamed Rice, Yellow Dal, Chicken Curry / Paneer Mattar, and Fried Bitter Gourd (Karela)',
+      description:
+        'Steamed Rice, Yellow Dal, Chicken Curry / Paneer Mattar, and Fried Bitter Gourd (Karela)',
       notes: 'Delicious gravy with steamed rice',
     },
   },
@@ -186,7 +191,8 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
     },
     lunch: {
       time: '12:00 PM – 1:30 PM',
-      description: 'Steamed Rice, Kalo Dal, Cauliflower & Green Peas Curry, Papad, Fresh Lapsi Pickle',
+      description:
+        'Steamed Rice, Kalo Dal, Cauliflower & Green Peas Curry, Papad, Fresh Lapsi Pickle',
       notes: 'Balanced wholesome lunch',
     },
     snack: {
@@ -211,7 +217,8 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
     },
     lunch: {
       time: '12:00 PM – 1:30 PM',
-      description: 'Steamed Rice, Mixed Panchratna Dal, Bhindi (Okra) Fry, Fresh Cucumber Salad & Curd',
+      description:
+        'Steamed Rice, Mixed Panchratna Dal, Bhindi (Okra) Fry, Fresh Cucumber Salad & Curd',
       notes: 'Refreshing cooling lunch',
     },
     snack: {
@@ -246,7 +253,8 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
     },
     dinner: {
       time: '7:30 PM – 9:00 PM',
-      description: 'Special Friday Feast: Steamed Basmati Rice, Rich Dal, Butter Chicken / Paneer Butter Masala, Fresh Salad & Kheer Dessert',
+      description:
+        'Special Friday Feast: Steamed Basmati Rice, Rich Dal, Butter Chicken / Paneer Butter Masala, Fresh Salad & Kheer Dessert',
       notes: 'Weekly Friday special sweet dish',
     },
   },
@@ -256,7 +264,8 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
     nepali: 'शनिबार',
     breakfast: {
       time: '8:00 AM – 9:30 AM',
-      description: 'Special Weekend Breakfast: Milk Tea, Aloo Paratha with Butter, Boiled Eggs & Toast with Jam',
+      description:
+        'Special Weekend Breakfast: Milk Tea, Aloo Paratha with Butter, Boiled Eggs & Toast with Jam',
       notes: 'Relaxed extended weekend breakfast window',
     },
     lunch: {
@@ -271,7 +280,8 @@ const DEFAULT_WEEKLY_4_MEALS: Record<DayOfWeek, DayMealPlan> = {
     },
     dinner: {
       time: '7:30 PM – 9:00 PM',
-      description: 'Steamed Rice, Yellow Dal, Egg Curry / Fresh Paneer Curry, and Seasonal Green Saag',
+      description:
+        'Steamed Rice, Yellow Dal, Egg Curry / Fresh Paneer Curry, and Seasonal Green Saag',
       notes: 'Comforting home-style weekend dinner',
     },
   },
@@ -385,8 +395,8 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
       apiDailyMeals && apiDailyMeals.length > 0
         ? apiDailyMeals
         : initialHostel.dailyMeals && initialHostel.dailyMeals.length > 0
-        ? initialHostel.dailyMeals
-        : null;
+          ? initialHostel.dailyMeals
+          : null;
 
     if (sourceSlots && sourceSlots.length > 0) {
       const sorted = [...sourceSlots].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
@@ -394,26 +404,27 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
         sorted.map((slot, idx) => ({
           id: slot.id || `slot-${idx + 1}`,
           order: slot.orderIndex || idx + 1,
+          dayOfWeek: slot.dayOfWeek || 'ALL',
           slotName: slot.mealName,
           slotType:
             slot.mealNameEn ||
             (idx === 0
               ? 'Breakfast'
               : idx === 1
-              ? 'Main Meal'
-              : idx === 2
-              ? 'Evening Khaja'
-              : 'Evening Meal'),
+                ? 'Main Meal'
+                : idx === 2
+                  ? 'Evening Khaja'
+                  : 'Evening Meal'),
           servingWindow: slot.time,
           menuDescription:
             slot.menuDescription ||
             (idx === 0
               ? 'Milk Tea, Boiled Eggs, Toast with Jam, or Bread & Butter'
               : idx === 1
-              ? 'Steamed Rice, Lentils (Dal), Seasonal Curry, Papad, and Fresh Pickle'
-              : idx === 2
-              ? 'Chowmein, Samosa, or Biscuits served with Hot Tea'
-              : 'Steamed Rice, Yellow Dal, Chicken / Paneer Curry, and Seasonal Green Saag'),
+                ? 'Steamed Rice, Lentils (Dal), Seasonal Curry, Papad, and Fresh Pickle'
+                : idx === 2
+                  ? 'Chowmein, Samosa, or Biscuits served with Hot Tea'
+                  : 'Steamed Rice, Yellow Dal, Chicken / Paneer Curry, and Seasonal Green Saag'),
           status: slot.isActive !== false ? 'Active' : 'Inactive',
         }))
       );
@@ -438,6 +449,7 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
         setIsSavingSlots(true);
         const payload: DailyMealSlot[] = reordered.map((s, idx) => ({
           id: s.id.startsWith('slot-') ? undefined : s.id,
+          dayOfWeek: s.dayOfWeek || 'ALL',
           mealName: s.slotName,
           mealNameEn: s.slotType,
           time: s.servingWindow,
@@ -830,7 +842,8 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                   </h2>
                 </div>
                 <p className="text-sm text-neutral-500">
-                  Nutritious, hygienic 4 daily cooked meals prepared fresh daily for hostel residents.
+                  Nutritious, hygienic 4 daily cooked meals prepared fresh daily for hostel
+                  residents.
                 </p>
               </div>
               <span className="px-3.5 py-1.5 rounded-full bg-brand-lime/20 text-brand-black text-xs font-bold border border-brand-lime/40">
@@ -889,9 +902,23 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                         </td>
                         <td className="py-4 px-4">
                           <p className="font-extrabold text-brand-black text-sm">{slot.slotName}</p>
-                          <span className="inline-block text-[11px] text-neutral-500 font-medium">
-                            {slot.slotType}
-                          </span>
+                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            <span
+                              className={`inline-flex items-center rounded px-1.5 py-0.2 text-[10px] font-bold ${
+                                slot.dayOfWeek && slot.dayOfWeek !== 'ALL'
+                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                  : 'bg-neutral-100 text-neutral-600 border border-neutral-200'
+                              }`}
+                            >
+                              {slot.dayOfWeek && slot.dayOfWeek !== 'ALL'
+                                ? WEEKDAY_NAMES.find((w) => w.key === slot.dayOfWeek)?.name ||
+                                  slot.dayOfWeek
+                                : 'All Days'}
+                            </span>
+                            <span className="inline-block text-[11px] text-neutral-500 font-medium">
+                              {slot.slotType}
+                            </span>
+                          </div>
                         </td>
                         <td className="py-4 px-4 whitespace-nowrap">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-neutral-100 font-semibold text-neutral-800 text-xs">
@@ -949,7 +976,8 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                     <Calendar size={18} className="text-brand-black" /> 7-Day Weekly Diet Menu
                   </h4>
                   <p className="text-xs text-neutral-500">
-                    Select any day below to inspect all 4 planned meal servings (Sunday through Saturday)
+                    Select any day below to inspect all 4 planned meal servings (Sunday through
+                    Saturday)
                   </p>
                 </div>
                 <span className="text-xs font-semibold text-neutral-500 flex items-center gap-1.5">
@@ -999,10 +1027,14 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                   ? [...liveDaySlots].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0))
                   : null;
 
-                const bSlot = sortedDaySlots?.find((s) => s.orderIndex === 1) || sortedDaySlots?.[0];
-                const lSlot = sortedDaySlots?.find((s) => s.orderIndex === 2) || sortedDaySlots?.[1];
-                const sSlot = sortedDaySlots?.find((s) => s.orderIndex === 3) || sortedDaySlots?.[2];
-                const dSlot = sortedDaySlots?.find((s) => s.orderIndex === 4) || sortedDaySlots?.[3];
+                const bSlot =
+                  sortedDaySlots?.find((s) => s.orderIndex === 1) || sortedDaySlots?.[0];
+                const lSlot =
+                  sortedDaySlots?.find((s) => s.orderIndex === 2) || sortedDaySlots?.[1];
+                const sSlot =
+                  sortedDaySlots?.find((s) => s.orderIndex === 3) || sortedDaySlots?.[2];
+                const dSlot =
+                  sortedDaySlots?.find((s) => s.orderIndex === 4) || sortedDaySlots?.[3];
 
                 // If backend has custom description for breakfast/main or daily slots, merge them
                 const breakfastMenu =
@@ -1010,9 +1042,13 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                   apiDayMeal?.breakfastDescription?.trim() ||
                   dayPlan.breakfast.description;
                 const breakfastTime =
-                  bSlot?.time?.trim() || apiDayMeal?.breakfastTime?.trim() || dayPlan.breakfast.time;
+                  bSlot?.time?.trim() ||
+                  apiDayMeal?.breakfastTime?.trim() ||
+                  dayPlan.breakfast.time;
                 const breakfastNotes =
-                  bSlot?.mealNameEn?.trim() || apiDayMeal?.breakfastNotes?.trim() || dayPlan.breakfast.notes;
+                  bSlot?.mealNameEn?.trim() ||
+                  apiDayMeal?.breakfastNotes?.trim() ||
+                  dayPlan.breakfast.notes;
 
                 const lunchMenu = lSlot?.menuDescription?.trim() || dayPlan.lunch.description;
                 const lunchTime = lSlot?.time?.trim() || dayPlan.lunch.time;
@@ -1029,7 +1065,9 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                 const dinnerTime =
                   dSlot?.time?.trim() || apiDayMeal?.mainMealTime?.trim() || dayPlan.dinner.time;
                 const dinnerNotes =
-                  dSlot?.mealNameEn?.trim() || apiDayMeal?.mainMealNotes?.trim() || dayPlan.dinner.notes;
+                  dSlot?.mealNameEn?.trim() ||
+                  apiDayMeal?.mainMealNotes?.trim() ||
+                  dayPlan.dinner.notes;
 
                 const dayMealsCards = [
                   {
@@ -1092,7 +1130,9 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                                 {m.icon}
                               </span>
                               <div>
-                                <h4 className="font-extrabold text-brand-black text-sm">{m.name}</h4>
+                                <h4 className="font-extrabold text-brand-black text-sm">
+                                  {m.name}
+                                </h4>
                                 <p className="text-[11px] text-neutral-500 font-medium">{m.type}</p>
                               </div>
                             </div>
