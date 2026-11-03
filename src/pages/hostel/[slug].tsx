@@ -608,43 +608,47 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
               </div>
 
               {/* Primary Call-to-Actions */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-1">
+              <div className="flex items-center gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setIsBookingOpen(true)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-brand-lime text-brand-black font-extrabold rounded-xl hover:bg-brand-lime/85 transition-all shadow-md hover:shadow-lime cursor-pointer text-base"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-4 bg-brand-lime text-brand-black font-extrabold rounded-xl hover:bg-brand-lime/85 transition-all shadow-sm cursor-pointer text-xs sm:text-sm active:scale-95"
                 >
-                  Book this hostel <ArrowRight size={18} aria-hidden />
+                  <span>Book this hostel</span>
+                  <ArrowRight size={15} aria-hidden />
                 </button>
                 <a
                   href={`tel:${hostel.phone || '+9779817161246'}`}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-brand-black text-white font-semibold rounded-xl hover:bg-brand-black/85 transition-colors text-base"
+                  className="inline-flex items-center justify-center gap-1.5 h-10 px-3 bg-neutral-900 text-white font-semibold rounded-xl hover:bg-neutral-800 transition-colors text-xs sm:text-sm active:scale-95"
+                  title={`Call ${hostel.phone || 'Hostel'}`}
                 >
-                  <Phone size={17} aria-hidden /> Call {hostel.phone || 'Hostel'}
+                  <Phone size={14} aria-hidden />
+                  <span className="truncate max-w-[130px]">Call {hostel.phone || 'Hostel'}</span>
                 </a>
                 <button
                   type="button"
                   onClick={() => toggleLike(hostel.id || initialHostel.id)}
-                  className={`inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border font-bold transition-all shadow-sm cursor-pointer ${
+                  className={`h-10 w-10 shrink-0 rounded-xl border flex items-center justify-center transition-all shadow-sm cursor-pointer active:scale-95 ${
                     isLiked(hostel.id || initialHostel.id)
-                      ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
-                      : 'bg-white text-neutral-700 border-neutral-200 hover:border-red-300'
+                      ? 'bg-red-50 text-red-500 border-red-200 hover:bg-red-100'
+                      : 'bg-white text-neutral-600 border-neutral-200 hover:border-red-200 hover:text-red-500'
                   }`}
                   aria-label={
                     isLiked(hostel.id || initialHostel.id)
                       ? 'Remove from favorites'
                       : 'Save to favorites'
                   }
+                  title={isLiked(hostel.id || initialHostel.id) ? 'Saved' : 'Save to favorites'}
                 >
                   <Heart
-                    size={19}
+                    size={17}
+                    strokeWidth={2}
                     className={
                       isLiked(hostel.id || initialHostel.id)
                         ? 'fill-red-500 text-red-500'
                         : 'text-neutral-500'
                     }
                   />
-                  <span>{isLiked(hostel.id || initialHostel.id) ? 'Saved' : 'Save'}</span>
                 </button>
               </div>
 
