@@ -37,6 +37,13 @@ apiClient.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
+      let clientId = localStorage.getItem('hg_client_id');
+      if (!clientId) {
+        clientId = 'c_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+        localStorage.setItem('hg_client_id', clientId);
+      }
+      config.headers['x-client-id'] = clientId;
     }
     return config;
   },

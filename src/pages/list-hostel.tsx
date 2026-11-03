@@ -7,6 +7,7 @@ import Footer from '@/components/navigation/Footer';
 import { HostelImage } from '@/components/ui/Media';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { submitHostelListingRequest } from '@/lib/api/interactions';
 import {
   Building2,
   MapPin,
@@ -283,7 +284,7 @@ const ListHostelPage = () => {
       },
     });
   };
-  const goNext = () => {
+  const goNext = async () => {
     if (!validateStep(step)) {
       gsap.fromTo(
         stepCardRef.current,
@@ -294,6 +295,11 @@ const ListHostelPage = () => {
     }
     if (step < 3) animateStepChange(step + 1);
     else {
+      try {
+        await submitHostelListingRequest(form);
+      } catch (err) {
+        console.warn('Listing request submission fallback:', err);
+      }
       gsap
         .timeline({ onComplete: () => setSubmitted(true) })
         .to(

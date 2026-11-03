@@ -11,6 +11,7 @@ import StarRating from '@/components/hostel/StarRating';
 import LottieAnimation from '@/components/lottie/LottieAnimation';
 import { Hostel } from '@/lib/api/hostels';
 import { useHostels } from '@/hooks/useHostels';
+import { useHostelLikes } from '@/hooks/useHostelLikes';
 import {
   Search,
   MapPin,
@@ -160,11 +161,14 @@ const mapHostelToCard = (hostel: Hostel): HostelCardData => {
 const HostelCard = ({
   hostel,
   onBook,
+  isLiked = false,
+  onToggleLike,
 }: {
   hostel: HostelCardData;
   onBook: (hostel: HostelCardData) => void;
+  isLiked?: boolean;
+  onToggleLike?: (id: string | number) => void;
 }) => {
-  const [isLiked, setIsLiked] = useState(false);
   const [imgSrc, setImgSrc] = useState(hostel.image);
   const isExternal = imgSrc.startsWith('http://') || imgSrc.startsWith('https://');
 
@@ -197,14 +201,21 @@ const HostelCard = ({
             )}
           </div>
           <button
-            onClick={() => setIsLiked(!isLiked)}
-            className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors z-10"
-            aria-label="Save hostel"
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggleLike?.(hostel.id);
+            }}
+            className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all z-10 shadow-sm cursor-pointer active:scale-90"
+            aria-label={isLiked ? 'Remove from saved hostels' : 'Save hostel to favorites'}
           >
             <Heart
               size={18}
               strokeWidth={2}
-              className={isLiked ? 'fill-red-500 text-red-500' : 'text-neutral-600'}
+              className={
+                isLiked ? 'fill-red-500 text-red-500' : 'text-neutral-600 hover:text-red-500'
+              }
             />
           </button>
           <div className="absolute bottom-3 left-3 pointer-events-none">
@@ -313,6 +324,9 @@ const HostelsPage = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [bookingHostel, setBookingHostel] = useState<HostelCardData | null>(null);
+  const [filterFavoritesOnly, setFilterFavoritesOnly] = useState(false);
+
+  const { isLiked, toggleLike, likedCount } = useHostelLikes();
 
   // Responsive: Open filters by default on desktops and large devices (>= 1024px), closed on mobile
   useEffect(() => {
@@ -398,6 +412,11 @@ const HostelsPage = () => {
         if (minRating > 0 && (h.rating || 0) < minRating) {
           return false;
         }
+        // Favorites filter
+        if (filterFavoritesOnly && !isLiked(h.id)) {
+          return false;
+        }
+
         // Price filter (based on monthlyPrice or fallback price)
         const effectivePrice = h.monthlyPrice > 0 ? h.monthlyPrice : h.price;
         if (effectivePrice > 0) {
@@ -435,6 +454,8 @@ const HostelsPage = () => {
     priceRange,
     selectedAmenities,
     sortBy,
+    filterFavoritesOnly,
+    isLiked,
   ]);
 
   const totalItems = pagination?.totalItems ?? filteredHostels.length;
@@ -522,6 +543,31 @@ const HostelsPage = () => {
                   {activeFiltersCount > 0 && (
                     <span className="w-5 h-5 bg-brand-black text-white text-xs rounded-full flex items-center justify-center">
                       {activeFiltersCount}
+                    </span>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterFavoritesOnly(!filterFavoritesOnly)}
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all border shadow-sm cursor-pointer ${
+                    filterFavoritesOnly
+                      ? 'bg-red-500 text-white border-red-500 hover:bg-red-600'
+                      : 'bg-white text-neutral-700 border-neutral-200 hover:border-red-300'
+                  }`}
+                  aria-pressed={filterFavoritesOnly}
+                >
+                  <Heart
+                    size={16}
+                    className={filterFavoritesOnly ? 'fill-white text-white' : 'text-red-500'}
+                  />
+                  <span>Favorites</span>
+                  {likedCount > 0 && (
+                    <span
+                      className={`px-1.5 py-0.5 text-xs rounded-full font-bold leading-none ${
+                        filterFavoritesOnly ? 'bg-white text-red-600' : 'bg-red-100 text-red-600'
+                      }`}
+                    >
+                      {likedCount}
                     </span>
                   )}
                 </button>
@@ -815,7 +861,13 @@ const HostelsPage = () => {
                     }
                   >
                     {filteredHostels.map((hostel) => (
-                      <HostelCard key={hostel.id} hostel={hostel} onBook={setBookingHostel} />
+                      <HostelCard
+                        key={hostel.id}
+                        hostel={hostel}
+                        onBook={setBookingHostel}
+                        isLiked={isLiked(hostel.id)}
+                        onToggleLike={toggleLike}
+                      />
                     ))}
                   </div>
                 )}

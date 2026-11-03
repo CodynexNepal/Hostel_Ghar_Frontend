@@ -24,6 +24,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { subscribeToNewsletter } from '@/lib/api/interactions';
 
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" width={17} height={17} {...props}>
@@ -181,14 +182,19 @@ const Footer = () => {
     };
   }, []);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) return;
+    try {
+      await subscribeToNewsletter(email, 'footer');
+    } catch {
+      // Gracefully continue
+    }
     setSubscribed(true);
     setTimeout(() => {
       setSubscribed(false);
       setEmail('');
-    }, 3500);
+    }, 4000);
   };
 
   const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });

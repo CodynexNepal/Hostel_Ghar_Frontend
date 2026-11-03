@@ -42,7 +42,9 @@ import {
   Sun,
   Moon,
   Loader2,
+  Heart,
 } from 'lucide-react';
+import { useHostelLikes } from '@/hooks/useHostelLikes';
 import {
   type DayOfWeek,
   type HostelMeal,
@@ -278,6 +280,7 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
   const [selectedMealDay, setSelectedMealDay] = useState<DayOfWeek>('SUNDAY');
   const [dayScheduleMap, setDayScheduleMap] = useState<Record<string, DailyMealSlot[]>>({});
   const [isDayScheduleLoading, setIsDayScheduleLoading] = useState(false);
+  const { isLiked, toggleLike } = useHostelLikes();
 
   // Hook to call the hostel endpoint with Axios
   const {
@@ -598,11 +601,6 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                       )}
                     </div>
                   </div>
-                  {hostel.originalMonthlyPrice && hostel.monthlyPrice > 0 && (
-                    <span className="text-sm font-semibold text-neutral-400 line-through">
-                      NPR {hostel.originalMonthlyPrice.toLocaleString()}
-                    </span>
-                  )}
                 </div>
                 <p className="text-xs text-neutral-600 mt-2">
                   *Includes 4 daily meals, electricity, Wi-Fi & water.
@@ -624,6 +622,30 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                 >
                   <Phone size={17} aria-hidden /> Call {hostel.phone || 'Hostel'}
                 </a>
+                <button
+                  type="button"
+                  onClick={() => toggleLike(hostel.id || initialHostel.id)}
+                  className={`inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border font-bold transition-all shadow-sm cursor-pointer ${
+                    isLiked(hostel.id || initialHostel.id)
+                      ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
+                      : 'bg-white text-neutral-700 border-neutral-200 hover:border-red-300'
+                  }`}
+                  aria-label={
+                    isLiked(hostel.id || initialHostel.id)
+                      ? 'Remove from favorites'
+                      : 'Save to favorites'
+                  }
+                >
+                  <Heart
+                    size={19}
+                    className={
+                      isLiked(hostel.id || initialHostel.id)
+                        ? 'fill-red-500 text-red-500'
+                        : 'text-neutral-500'
+                    }
+                  />
+                  <span>{isLiked(hostel.id || initialHostel.id) ? 'Saved' : 'Save'}</span>
+                </button>
               </div>
 
               {/* Verified Property Owner Card */}
@@ -1145,8 +1167,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           data.monthlyPrice ||
           staticHostel?.monthlyPrice ||
           11000,
-        originalPrice: staticHostel?.originalPrice ?? 1400,
-        originalMonthlyPrice: staticHostel?.originalMonthlyPrice ?? 13000,
+        originalPrice: null,
+        originalMonthlyPrice: null,
         totalBeds: data.totalBeds ?? data.beds?.total ?? staticHostel?.totalBeds ?? 36,
         availableBeds:
           data.availableBeds ?? data.beds?.available ?? staticHostel?.availableBeds ?? 6,
