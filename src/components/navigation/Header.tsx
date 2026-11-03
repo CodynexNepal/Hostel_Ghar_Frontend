@@ -203,8 +203,6 @@ const Header = () => {
     scrollTweenRef.current = gsap.to(headerRef.current, {
       borderRadius: isScrolled ? '0 0 24px 24px' : '0 0 0 0',
       backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.88)' : 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: isScrolled ? 'blur(24px) saturate(200%)' : 'blur(0px) saturate(100%)',
-      WebkitBackdropFilter: isScrolled ? 'blur(24px) saturate(200%)' : 'blur(0px) saturate(100%)',
       boxShadow: isScrolled
         ? '0 4px 30px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.03)'
         : '0 0 0 rgba(0, 0, 0, 0)',

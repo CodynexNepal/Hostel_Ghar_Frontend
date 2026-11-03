@@ -44,11 +44,24 @@ export interface HostelListingRequestData {
   email: string;
 }
 
+function getLocalClientId(): string {
+  if (typeof window === 'undefined') return '';
+  let clientId = localStorage.getItem('hg_client_id');
+  if (!clientId) {
+    clientId = 'c_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+    localStorage.setItem('hg_client_id', clientId);
+  }
+  return clientId;
+}
+
 /**
  * Toggle like for a hostel (add to / remove from favorites)
  */
 export async function toggleHostelLike(hostelId: string): Promise<ToggleLikeResponse> {
-  const response = await apiClient.post<ToggleLikeResponse>(`/hostels/${hostelId}/like`);
+  const clientId = getLocalClientId();
+  const response = await apiClient.post<ToggleLikeResponse>(`/hostels/${hostelId}/like`, {
+    clientId,
+  });
   return response.data;
 }
 
@@ -56,7 +69,10 @@ export async function toggleHostelLike(hostelId: string): Promise<ToggleLikeResp
  * Fetch list of hostels liked by the current user / guest device
  */
 export async function getUserLikedHostels(): Promise<LikedHostelsResponse> {
-  const response = await apiClient.get<LikedHostelsResponse>('/hostels/user/likes');
+  const clientId = getLocalClientId();
+  const response = await apiClient.get<LikedHostelsResponse>('/hostels/user/likes', {
+    params: clientId ? { clientId } : undefined,
+  });
   return response.data;
 }
 
