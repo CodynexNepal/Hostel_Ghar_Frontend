@@ -19,10 +19,10 @@ export interface SectionProps {
 }
 
 const toneStyles: Record<SectionTone, string> = {
-  white: 'bg-white',
-  gray: 'bg-[#f8f8f8]',
-  dark: 'bg-brand-black',
-  tint: 'bg-gradient-to-br from-brand-white via-[#f8ffed] to-[#e8ffcc]',
+  white: 'bg-white/95 bg-square-grid',
+  gray: 'bg-[#f8f8f8]/95 bg-square-grid',
+  dark: 'bg-brand-black bg-square-grid-dark',
+  tint: 'bg-gradient-to-br from-brand-white via-[#f8ffed] to-[#e8ffcc] bg-square-grid',
 };
 
 const spacingStyles: Record<SectionSpacing, string> = {

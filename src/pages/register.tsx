@@ -94,8 +94,8 @@ const Register = () => {
               />
             </div>
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl">
-            Create an account
+          <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl overflow-hidden">
+            <span className="inline-block animate-text-reveal">Create an account</span>
           </h1>
           <p className="mt-2 text-sm text-neutral-500">Sign up to get started with Hostel Ghar</p>
         </div>

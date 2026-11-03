@@ -116,8 +116,8 @@ const ForgotPassword = () => {
               />
             </div>
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl">
-            Forgot password
+          <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl overflow-hidden">
+            <span className="inline-block animate-text-reveal">Forgot password</span>
           </h1>
           <p className="mt-2 text-sm text-neutral-500">
             Enter your email to receive a password reset link

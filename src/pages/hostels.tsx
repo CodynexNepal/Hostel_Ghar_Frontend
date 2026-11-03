@@ -8,6 +8,7 @@ import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
 import BookingModal from '@/components/booking/BookingModal';
 import StarRating from '@/components/hostel/StarRating';
+import LottieAnimation from '@/components/lottie/LottieAnimation';
 import { Hostel } from '@/lib/api/hostels';
 import { useHostels } from '@/hooks/useHostels';
 import {
@@ -448,12 +449,12 @@ const HostelsPage = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-screen bg-[#f8f8f8]">
+      <main className="min-h-screen bg-transparent">
         <Header />
-        <section className="bg-gradient-to-br from-brand-white via-[#f8ffed] to-[#e8ffcc] pt-8 pb-12">
+        <section className="bg-gradient-to-b from-brand-lime/10 via-transparent to-transparent pt-8 pb-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-2">
-              Find Your Perfect Hostel
+            <h1 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-2 overflow-hidden">
+              <span className="inline-block animate-text-reveal">Find Your Perfect Hostel</span>
             </h1>
             <p className="text-neutral-600 mb-6">
               Discover verified hostels across Nepal at the best prices
@@ -784,8 +785,9 @@ const HostelsPage = () => {
                     </div>
                   </div>
                 ) : filteredHostels.length === 0 ? (
-                  <div className="bg-white rounded-2xl border border-neutral-200 p-12 text-center my-8">
-                    <h3 className="text-lg font-bold text-brand-black mb-1">
+                  <div className="bg-white rounded-3xl border border-neutral-200/90 p-8 sm:p-12 text-center my-8 shadow-sm">
+                    <LottieAnimation variant="search-empty" size="lg" className="mx-auto mb-4" />
+                    <h3 className="text-xl font-extrabold text-brand-black mb-1">
                       {hostels.length === 0
                         ? 'No hostels found in database'
                         : 'No hostels match your filters'}

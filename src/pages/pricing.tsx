@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
+import LottieAnimation from '@/components/lottie/LottieAnimation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
@@ -245,9 +246,9 @@ const PricingPage = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-transparent">
         <Header />
-        <section className="relative overflow-hidden bg-gradient-to-br from-brand-white via-[#f8ffed] to-[#e8ffcc] pt-20 pb-16 md:pt-28 md:pb-20">
+        <section className="relative overflow-hidden bg-gradient-to-b from-brand-lime/10 via-transparent to-transparent pt-20 pb-16 md:pt-28 md:pb-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-lime/20 rounded-full mb-6">
               <Shield size={16} strokeWidth={2} className="text-brand-black" />
@@ -255,11 +256,13 @@ const PricingPage = () => {
                 Simple, Transparent Pricing
               </span>
             </div>
-            <h1 className="hero-title text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-black tracking-tight mb-6">
-              Plans That Grow{' '}
-              <span className="relative inline-block ml-3">
-                <span className="relative z-10">With You</span>
-                <span className="absolute bottom-2 left-0 right-0 h-3 bg-brand-lime/50 -z-0 rounded-sm"></span>
+            <h1 className="hero-title text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-black tracking-tight mb-6 overflow-hidden">
+              <span className="inline-block animate-text-reveal">
+                Plans That Grow{' '}
+                <span className="relative inline-block ml-2">
+                  <span className="relative z-10">With You</span>
+                  <span className="absolute bottom-2 left-0 right-0 h-3 bg-brand-lime/50 -z-0 rounded-sm"></span>
+                </span>
               </span>
             </h1>
             <p className="hero-subtitle text-lg md:text-xl text-neutral-600 max-w-2xl mx-auto mb-10">
@@ -285,7 +288,7 @@ const PricingPage = () => {
           </div>
         </section>
 
-        <section ref={pricingRef} className="py-12 md:py-16 bg-white -mt-8 relative z-10">
+        <section ref={pricingRef} className="py-12 md:py-16 bg-transparent -mt-8 relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {plans.map((plan) => {
@@ -475,7 +478,7 @@ const PricingPage = () => {
           </div>
         </section>
 
-        <section className="py-20 md:py-28 bg-white">
+        <section className="py-20 md:py-28 bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
               <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
@@ -517,7 +520,7 @@ const PricingPage = () => {
           </div>
         </section>
 
-        <section ref={faqRef} className="py-20 md:py-28 bg-[#f8f8f8]">
+        <section ref={faqRef} className="py-20 md:py-28 bg-neutral-900/[0.02]">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
               <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
@@ -557,6 +560,7 @@ const PricingPage = () => {
 
         <section className="py-20 md:py-28 bg-brand-black">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <LottieAnimation variant="success-check" size="lg" className="mx-auto mb-6" />
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-lime/20 rounded-full mb-6">
               <Users size={16} strokeWidth={2} className="text-brand-lime" />
               <span className="text-sm font-semibold text-brand-lime">Join 500+ Hostels</span>

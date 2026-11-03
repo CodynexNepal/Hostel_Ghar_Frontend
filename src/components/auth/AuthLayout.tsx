@@ -30,14 +30,14 @@ const AuthLayout = ({ children, maxWidth = 'max-w-[440px]' }: AuthLayoutProps) =
   }, []);
 
   return (
-    <main className="relative flex min-h-[calc(100vh-140px)] w-full items-center justify-center bg-neutral-50/70 px-4 py-12 sm:px-6 lg:px-8">
+    <main className="relative flex min-h-[calc(100vh-140px)] w-full items-center justify-center bg-transparent px-4 py-12 sm:px-6 lg:px-8">
       {/* Subtle ambient blur */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-lime/15 blur-3xl" />
+        <div className="absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-lime/20 blur-3xl" />
       </div>
 
       <div ref={cardRef} className={`relative w-full ${maxWidth}`}>
-        <div className="rounded-3xl border border-neutral-200/80 bg-white p-7 shadow-sm transition-shadow duration-300 hover:shadow-md sm:p-10">
+        <div className="rounded-3xl border border-neutral-200/90 bg-white/95 backdrop-blur-md p-7 shadow-xl transition-shadow duration-300 hover:shadow-2xl sm:p-10">
           {children}
         </div>
       </div>

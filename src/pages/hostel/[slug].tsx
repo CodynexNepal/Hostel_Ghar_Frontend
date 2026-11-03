@@ -457,7 +457,7 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
         ]}
         id="ld-hostel"
       />
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-transparent">
         <Header />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24">
           <Breadcrumbs
@@ -560,8 +560,8 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                 <p className="flex items-center gap-1.5 text-sm font-semibold text-neutral-500 mb-1.5">
                   <MapPin size={15} aria-hidden className="text-brand-black" /> {hostel.area}
                 </p>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-brand-black tracking-tight mb-3">
-                  {hostel.name}
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-brand-black tracking-tight mb-3 overflow-hidden">
+                  <span className="inline-block animate-text-reveal">{hostel.name}</span>
                 </h1>
 
                 {/* Interactive Star Rating with Add-A-Star feature */}

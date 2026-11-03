@@ -6,6 +6,7 @@ import Seo from '@/components/seo/Seo';
 import Breadcrumbs from '@/components/seo/Breadcrumbs';
 import { useMyBookings, useBookingMutations } from '@/hooks/useBookings';
 import HostelLoader from '@/components/ui/Loader/HostelLoader';
+import LottieAnimation from '@/components/lottie/LottieAnimation';
 import { BookingStatus, BookingItem } from '@/lib/api/bookings';
 import {
   Calendar,
@@ -80,7 +81,7 @@ export default function MyBookingsPage() {
         description="View and manage your hostel accommodation requests on Hostel Ghar."
         path="/my-bookings"
       />
-      <main className="min-h-screen bg-neutral-50 flex flex-col justify-between">
+      <main className="min-h-screen bg-transparent flex flex-col justify-between">
         <div>
           <Header />
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
@@ -93,8 +94,8 @@ export default function MyBookingsPage() {
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-extrabold text-brand-black tracking-tight">
-                  My Bookings
+                <h1 className="text-3xl font-extrabold text-brand-black tracking-tight overflow-hidden">
+                  <span className="inline-block animate-text-reveal">My Bookings</span>
                 </h1>
                 <p className="text-sm text-neutral-500 mt-1">
                   Track the status of your room reservation applications.
@@ -135,10 +136,8 @@ export default function MyBookingsPage() {
                 </button>
               </div>
             ) : bookings.length === 0 ? (
-              <div className="p-12 text-center bg-white rounded-3xl border border-neutral-200">
-                <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-neutral-100 text-neutral-400">
-                  <Building size={32} />
-                </div>
+              <div className="p-12 text-center bg-white/90 backdrop-blur-sm rounded-3xl border border-neutral-200 shadow-sm">
+                <LottieAnimation variant="search-empty" size="md" className="mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-brand-black mb-2">No bookings yet</h3>
                 <p className="text-sm text-neutral-500 max-w-md mx-auto mb-6">
                   You haven&apos;t booked any hostels yet. Explore verified hostels across

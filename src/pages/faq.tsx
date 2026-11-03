@@ -7,6 +7,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import Breadcrumbs from '@/components/seo/Breadcrumbs';
 import FaqAccordion from '@/components/aeo/FaqAccordion';
 import DirectAnswer from '@/components/aeo/DirectAnswer';
+import LottieAnimation from '@/components/lottie/LottieAnimation';
 import { FAQS, FAQ_CATEGORIES } from '@/data/faqs';
 import { faqJsonLd } from '@/lib/seo/jsonLd';
 import { getPageMeta } from '@/lib/seo/metadata';
@@ -26,7 +27,7 @@ export default function FaqPage() {
         )}
         id="ld-faq"
       />
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-transparent">
         <Header />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
           <Breadcrumbs
@@ -37,11 +38,14 @@ export default function FaqPage() {
           />
 
           <div className="text-center mb-10">
+            <LottieAnimation variant="house-assembly" size="md" className="mx-auto mb-3" />
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-lime/20 text-brand-black text-sm font-semibold">
               <MessageCircleQuestion size={16} aria-hidden /> {FAQS.length} expert answers
             </span>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight mt-4 mb-4">
-              Hostel Booking in Nepal, Answered
+            <h1 className="text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight mt-4 mb-4 overflow-hidden">
+              <span className="inline-block animate-text-reveal">
+                Hostel Booking in Nepal, Answered
+              </span>
             </h1>
             <p className="text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed">
               Direct answers to the questions travelers and owners ask most — prices, safety,

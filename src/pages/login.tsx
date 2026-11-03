@@ -80,8 +80,8 @@ const Login = () => {
               />
             </div>
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl">
-            Welcome back
+          <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl overflow-hidden">
+            <span className="inline-block animate-text-reveal">Welcome back</span>
           </h1>
           <p className="mt-2 text-sm text-neutral-500">Sign in to continue to your account</p>
         </div>

@@ -43,7 +43,7 @@ export default function GuidePage({ guide }: { guide: Guide }) {
         })}
         id="ld-article"
       />
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-transparent">
         <Header />
         <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
           <Breadcrumbs
@@ -56,8 +56,8 @@ export default function GuidePage({ guide }: { guide: Guide }) {
           <p className="inline-block px-3 py-1 bg-brand-lime/20 text-brand-black text-xs font-bold rounded-full mb-4">
             {guide.category}
           </p>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight leading-tight mb-4">
-            {guide.title}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight leading-tight mb-4 overflow-hidden">
+            <span className="inline-block animate-text-reveal">{guide.title}</span>
           </h1>
           <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-500 mb-6">
             <span className="inline-flex items-center gap-1">

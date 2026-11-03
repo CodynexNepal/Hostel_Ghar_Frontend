@@ -450,20 +450,12 @@ const ListHostelPage = () => {
       </Head>
       <main
         ref={rootRef}
-        className="relative min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-[#FDFDF6] text-brand-black"
+        className="relative min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-transparent text-brand-black"
       >
         <Header />
         <div
           aria-hidden
-          className="pointer-events-none fixed inset-0 z-0 opacity-50"
-          style={{
-            backgroundImage: 'radial-gradient(rgba(1,1,1,0.06) 1px, transparent 1px)',
-            backgroundSize: '22px 22px',
-          }}
-        />
-        <div
-          aria-hidden
-          className="lh-orb pointer-events-none absolute left-0 top-[8%] z-0 h-[420px] w-[420px] -translate-x-1/3 rounded-full bg-brand-lime/30 blur-[100px]"
+          className="lh-orb pointer-events-none absolute left-0 top-[8%] z-0 h-[420px] w-[420px] -translate-x-1/3 rounded-full bg-brand-lime/25 blur-[100px]"
         />
         <div
           aria-hidden

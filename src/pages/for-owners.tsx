@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
+import LottieAnimation from '@/components/lottie/LottieAnimation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
@@ -246,44 +247,52 @@ const ForOwnersPage = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-transparent">
         <Header />
-        <section className="relative overflow-hidden bg-gradient-to-br from-brand-white via-[#f8ffed] to-[#e8ffcc] pt-20 pb-20 md:pt-28 md:pb-28">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-lime/20 rounded-full mb-6">
-                  <Building2 size={16} strokeWidth={2} className="text-brand-black" />
-                  <span className="text-sm font-semibold text-brand-black">For Hostel Owners</span>
-                </div>
-                <h1 className="hero-title text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-black tracking-tight mb-6">
-                  Manage Your Hostel{' '}
-                  <span className="relative inline-block ml-2">
-                    <span className="relative z-10">Smarter</span>
-                    <span className="absolute bottom-2 left-0 right-0 h-3 bg-brand-lime/50 -z-0 rounded-sm"></span>
-                  </span>
-                </h1>
-                <p className="hero-subtitle text-lg md:text-xl text-neutral-600 mb-8 max-w-xl">
-                  Automate operations, track fees, manage residents, and grow your business.
-                </p>
-                <div className="hero-cta flex flex-wrap gap-4">
-                  <Link
-                    href="/register"
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-brand-lime text-brand-black font-bold rounded-xl hover:bg-brand-lime/85 transition-all duration-300 hover:-translate-y-0.5 shadow-lime"
-                  >
-                    Start Free Trial <ArrowRight size={18} strokeWidth={2} />
-                  </Link>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-brand-black font-semibold rounded-xl border border-neutral-200 hover:border-brand-lime transition-all duration-300">
-                    <Play size={18} strokeWidth={2} /> Watch Demo
-                  </button>
-                </div>
-              </div>
+        <section className="relative overflow-hidden bg-gradient-to-b from-brand-lime/10 via-transparent to-transparent pt-20 pb-16 md:pt-28 md:pb-24 border-b border-neutral-200/80">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-lime/25 text-brand-black rounded-full mb-6 border border-brand-lime/50 font-bold text-xs sm:text-sm">
+              <Building2 size={16} strokeWidth={2} className="text-brand-black" />
+              <span>For Hostel Owners</span>
             </div>
+            <h1 className="hero-title text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-black tracking-tight mb-6 leading-tight">
+              <span className="inline-block overflow-hidden pb-1">
+                <span className="animate-text-reveal">Manage Your Hostel</span>
+              </span>{' '}
+              <span className="inline-block overflow-hidden pb-1">
+                <span className="animate-text-reveal-delay-1 relative inline-block ml-2">
+                  <span className="relative z-10 px-2.5 py-0.5 rounded-xl bg-brand-lime text-brand-black shadow-lime">
+                    Smarter
+                  </span>
+                </span>
+              </span>
+            </h1>
+            <p className="hero-subtitle text-lg md:text-xl text-neutral-600 mb-8 max-w-2xl mx-auto">
+              Automate operations, track fees, manage residents, and grow your business with zero
+              paperwork.
+            </p>
+            <div className="hero-cta flex flex-wrap justify-center gap-4">
+              <Link
+                href="/register"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-brand-lime text-brand-black font-bold rounded-xl hover:bg-brand-lime/85 transition-all duration-300 hover:-translate-y-0.5 shadow-lime"
+              >
+                Start Free Trial <ArrowRight size={18} strokeWidth={2} />
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-brand-black font-semibold rounded-xl border border-neutral-200 hover:border-brand-lime transition-all duration-300"
+              >
+                <Play size={18} strokeWidth={2} /> Request Demo
+              </Link>
+            </div>
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="hero-stats grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="text-center p-6 bg-white rounded-2xl border border-neutral-100 shadow-soft"
+                  className="text-center p-6 bg-white/90 backdrop-blur-sm rounded-2xl border border-neutral-200/80 shadow-soft"
                 >
                   <div className="w-10 h-10 bg-brand-lime/20 rounded-xl flex items-center justify-center mx-auto mb-3 text-brand-black">
                     {stat.icon}
@@ -297,7 +306,7 @@ const ForOwnersPage = () => {
             </div>
           </div>
         </section>
-        <section ref={featuresRef} className="py-20 md:py-28 bg-[#f8f8f8]">
+        <section ref={featuresRef} className="py-20 md:py-28 bg-neutral-900/[0.02]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
               <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
@@ -311,7 +320,7 @@ const ForOwnersPage = () => {
               {features.map((feature) => (
                 <div
                   key={feature.title}
-                  className="feature-card p-6 bg-white rounded-2xl border border-neutral-100 hover:border-brand-lime/50 hover:shadow-medium transition-all duration-300"
+                  className="feature-card p-6 bg-white/90 backdrop-blur-sm rounded-2xl border border-neutral-100 hover:border-brand-lime/50 hover:shadow-medium transition-all duration-300"
                 >
                   <div
                     className={`w-14 h-14 ${feature.color} rounded-2xl flex items-center justify-center text-brand-black mb-5`}
@@ -325,7 +334,7 @@ const ForOwnersPage = () => {
             </div>
           </div>
         </section>
-        <section ref={stepsRef} className="py-20 md:py-28 bg-white">
+        <section ref={stepsRef} className="py-20 md:py-28 bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
               <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">

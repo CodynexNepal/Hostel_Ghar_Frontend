@@ -18,7 +18,7 @@ export default function GuidesPage() {
         path="/guides"
         keywords={meta.keywords}
       />
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-transparent">
         <Header />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
           <Breadcrumbs
@@ -31,8 +31,10 @@ export default function GuidesPage() {
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-lime/20 text-brand-black text-sm font-semibold">
               <BookOpen size={16} aria-hidden /> Original research + field guides
             </span>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight mt-4 mb-4">
-              Nepal Hostel Guides, Backed by Real Data
+            <h1 className="text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight mt-4 mb-4 overflow-hidden">
+              <span className="inline-block animate-text-reveal">
+                Nepal Hostel Guides, Backed by Real Data
+              </span>
             </h1>
             <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
               Not rewritten listicles — every guide cites our dataset of 500+ verified listings,

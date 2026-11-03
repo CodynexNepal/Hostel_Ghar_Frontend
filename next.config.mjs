@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  ...(process.env.BUILD_STANDALONE ? { output: 'standalone' } : {}),
   images: {
     domains: ['localhost', 'res.cloudinary.com'],
   },

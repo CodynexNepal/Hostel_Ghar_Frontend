@@ -9,6 +9,7 @@ import FaqAccordion from '@/components/aeo/FaqAccordion';
 import { FAQS } from '@/data/faqs';
 import { faqJsonLd } from '@/lib/seo/jsonLd';
 import { getPageMeta } from '@/lib/seo/metadata';
+import LottieAnimation from '@/components/lottie/LottieAnimation';
 import { Mail, Phone, MapPin, Clock3, Link } from 'lucide-react';
 
 export default function ContactPage() {
@@ -28,7 +29,7 @@ export default function ContactPage() {
         data={faqJsonLd(faqs.map((f) => ({ question: f.question, answer: f.answer })))}
         id="ld-contact-faq"
       />
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-transparent">
         <Header />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
           <Breadcrumbs
@@ -37,9 +38,14 @@ export default function ContactPage() {
               { label: 'Contact', path: '/contact' },
             ]}
           />
-          <h1 className="text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight mb-4">
-            Contact Hostel Ghar — we reply within 24 hours
-          </h1>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight flex-1 overflow-hidden">
+              <span className="inline-block animate-text-reveal">
+                Contact Hostel Ghar — we reply within 24 hours
+              </span>
+            </h1>
+            <LottieAnimation variant="location-pin" size="md" className="flex-shrink-0" />
+          </div>
           <DirectAnswer
             question="How do I reach Hostel Ghar support?"
             answer="Email info@hostelghar.com or call +977-1-1234567 (Sun–Fri, 9am–6pm NPT). Office: Thamel, Kathmandu. Booking help, listing help and press: same inbox, under-24-hour reply."

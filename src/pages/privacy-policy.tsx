@@ -15,7 +15,7 @@ export default function PrivacyPage() {
         path="/privacy-policy"
         keywords={meta.keywords}
       />
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-transparent">
         <Header />
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
           <Breadcrumbs
@@ -24,8 +24,10 @@ export default function PrivacyPage() {
               { label: 'Privacy & Terms', path: '/privacy-policy' },
             ]}
           />
-          <h1 className="text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight mb-4">
-            Privacy Policy and Terms of Service
+          <h1 className="text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight mb-4 overflow-hidden">
+            <span className="inline-block animate-text-reveal">
+              Privacy Policy and Terms of Service
+            </span>
           </h1>
           <p className="text-sm text-neutral-400 mb-8">
             Last updated: 1 September 2026 · Hostel Ghar Pvt. Ltd., Thamel, Kathmandu
