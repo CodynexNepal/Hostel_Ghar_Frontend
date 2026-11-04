@@ -9,6 +9,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import { breadcrumbJsonLd, howToJsonLd } from '@/lib/seo/jsonLd';
 import { getPageMeta } from '@/lib/seo/metadata';
 import { CTAButton } from '@/components/ui/Section';
+import { DashboardInsightShowcase, WorkflowPileUp } from '@/components/sections';
 import LottieAnimation from '@/components/lottie/LottieAnimation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -40,10 +41,6 @@ if (typeof window !== 'undefined') {
 
 export default function Home() {
   const meta = getPageMeta('/');
-
-  // Interactive Workflow Step for Mobile Snap Carousel
-  const [activeStep, setActiveStep] = useState(0);
-  const workflowScrollRef = useRef<HTMLDivElement>(null);
 
   // Mobile Bottom Action Dock visibility
   const [showMobileDock, setShowMobileDock] = useState(false);
@@ -111,63 +108,6 @@ export default function Home() {
 
     return () => ctx.revert();
   }, []);
-
-  const scrollToStep = (index: number) => {
-    setActiveStep(index);
-    if (workflowScrollRef.current) {
-      const container = workflowScrollRef.current;
-      const child = container.children[index] as HTMLElement;
-      if (child) {
-        container.scrollTo({
-          left: child.offsetLeft - container.offsetLeft - 16,
-          behavior: 'smooth',
-        });
-      }
-    }
-  };
-
-  const handleWorkflowScroll = () => {
-    if (workflowScrollRef.current) {
-      const container = workflowScrollRef.current;
-      const scrollLeft = container.scrollLeft;
-      const cardWidth = container.children[0]?.clientWidth || 280;
-      const newIndex = Math.round(scrollLeft / (cardWidth + 16));
-      if (newIndex >= 0 && newIndex <= 3 && newIndex !== activeStep) {
-        setActiveStep(newIndex);
-      }
-    }
-  };
-
-  const workflowSteps = [
-    {
-      num: '01',
-      title: '1. Explore Your Options',
-      desc: 'Browse hostel listings and discover accommodation that matches your location, budget, and needs.',
-      icon: Search,
-      tag: 'Location & Budget',
-    },
-    {
-      num: '02',
-      title: '2. Compare What Matters',
-      desc: 'Review available details, facilities, room options, and published prices before contacting a hostel.',
-      icon: SlidersHorizontal,
-      tag: 'Facilities & Tariffs',
-    },
-    {
-      num: '03',
-      title: '3. Connect With the Owner',
-      desc: 'Ask questions, confirm availability and costs, and take the next step toward your stay.',
-      icon: MessageSquare,
-      tag: 'Direct Communication',
-    },
-    {
-      num: '04',
-      title: '4. Manage With Confidence',
-      desc: 'For hostel owners and authorized residents, the appropriate dashboard provides access to the information and features available to their account.',
-      icon: LayoutDashboard,
-      tag: 'Live Operations',
-    },
-  ];
 
   return (
     <>
@@ -588,185 +528,14 @@ export default function Home() {
         </section>
 
         {/* ========================================================
-            3. THE WORKFLOW: TOUCH-OPTIMIZED SNAP CAROUSEL ON MOBILE
+            3. THE WORKFLOW: GSAP PILE-UP STACKING ANIMATION ON SCROLL
            ======================================================== */}
-        <section
-          id="how-it-works"
-          className="py-16 sm:py-20 md:py-24 bg-neutral-100/60 border-y border-neutral-200/80 relative"
-        >
-          <div className="container-custom">
-            <div className="max-w-3xl mx-auto text-center space-y-3 mb-8 sm:mb-12">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-neutral-700 text-xs font-mono font-bold uppercase tracking-wider border border-neutral-300">
-                <Sliders size={13} />
-                The Workflow
-              </span>
-              <h2 className="scroll-reveal-heading text-2xl sm:text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight">
-                Discover. Connect. Feel at Home.
-              </h2>
-              <p className="text-neutral-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-                Four simple steps designed to make finding accommodation easy and operating a hostel
-                straightforward.
-              </p>
-
-              {/* Mobile Step Switcher Buttons (01, 02, 03, 04) */}
-              <div className="flex md:hidden items-center justify-center gap-2 pt-2">
-                {workflowSteps.map((step, idx) => (
-                  <button
-                    key={step.num}
-                    onClick={() => scrollToStep(idx)}
-                    className={`px-3 py-1 text-xs font-mono font-bold rounded-lg transition-all ${
-                      activeStep === idx
-                        ? 'bg-brand-black text-brand-lime shadow-sm scale-105'
-                        : 'bg-white text-neutral-500 border border-neutral-200'
-                    }`}
-                  >
-                    Step {step.num}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Steps Container: Horizontal Touch Scroll on Mobile, 4-col Grid on Desktop */}
-            <div
-              ref={workflowScrollRef}
-              onScroll={handleWorkflowScroll}
-              className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory no-scrollbar"
-            >
-              {workflowSteps.map((step, idx) => {
-                const IconComponent = step.icon;
-                return (
-                  <div
-                    key={step.num}
-                    className={`min-w-[85vw] sm:min-w-[340px] md:min-w-0 snap-center p-6 sm:p-7 rounded-2xl bg-white border transition-all duration-300 flex flex-col justify-between ${
-                      activeStep === idx
-                        ? 'border-brand-black shadow-lg ring-2 ring-brand-lime/60 md:ring-0 md:border-neutral-200/90'
-                        : 'border-neutral-200/90 shadow-sm'
-                    } hover:-translate-y-1`}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="font-mono text-xs font-extrabold text-neutral-400 uppercase tracking-widest">
-                          Step {step.num}
-                        </span>
-                        <div className="w-10 h-10 rounded-xl bg-brand-lime/30 text-brand-black flex items-center justify-center font-bold">
-                          <IconComponent size={19} strokeWidth={2.4} />
-                        </div>
-                      </div>
-                      <h4 className="text-lg sm:text-xl font-bold text-brand-black mb-2">
-                        {step.title}
-                      </h4>
-                      <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-                        {step.desc}
-                      </p>
-                    </div>
-
-                    <div className="pt-5 mt-4 border-t border-neutral-100 flex items-center justify-between">
-                      <span className="text-[11px] font-mono font-semibold text-neutral-400 uppercase tracking-wider">
-                        {step.tag}
-                      </span>
-                      <ChevronRight size={15} className="text-neutral-400" />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Mobile Swipe Guidance Indicator */}
-            <div className="md:hidden flex items-center justify-center gap-1.5 pt-3 text-neutral-400 text-xs font-mono">
-              <span>← Swipe steps to explore →</span>
-            </div>
-          </div>
-        </section>
+        <WorkflowPileUp />
 
         {/* ========================================================
-            4. ONE UNIFIED PLATFORM: THREE DASHBOARDS & VERIFICATION
+            4. ONE UNIFIED PLATFORM: INTERACTIVE DASHBOARD SUITE & VERIFICATION
            ======================================================== */}
-        <section id="dashboards" className="py-16 sm:py-20 md:py-24 relative">
-          <div className="container-custom">
-            <div className="max-w-3xl mx-auto text-center space-y-3 mb-10 sm:mb-14">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 text-neutral-800 text-xs font-mono font-bold uppercase tracking-wider border border-neutral-200">
-                <Layers size={13} />
-                One Unified Platform
-              </span>
-              <h2 className="scroll-reveal-heading text-2xl sm:text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight">
-                Everything Connected. Everyone Empowered.
-              </h2>
-              <p className="text-neutral-600 text-sm sm:text-base leading-relaxed">
-                One platform, designed around three experiences.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-              {/* Resident Dashboard */}
-              <div className="p-7 sm:p-8 rounded-3xl bg-white/90 border border-neutral-200/90 hover:shadow-xl transition-all duration-300 flex flex-col justify-between backdrop-blur-sm">
-                <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-brand-lime/30 text-brand-black flex items-center justify-center font-bold">
-                    <Users size={24} />
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-brand-black tracking-tight">
-                    The Resident Dashboard
-                  </h3>
-                  <p className="text-neutral-600 text-xs sm:text-sm leading-relaxed">
-                    Access the resident features available to your account, review relevant
-                    information, and stay connected with your hostel.
-                  </p>
-                </div>
-                <div className="pt-6 mt-4 border-t border-neutral-200 text-xs font-semibold text-neutral-600 flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Room, stay &amp; enquiry access
-                </div>
-              </div>
-
-              {/* Owner Dashboard */}
-              <div className="p-7 sm:p-8 rounded-3xl bg-white/90 border border-neutral-200/90 hover:shadow-xl transition-all duration-300 flex flex-col justify-between backdrop-blur-sm">
-                <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-brand-lime text-brand-black flex items-center justify-center font-bold shadow-lime">
-                    <Building2 size={24} />
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-brand-black tracking-tight">
-                    The Hostel Owner Dashboard
-                  </h3>
-                  <p className="text-neutral-600 text-xs sm:text-sm leading-relaxed">
-                    Keep resident information, room records, fee tracking, and other supported
-                    hostel operations organized in one place.
-                  </p>
-                </div>
-                <div className="pt-6 mt-4 border-t border-neutral-200 text-xs font-semibold text-neutral-600 flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Occupancy, dues &amp; operations
-                </div>
-              </div>
-
-              {/* The Verification Hub */}
-              <div className="p-7 sm:p-8 rounded-3xl bg-white/90 border border-neutral-200/90 hover:shadow-xl transition-all duration-300 flex flex-col justify-between backdrop-blur-sm">
-                <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-brand-lime text-brand-black flex items-center justify-center font-bold shadow-lime">
-                    <ShieldCheck size={24} />
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-brand-black tracking-tight">
-                    The Verification Hub
-                  </h3>
-                  <p className="text-neutral-600 text-xs sm:text-sm leading-relaxed">
-                    On-ground property audits, verified owner badges, transparent pricing standards,
-                    and 24/7 student emergency support across Nepal.
-                  </p>
-                </div>
-                <div className="pt-6 mt-4 border-t border-neutral-200 text-xs font-semibold text-neutral-600 flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Physical audits &amp; safety assurance
-                </div>
-              </div>
-            </div>
-
-            {/* Community Trust Callout */}
-            <div className="mt-8 sm:mt-12 p-5 sm:p-6 rounded-2xl bg-brand-lime/15 border border-brand-lime/40 text-center max-w-3xl mx-auto shadow-sm backdrop-blur-sm">
-              <p className="text-xs sm:text-sm md:text-base font-bold text-brand-black">
-                Connecting students, guardians, and verified hostel owners across Nepal for a safer,
-                more transparent living experience.
-              </p>
-            </div>
-          </div>
-        </section>
+        <DashboardInsightShowcase id="dashboards" />
 
         {/* ========================================================
             5. THE ADVANTAGES: WHY HOSTEL GHAR? (SQUARE GRID THEME)

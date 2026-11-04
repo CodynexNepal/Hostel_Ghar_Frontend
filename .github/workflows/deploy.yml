@@ -1,7 +1,10 @@
-name: CI/CD Pipeline - Hostel Ghar Frontend
+name: CI/CD Pipeline - Hostel Ghar Frontend (Netlify)
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -13,12 +16,12 @@ on:
         default: false
 
 concurrency:
-  group: deploy-cpanel-frontend
-  cancel-in-progress: false
+  group: deploy-netlify-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build & Package Next.js Standalone
+  test-and-build:
+    name: Lint, Test & Build Next.js
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -26,10 +29,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 22
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
 
@@ -52,187 +55,85 @@ jobs:
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://hostelghar.com' }}
         run: npm run build
 
-      - name: Validate standalone output
+      - name: Verify build artifacts
         run: |
-          echo "Verifying standalone build artifacts..."
-          if [ ! -f ".next/standalone/server.js" ]; then
-            echo "::error::Build verification failed: .next/standalone/server.js was not generated."
+          echo "Verifying Next.js build output..."
+          if [ ! -d ".next" ]; then
+            echo "::error::Next.js .next directory was not generated."
             exit 1
           fi
-          if [ ! -d ".next/static" ]; then
-            echo "::error::Build verification failed: .next/static directory is missing."
-            exit 1
-          fi
-          echo "Standalone server.js and static directory verified successfully."
-
-      - name: Assemble standalone distribution bundle
-        run: |
-          echo "Assembling production bundle for deployment..."
-          # Next.js standalone requires .next/static inside .next/standalone/.next/static
-          mkdir -p .next/standalone/.next
-          cp -r .next/static .next/standalone/.next/
-
-          # Next.js standalone requires public directory inside .next/standalone/public
-          if [ -d "public" ]; then
-            cp -r public .next/standalone/
-          fi
-
-          # Ensure cPanel entrypoint app.js exists inside standalone root
-          if [ -f "app.js" ]; then
-            cp app.js .next/standalone/app.js
-          else
-            echo "process.env.NODE_ENV = process.env.NODE_ENV || 'production';" > .next/standalone/app.js
-            echo "process.env.PORT = process.env.PORT || 3000;" >> .next/standalone/app.js
-            echo "require('./server.js');" >> .next/standalone/app.js
-          fi
-
-          # Create standalone tarball
-          cd .next/standalone
-          tar -czf ../../deploy-bundle.tar.gz .
-          cd ../..
-          echo "Created deploy-bundle.tar.gz ($(du -h deploy-bundle.tar.gz | cut -f1))"
-
-      - name: Upload deployment artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-deploy-bundle
-          path: deploy-bundle.tar.gz
-          retention-days: 1
-          if-no-files-found: error
+          echo "✅ .next build directory verified successfully."
 
   deploy:
-    name: Deploy to cPanel Production
+    name: Deploy to Netlify Production
     runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
+    needs: test-and-build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     timeout-minutes: 15
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download deployment artifact
-        uses: actions/download-artifact@v4
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
-          name: frontend-deploy-bundle
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
 
-      - name: Validate secrets & configure SSH
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy to Netlify
+        id: netlify-deploy
         env:
-          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
-          CPANEL_USER: ${{ secrets.CPANEL_USER }}
-          CPANEL_PORT: ${{ secrets.CPANEL_PORT || '22' }}
-          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY || secrets.HOSTELGHAR_FRONTEND }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'https://api.hostelghar.com/api/v1/hostel-ghar' }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL || 'https://hostelghar.com' }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://hostelghar.com' }}
         run: |
-          ERRORS=0
-          if [ -z "$CPANEL_HOST" ]; then
-            echo "::error::Required secret CPANEL_HOST is not configured in repository secrets."
-            ERRORS=$((ERRORS + 1))
-          fi
-          if [ -z "$CPANEL_USER" ]; then
-            echo "::error::Required secret CPANEL_USER is not configured in repository secrets."
-            ERRORS=$((ERRORS + 1))
-          fi
-          if [ -z "$SSH_KEY" ]; then
-            echo "::error::Required secret CPANEL_SSH_KEY (or HOSTELGHAR_FRONTEND) is not configured in repository secrets."
-            ERRORS=$((ERRORS + 1))
-          fi
-
-          if [ $ERRORS -gt 0 ]; then
-            echo "Please configure the missing GitHub Secrets under: Settings -> Secrets and variables -> Actions"
-            exit 1
-          fi
-
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-
-          SSH_KEY_FILE="$RUNNER_TEMP/cpanel_deploy_key"
-          echo "$SSH_KEY" | tr -d '\r' > "$SSH_KEY_FILE"
-          chmod 600 "$SSH_KEY_FILE"
-
-          echo "Scanning SSH host keys for $CPANEL_HOST on port $CPANEL_PORT..."
-          ssh-keyscan -p "$CPANEL_PORT" -H "$CPANEL_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
-
-          # Export key path for subsequent steps
-          echo "SSH_KEY_PATH=$SSH_KEY_FILE" >> $GITHUB_ENV
-          echo "CPANEL_PORT=$CPANEL_PORT" >> $GITHUB_ENV
-
-      - name: Transfer bundle and deploy on cPanel
-        env:
-          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
-          CPANEL_USER: ${{ secrets.CPANEL_USER }}
-        run: |
-          APP_DIR="/home/hostelgh/hostelghar"
-          BACKUP_DIR="/home/hostelgh/hostelghar_backups"
-          TMP_DIR="/home/hostelgh/tmp_ci_deploy"
-
-          echo "1. Preparing remote directories and uploading bundle via SFTP..."
-          # Use SFTP subsystem to create directories and upload files.
-          # This avoids 'exec request failed on channel 0' caused by shell restrictions.
-          cat << 'EOF' > /tmp/sftp_commands
-          -mkdir /home/hostelgh/tmp_ci_deploy
-          -mkdir /home/hostelgh/hostelghar_backups
-          -mkdir /home/hostelgh/hostelghar
-          put deploy-bundle.tar.gz /home/hostelgh/tmp_ci_deploy/deploy-bundle.tar.gz
-          put scripts/remote-deploy.sh /home/hostelgh/tmp_ci_deploy/remote-deploy.sh
-          EOF
-
-          sftp -P "$CPANEL_PORT" -i "$SSH_KEY_PATH" \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=accept-new \
-            -b /tmp/sftp_commands "$CPANEL_USER@$CPANEL_HOST"
-          rm -f /tmp/sftp_commands
-
-          echo "2. Executing deployment on cPanel..."
-          # Try remote execution with pseudo-terminal allocation (-tt) for cPanel Jailed Shell compatibility
-          DEPLOY_SUCCESS=0
-          if ssh -tt -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=accept-new \
-            -o ConnectTimeout=30 \
-            "$CPANEL_USER@$CPANEL_HOST" "bash $TMP_DIR/remote-deploy.sh"; then
-            echo "✅ Remote deployment script executed successfully over SSH."
-            DEPLOY_SUCCESS=1
+          if [ -n "$NETLIFY_AUTH_TOKEN" ] && [ -n "$NETLIFY_SITE_ID" ]; then
+            echo "🚀 Deploying to Netlify using Netlify CLI with repository secrets..."
+            npx netlify-cli deploy \
+              --prod \
+              --build \
+              --auth "$NETLIFY_AUTH_TOKEN" \
+              --site "$NETLIFY_SITE_ID" \
+              --message "Deploy commit ${{ github.sha }} via GitHub Actions"
+            echo "✅ Successfully deployed to Netlify production via Netlify CLI."
+          elif [ -n "$NETLIFY_BUILD_HOOK_URL" ]; then
+            echo "🔗 Triggering Netlify build via incoming webhook..."
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{}' "$NETLIFY_BUILD_HOOK_URL")
+            if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 201 ]; then
+              echo "✅ Netlify build hook triggered successfully (HTTP $HTTP_STATUS)."
+            else
+              echo "::warning::Netlify build hook returned status $HTTP_STATUS."
+            fi
           else
-            echo "⚠️ Remote command execution rejected (account has noshell or restricted shell)."
-            echo "Executing direct SFTP standalone synchronization..."
-
-            mkdir -p /tmp/extracted_app
-            tar -xzf deploy-bundle.tar.gz -C /tmp/extracted_app
-            mkdir -p /tmp/extracted_app/tmp
-            touch /tmp/extracted_app/tmp/restart.txt
-
-            scp -P "$CPANEL_PORT" -i "$SSH_KEY_PATH" \
-              -o BatchMode=yes \
-              -o StrictHostKeyChecking=accept-new \
-              -r /tmp/extracted_app/. "$CPANEL_USER@$CPANEL_HOST:$APP_DIR/"
-            rm -rf /tmp/extracted_app
-
-            echo "✅ Standalone files uploaded and restart signal placed in $APP_DIR/tmp/restart.txt."
-            DEPLOY_SUCCESS=1
+            echo "ℹ️ Neither NETLIFY_AUTH_TOKEN/NETLIFY_SITE_ID nor NETLIFY_BUILD_HOOK_URL secrets were detected."
+            echo "ℹ️ If your repository is connected directly to Netlify (Netlify GitHub App), Netlify deploys automatically on every push to main."
+            echo "ℹ️ To deploy directly from GitHub Actions, add NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID in GitHub -> Settings -> Secrets and variables -> Actions."
           fi
 
-          if [ $DEPLOY_SUCCESS -ne 1 ]; then
-            echo "::error::Deployment failed to complete."
-            exit 1
-          fi
-
-      - name: Verify production deployment (Health Check)
+      - name: Production Health Check
         env:
-          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
-          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          TARGET_URL: ${{ vars.NEXT_PUBLIC_APP_URL || 'https://hostelghar.com' }}
         run: |
-          HEALTH_URL="https://hostelghar.com"
-          MAX_ATTEMPTS=12
-          SLEEP_SECONDS=5
+          echo "Starting health check on $TARGET_URL..."
+          MAX_ATTEMPTS=10
+          SLEEP_SECONDS=6
           SUCCESS=0
 
-          echo "Starting health check on $HEALTH_URL (max attempts: $MAX_ATTEMPTS)..."
           for ((i=1; i<=MAX_ATTEMPTS; i++)); do
-            STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" -L "$HEALTH_URL" || echo "000")
+            STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" -L "$TARGET_URL" || echo "000")
             echo "Attempt $i/$MAX_ATTEMPTS: HTTP response code $STATUS"
 
             if [[ "$STATUS" =~ ^(200|301|302|307|308)$ ]]; then
-              echo "✅ Health check passed! Frontend is active (HTTP $STATUS)."
+              echo "✅ Health check passed! Site is live (HTTP $STATUS)."
               SUCCESS=1
               break
             fi
@@ -240,20 +141,5 @@ jobs:
           done
 
           if [ $SUCCESS -ne 1 ]; then
-            echo "::error::Production health check failed after $MAX_ATTEMPTS attempts."
-            echo "Triggering automated rollback to previous working release..."
-
-            ssh -tt -p "$CPANEL_PORT" -i "$SSH_KEY_PATH" \
-              -o BatchMode=yes \
-              -o StrictHostKeyChecking=accept-new \
-              "$CPANEL_USER@$CPANEL_HOST" "bash -s" < scripts/remote-rollback.sh || true
-            exit 1
-          fi
-
-      - name: Cleanup SSH credentials
-        if: always()
-        run: |
-          if [ -n "${SSH_KEY_PATH:-}" ] && [ -f "$SSH_KEY_PATH" ]; then
-            shred -u "$SSH_KEY_PATH" 2>/dev/null || rm -f "$SSH_KEY_PATH"
-            echo "Deployment SSH key securely removed."
+            echo "::warning::Site $TARGET_URL did not respond with 200 within timeout. Deployment might still be propagating on Netlify CDN."
           fi

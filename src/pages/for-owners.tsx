@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
+import { DashboardInsightShowcase } from '@/components/sections';
 import LottieAnimation from '@/components/lottie/LottieAnimation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -306,6 +307,16 @@ const ForOwnersPage = () => {
             </div>
           </div>
         </section>
+
+        {/* Live Interactive Dashboard Preview on Laptop & Mobile */}
+        <DashboardInsightShowcase
+          defaultDashboard="owner"
+          showTabs={false}
+          title="Inside Your Owner Dashboard"
+          description="Everything you need to track occupancy, automate fee collections, and manage resident KYC—from your laptop desk or mobile phone on the go."
+          id="owner-dashboard-preview"
+        />
+
         <section ref={featuresRef} className="py-20 md:py-28 bg-neutral-900/[0.02]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
