@@ -27,7 +27,6 @@ import {
 
 interface WorkflowStepItem {
   num: string;
-  stepNumber: string;
   title: string;
   desc: string;
   tag: string;
@@ -40,7 +39,6 @@ interface WorkflowStepItem {
 const stepsData: WorkflowStepItem[] = [
   {
     num: '01',
-    stepNumber: 'Step 01',
     title: '1. Explore Your Options',
     desc: 'Browse hostel listings and discover accommodation that matches your location, budget, and needs.',
     tag: 'Location & Budget',
@@ -51,7 +49,6 @@ const stepsData: WorkflowStepItem[] = [
   },
   {
     num: '02',
-    stepNumber: 'Step 02',
     title: '2. Compare What Matters',
     desc: 'Review available details, facilities, room options, and published prices before contacting a hostel.',
     tag: 'Facilities & Tariffs',
@@ -62,7 +59,6 @@ const stepsData: WorkflowStepItem[] = [
   },
   {
     num: '03',
-    stepNumber: 'Step 03',
     title: '3. Connect With the Owner',
     desc: 'Ask questions, confirm availability and costs, and take the next step toward your stay.',
     tag: 'Direct Communication',
@@ -73,7 +69,6 @@ const stepsData: WorkflowStepItem[] = [
   },
   {
     num: '04',
-    stepNumber: 'Step 04',
     title: '4. Manage With Confidence',
     desc: 'For hostel owners and authorized residents, the appropriate dashboard provides access to the information and features available to their account.',
     tag: 'Live Operations',
@@ -174,18 +169,6 @@ export default function WorkflowPileUp() {
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 sm:gap-8">
                   {/* Left Column: Text & Step Details */}
                   <div className="lg:w-1/2 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <span className="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-neutral-900 text-brand-lime font-mono text-xs font-black tracking-widest uppercase shadow-xs">
-                        {step.stepNumber}
-                      </span>
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider border ${step.accentBg}`}
-                      >
-                        <Sparkles size={11} />
-                        {step.tag}
-                      </span>
-                    </div>
-
                     <h3 className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight leading-snug">
                       {step.title}
                     </h3>
