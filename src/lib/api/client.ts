@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getStoredToken, getStoredRefreshToken, isTokenExpired, clearAuthSession } from './token';
 
 const getBaseURL = () => {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -30,10 +31,7 @@ apiClient.interceptors.request.use(
   (config) => {
     // Add auth token if running in browser and token exists
     if (typeof window !== 'undefined') {
-      const token =
-        localStorage.getItem('token') ||
-        localStorage.getItem('accessToken') ||
-        localStorage.getItem('access_token');
+      const token = getStoredToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -48,9 +46,49 @@ apiClient.interceptors.request.use(
 // Response interceptor
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // Handle unauthorized errors gracefully without disrupting public browsing
+  async (error) => {
+    // Handle unauthorized errors gracefully
     if (error.response?.status === 401 && typeof window !== 'undefined') {
+      const originalRequest = error.config;
+
+      // Attempt token refresh if refresh token exists and hasn't been retried yet
+      if (originalRequest && !originalRequest._retry) {
+        originalRequest._retry = true;
+        const refreshToken = getStoredRefreshToken();
+
+        if (refreshToken && !isTokenExpired(refreshToken)) {
+          try {
+            const refreshRes = await axios.post(
+              `${getBaseURL()}/auth/refresh`,
+              { refreshToken, refresh_token: refreshToken },
+              { withCredentials: true, headers: { 'Content-Type': 'application/json' } }
+            );
+
+            const data = refreshRes.data?.data || {};
+            const newToken = data.token || data.accessToken || data.access_token;
+            const newRefreshToken = data.refreshToken || data.refresh_token;
+
+            if (newToken) {
+              localStorage.setItem('token', newToken);
+              localStorage.setItem('accessToken', newToken);
+              localStorage.setItem('access_token', newToken);
+              if (newRefreshToken) {
+                localStorage.setItem('refreshToken', newRefreshToken);
+                localStorage.setItem('refresh_token', newRefreshToken);
+              }
+              window.dispatchEvent(new Event('auth_state_changed'));
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              return apiClient(originalRequest);
+            }
+          } catch {
+            // Refresh failed: tokens are expired/invalid
+          }
+        }
+      }
+
+      // If refresh was unsuccessful or tokens are expired, purge auth session
+      clearAuthSession();
+
       const pathname = window.location.pathname;
       const isPublicRoute =
         pathname === '/' ||
@@ -67,7 +105,6 @@ apiClient.interceptors.response.use(
         pathname.startsWith('/forgot-password') ||
         pathname.startsWith('/reset-password');
 
-      localStorage.removeItem('token');
       if (!isPublicRoute) {
         window.location.href = '/login';
       }

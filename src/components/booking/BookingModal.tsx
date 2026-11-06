@@ -16,6 +16,7 @@ import {
   Mail,
 } from 'lucide-react';
 import { createBooking, generateIdempotencyKey } from '@/lib/api/bookings';
+import { checkAuthStatus } from '@/lib/api/auth';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -61,13 +62,7 @@ export default function BookingModal({
       setRoomPreference('Double Sharing (2 Beds)');
       setIdempotencyKey(generateIdempotencyKey());
 
-      const token =
-        typeof window !== 'undefined'
-          ? localStorage.getItem('token') ||
-            localStorage.getItem('access_token') ||
-            localStorage.getItem('accessToken')
-          : null;
-      setIsAuthenticated(Boolean(token));
+      setIsAuthenticated(checkAuthStatus());
 
       // Prefill user details if available
       if (typeof window !== 'undefined') {

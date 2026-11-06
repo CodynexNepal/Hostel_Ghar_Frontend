@@ -20,9 +20,16 @@ import {
   Menu,
   X,
   ChevronRight,
+  ChevronDown,
   Sparkles,
 } from 'lucide-react';
-import { getCurrentUser, logout, AuthUser } from '@/lib/api/auth';
+import {
+  getCurrentUser,
+  logout,
+  checkAuthStatus,
+  clearAuthSession,
+  AuthUser,
+} from '@/lib/api/auth';
 
 interface NavItem {
   label: string;
@@ -48,25 +55,20 @@ const navItems: NavItem[] = [
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
-  const checkAuthStatus = (): boolean => {
-    if (typeof window === 'undefined') return false;
-    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
-    const isLoggedIn = localStorage.getItem('is_logged_in') === 'true';
-    const storedUser = localStorage.getItem('user');
-    return Boolean(token || isLoggedIn || storedUser);
-  };
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const syncAuth = () => {
       const authed = checkAuthStatus();
       setIsAuth(authed);
-      if (typeof window !== 'undefined') {
+      if (authed && typeof window !== 'undefined') {
         const stored = localStorage.getItem('user');
         if (stored) {
           try {
@@ -77,26 +79,34 @@ const Header = () => {
         } else {
           setUser(null);
         }
+      } else {
+        setUser(null);
       }
     };
 
     syncAuth();
 
-    // Verify session in background if cookies are used
-    getCurrentUser()
-      .then((currentUser) => {
-        if (currentUser) {
-          setIsAuth(true);
-          setUser(currentUser);
-        }
-      })
-      .catch(() => {
-        // If /auth/me returns 401 and there is no token/user in localStorage, clear
-        if (!checkAuthStatus()) {
+    // Verify session in background if cookies or tokens are active
+    if (checkAuthStatus()) {
+      getCurrentUser()
+        .then((currentUser) => {
+          if (currentUser) {
+            setIsAuth(true);
+            setUser(currentUser);
+          } else if (!checkAuthStatus()) {
+            setIsAuth(false);
+            setUser(null);
+          }
+        })
+        .catch(() => {
+          clearAuthSession();
           setIsAuth(false);
           setUser(null);
-        }
-      });
+        });
+    } else {
+      setIsAuth(false);
+      setUser(null);
+    }
 
     window.addEventListener('auth_state_changed', syncAuth);
     window.addEventListener('storage', syncAuth);
@@ -107,10 +117,43 @@ const Header = () => {
     };
   }, [pathname]);
 
+  // Close menus on path change
+  useEffect(() => {
+    setIsProfileMenuOpen(false);
+    setIsMenuOpen(false);
+  }, [pathname]);
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    if (isProfileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isProfileMenuOpen]);
+
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogoutClick = () => {
+    setIsProfileMenuOpen(false);
     setShowLogoutModal(true);
   };
 
@@ -120,6 +163,7 @@ const Header = () => {
       await logout();
       setIsAuth(false);
       setUser(null);
+      setIsProfileMenuOpen(false);
       setIsMenuOpen(false);
       setShowLogoutModal(false);
       router.push('/login');
@@ -350,22 +394,122 @@ const Header = () => {
                     <span>My Bookings</span>
                   </Link>
 
-                  {user?.fullName && (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium text-neutral-700 bg-neutral-100 rounded-lg border border-neutral-200">
-                      <User size={13} className="text-neutral-500" />
-                      <span className="max-w-[120px] truncate">{user.fullName.split(' ')[0]}</span>
-                    </div>
-                  )}
+                  {/* User Profile dropdown menu */}
+                  <div className="relative" ref={profileMenuRef}>
+                    <button
+                      type="button"
+                      onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                      aria-expanded={isProfileMenuOpen}
+                      aria-haspopup="true"
+                      aria-label="User profile options"
+                      className={`flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer ${
+                        isProfileMenuOpen
+                          ? 'border-brand-black bg-neutral-100 shadow-sm'
+                          : 'border-neutral-200 bg-white hover:border-neutral-300 hover:bg-neutral-50 shadow-2xs'
+                      }`}
+                    >
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-brand-lime to-emerald-400 text-brand-black font-bold flex items-center justify-center text-xs shadow-2xs border border-brand-black/10 shrink-0">
+                        {user?.fullName ? (
+                          user.fullName
+                            .split(' ')
+                            .map((n) => n[0])
+                            .slice(0, 2)
+                            .join('')
+                            .toUpperCase()
+                        ) : user?.firstName ? (
+                          user.firstName[0].toUpperCase()
+                        ) : (
+                          <User size={13} strokeWidth={2.2} />
+                        )}
+                      </div>
 
-                  <button
-                    onClick={handleLogoutClick}
-                    type="button"
-                    title="Log out of your account"
-                    className="flex items-center gap-1.5 px-3 py-2 text-[13px] font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-all duration-200 tracking-tight border border-rose-200 cursor-pointer"
-                  >
-                    <LogOut size={15} strokeWidth={2.2} />
-                    <span>Logout</span>
-                  </button>
+                      <span className="text-[12px] font-semibold text-brand-black max-w-[110px] truncate tracking-tight">
+                        {user?.fullName
+                          ? user.fullName.split(' ')[0]
+                          : user?.firstName || (user?.email ? user.email.split('@')[0] : 'Profile')}
+                      </span>
+
+                      {/* Caret / Icon below/next to profile flipping up (^) when open */}
+                      <ChevronDown
+                        size={14}
+                        strokeWidth={2.4}
+                        className={`text-neutral-500 transition-transform duration-200 ${
+                          isProfileMenuOpen ? 'rotate-180 text-brand-black' : ''
+                        }`}
+                      />
+                    </button>
+
+                    {/* Dropdown Menu below profile with ^ pointer */}
+                    {isProfileMenuOpen && (
+                      <div
+                        role="menu"
+                        className="absolute right-0 top-full mt-2.5 w-64 bg-white rounded-2xl shadow-xl border border-neutral-200/90 py-1.5 z-50 animate-scale-up origin-top-right focus:outline-none"
+                      >
+                        {/* Caret arrow indicator ^ pointing up at the profile */}
+                        <div
+                          aria-hidden="true"
+                          className="absolute -top-1.5 right-5 w-3 h-3 bg-white border-t border-l border-neutral-200 rotate-45 transform"
+                        />
+
+                        {/* Profile Header */}
+                        <div className="px-3.5 py-2.5 border-b border-neutral-100 relative bg-neutral-50/70 rounded-t-2xl -mt-1.5">
+                          <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">
+                            Signed in as
+                          </p>
+                          <p className="text-xs font-bold text-brand-black truncate mt-0.5">
+                            {user?.fullName || user?.firstName || 'Hostel Ghar User'}
+                          </p>
+                          {user?.email && (
+                            <p
+                              className="text-[11px] text-neutral-500 truncate mt-0.5"
+                              title={user.email}
+                            >
+                              {user.email}
+                            </p>
+                          )}
+                          {user?.role && (
+                            <span className="inline-block mt-1.5 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md bg-brand-lime/30 text-brand-black border border-brand-black/10">
+                              {user.role}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Quick Navigation Items */}
+                        <div className="p-1.5 space-y-0.5">
+                          <Link
+                            href="/my-bookings"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-neutral-700 hover:text-brand-black hover:bg-brand-lime/15 rounded-xl transition-colors tracking-tight"
+                          >
+                            <Calendar
+                              size={14}
+                              strokeWidth={2.2}
+                              className="text-neutral-500 shrink-0"
+                            />
+                            <span>My Bookings</span>
+                          </Link>
+                        </div>
+
+                        <div className="border-t border-neutral-100 my-1" />
+
+                        {/* Option to Logout below the profile with icon */}
+                        <div className="p-1.5 pt-0">
+                          <button
+                            onClick={handleLogoutClick}
+                            type="button"
+                            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors tracking-tight cursor-pointer text-left"
+                          >
+                            <LogOut
+                              size={14}
+                              strokeWidth={2.2}
+                              className="text-rose-600 shrink-0"
+                            />
+                            <span>Logout</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <>
@@ -444,12 +588,34 @@ const Header = () => {
               <div className="pt-3 mt-3 border-t border-neutral-100 space-y-1">
                 {isAuth ? (
                   <>
-                    {user?.fullName && (
-                      <div className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-neutral-600 bg-neutral-50 rounded-lg">
-                        <User size={14} className="text-neutral-500" />
-                        <span className="truncate">Signed in as {user.fullName}</span>
+                    {/* User Profile Card */}
+                    <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200/70 mb-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-lime to-emerald-400 text-brand-black font-bold flex items-center justify-center text-xs shadow-xs border border-brand-black/10 shrink-0">
+                          {user?.fullName ? (
+                            user.fullName
+                              .split(' ')
+                              .map((n) => n[0])
+                              .slice(0, 2)
+                              .join('')
+                              .toUpperCase()
+                          ) : (
+                            <User size={15} strokeWidth={2.2} />
+                          )}
+                        </div>
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-xs font-bold text-brand-black truncate">
+                            {user?.fullName || user?.firstName || 'Hostel Ghar User'}
+                          </span>
+                          {user?.email && (
+                            <span className="text-[11px] text-neutral-500 truncate">
+                              {user.email}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    )}
+                    </div>
+
                     <Link
                       href="/my-bookings"
                       onClick={() => setIsMenuOpen(false)}
@@ -458,6 +624,8 @@ const Header = () => {
                       <Calendar size={16} strokeWidth={2.2} />
                       My Bookings
                     </Link>
+
+                    {/* Option to logout below profile with icon */}
                     <button
                       onClick={handleLogoutClick}
                       type="button"

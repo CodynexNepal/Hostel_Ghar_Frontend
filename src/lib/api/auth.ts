@@ -1,4 +1,13 @@
 import apiClient from './client';
+import { clearAuthSession, checkAuthStatus } from './token';
+
+export {
+  isTokenExpired,
+  getStoredToken,
+  getStoredRefreshToken,
+  clearAuthSession,
+  checkAuthStatus,
+} from './token';
 
 export interface LoginRequest {
   email: string;
@@ -29,6 +38,8 @@ export interface AuthResponse {
   success: boolean;
   data: {
     token: string;
+    accessToken?: string;
+    refreshToken?: string;
     user: AuthUser;
   };
   message?: string;
@@ -69,11 +80,18 @@ export const login = async (credentials: LoginRequest): Promise<AuthResponse> =>
   try {
     const response = await apiClient.post<any>('/auth/login', credentials);
     const data = response.data?.data || {};
-    const token = data.token || data.accessToken;
+    const token = data.token || data.accessToken || data.access_token;
+    const refreshToken = data.refreshToken || data.refresh_token;
     const user = data.user;
 
     if (token && typeof window !== 'undefined') {
       localStorage.setItem('token', token);
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('access_token', token);
+    }
+    if (refreshToken && typeof window !== 'undefined') {
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('refresh_token', refreshToken);
     }
     if (user && typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(user));
@@ -124,7 +142,8 @@ export const register = async (
   try {
     const response = await apiClient.post<any>('/auth/register', body);
     const data = response.data?.data || {};
-    const token = data.token || data.accessToken;
+    const token = data.token || data.accessToken || data.access_token;
+    const refreshToken = data.refreshToken || data.refresh_token;
     const user = data.user
       ? {
           ...data.user,
@@ -137,6 +156,12 @@ export const register = async (
 
     if (token && typeof window !== 'undefined') {
       localStorage.setItem('token', token);
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('access_token', token);
+    }
+    if (refreshToken && typeof window !== 'undefined') {
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('refresh_token', refreshToken);
     }
     if (user && typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(user));
@@ -156,6 +181,12 @@ export const register = async (
  * GET /api/v1/hostel-ghar/auth/me
  */
 export const getCurrentUser = async (): Promise<AuthUser | null> => {
+  // If tokens are expired client-side, do not attempt request
+  if (typeof window !== 'undefined' && !checkAuthStatus()) {
+    clearAuthSession();
+    return null;
+  }
+
   try {
     const response = await apiClient.get<any>('/auth/me');
     const user = response.data?.data?.user;
@@ -165,7 +196,10 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
       return user;
     }
     return null;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      clearAuthSession();
+    }
     return null;
   }
 };
@@ -206,7 +240,7 @@ export const resetPassword = async (
 };
 
 /**
- * Clears the stored auth token and logs out on backend.
+ * Clears the stored auth tokens and logs out on backend.
  * POST /api/v1/hostel-ghar/auth/logout
  */
 export const logout = async (): Promise<void> => {
@@ -215,14 +249,7 @@ export const logout = async (): Promise<void> => {
   } catch (err) {
     console.warn('Backend logout encountered error:', err);
   } finally {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('is_logged_in');
-      window.dispatchEvent(new Event('auth_state_changed'));
-    }
+    clearAuthSession();
   }
 };
 
