@@ -13,6 +13,7 @@ import { DashboardInsightShowcase, WorkflowPileUp } from '@/components/sections'
 import LottieAnimation from '@/components/lottie/LottieAnimation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import apiClient from '@/lib/api/client';
 import {
   Compass,
   Building2,
@@ -33,6 +34,7 @@ import {
   Zap,
   ChevronRight,
   Sliders,
+  MapPin,
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
@@ -44,6 +46,54 @@ export default function Home() {
 
   // Mobile Bottom Action Dock visibility
   const [showMobileDock, setShowMobileDock] = useState(false);
+
+  // Actual Metrics from Backend (with fallback to 500+, 50+, 10,000+)
+  const [stats, setStats] = useState({
+    hostels: '500+',
+    cities: '50+',
+    students: '10,000+',
+  });
+
+  useEffect(() => {
+    let active = true;
+    const fetchActualMetrics = async () => {
+      try {
+        const res = await apiClient.get<any>('/hostels', { params: { limit: 100 } });
+        if (active && res.data?.success && res.data.data) {
+          const list = Array.isArray(res.data.data) ? res.data.data : [];
+          const rawTotal =
+            res.data.pagination?.total ?? res.data.pagination?.totalItems ?? list.length;
+
+          const uniqueCities = new Set(list.map((h: any) => h.city?.trim()).filter(Boolean));
+          const citiesCount = uniqueCities.size;
+
+          const totalStudents = list.reduce((sum: number, h: any) => {
+            const count = h.totalStudents ?? h.activeResidents ?? h.occupiedBeds ?? 0;
+            return sum + (typeof count === 'number' && !isNaN(count) ? count : 0);
+          }, 0);
+
+          setStats({
+            hostels: typeof rawTotal === 'number' && rawTotal > 0 ? `${rawTotal}+` : '500+',
+            cities: citiesCount > 0 ? `${citiesCount}+` : '50+',
+            students: totalStudents > 0 ? `${totalStudents.toLocaleString()}+` : '10,000+',
+          });
+        }
+      } catch {
+        // Fallback to verified figures if backend is unavailable or errors
+        if (active) {
+          setStats({
+            hostels: '500+',
+            cities: '50+',
+            students: '10,000+',
+          });
+        }
+      }
+    };
+    fetchActualMetrics();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Parallax Container Refs
   const heroRef = useRef<HTMLDivElement>(null);
@@ -217,35 +267,59 @@ export default function Home() {
 
               {/* Quick Metrics & Pillars */}
               <div className="pt-8 sm:pt-10">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-4 max-w-3xl mx-auto text-left">
-                  {/* Metric 1 */}
-                  <div className="p-4 sm:p-5 rounded-2xl bg-white/85 border border-neutral-200/90 shadow-sm hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm">
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight">
-                      500+
-                    </p>
-                    <p className="text-xs sm:text-sm text-neutral-500 font-semibold mt-0.5">
-                      Verified Hostels
-                    </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-4 max-w-3xl mx-auto text-left">
+                  {/* Metric 1: Verified Hostels */}
+                  <div className="group p-4 sm:p-5 rounded-2xl bg-white/90 border border-neutral-200/90 shadow-xs hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm flex items-start gap-3.5">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-emerald-600 shrink-0 group-hover:scale-105 group-hover:bg-emerald-100 transition-all duration-300 shadow-2xs">
+                      <ShieldCheck size={24} strokeWidth={2.2} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight leading-none">
+                        {stats.hostels}
+                      </p>
+                      <p className="text-xs sm:text-sm text-neutral-700 font-bold mt-1">
+                        Verified Hostels
+                      </p>
+                      <p className="text-[11px] text-neutral-400 font-medium truncate">
+                        Physically inspected
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Metric 2 */}
-                  <div className="p-4 sm:p-5 rounded-2xl bg-white/85 border border-neutral-200/90 shadow-sm hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm">
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight">
-                      50+
-                    </p>
-                    <p className="text-xs sm:text-sm text-neutral-500 font-semibold mt-0.5">
-                      Cities Across Nepal
-                    </p>
+                  {/* Metric 2: Cities Across Nepal */}
+                  <div className="group p-4 sm:p-5 rounded-2xl bg-white/90 border border-neutral-200/90 shadow-xs hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm flex items-start gap-3.5">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-sky-50 border border-sky-200/70 flex items-center justify-center text-sky-600 shrink-0 group-hover:scale-105 group-hover:bg-sky-100 transition-all duration-300 shadow-2xs">
+                      <MapPin size={24} strokeWidth={2.2} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight leading-none">
+                        {stats.cities}
+                      </p>
+                      <p className="text-xs sm:text-sm text-neutral-700 font-bold mt-1">
+                        Cities Across Nepal
+                      </p>
+                      <p className="text-[11px] text-neutral-400 font-medium truncate">
+                        Kathmandu, Pokhara &amp; more
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Metric 3 */}
-                  <div className="col-span-2 md:col-span-1 p-4 sm:p-5 rounded-2xl bg-white/85 border border-neutral-200/90 shadow-sm hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm">
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight">
-                      10,000+
-                    </p>
-                    <p className="text-xs sm:text-sm text-neutral-500 font-semibold mt-0.5">
-                      Students &amp; Travelers
-                    </p>
+                  {/* Metric 3: Students & Travelers */}
+                  <div className="group col-span-1 sm:col-span-2 md:col-span-1 p-4 sm:p-5 rounded-2xl bg-white/90 border border-neutral-200/90 shadow-xs hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm flex items-start gap-3.5">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-brand-lime/30 border border-brand-black/10 flex items-center justify-center text-brand-black shrink-0 group-hover:scale-105 group-hover:bg-brand-lime/50 transition-all duration-300 shadow-2xs">
+                      <Users size={24} strokeWidth={2.2} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight leading-none">
+                        {stats.students}
+                      </p>
+                      <p className="text-xs sm:text-sm text-neutral-700 font-bold mt-1">
+                        Students &amp; Travelers
+                      </p>
+                      <p className="text-[11px] text-neutral-400 font-medium truncate">
+                        Active residents &amp; reviews
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
