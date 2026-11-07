@@ -219,10 +219,10 @@ const Header = () => {
     return () => ctx.revert();
   }, []);
 
-  // Detect scroll to toggle free-floating centered pill mode
+  // Detect scroll to toggle free-floating centered pill mode with frosted glass blur
   const handleScroll = useCallback(() => {
     const scrollY = window.scrollY;
-    setIsScrolled(scrollY > 45);
+    setIsScrolled(scrollY > 20);
   }, []);
 
   useEffect(() => {
@@ -291,14 +291,14 @@ const Header = () => {
         className="fixed top-0 left-0 right-0 w-full z-50 pointer-events-none transition-all duration-300"
       >
         {/* ==============================================================
-            SCROLLED STATE: Free-Floating Centered Pill with ONLY Icons
+            SCROLLED STATE: Free-Floating Centered Pill with Frosted Glass Blur
            ============================================================== */}
         {isScrolled ? (
           <div
-            className="pointer-events-auto mx-auto mt-3 sm:mt-4 w-[95vw] sm:w-fit sm:min-w-[580px] md:min-w-[640px] max-w-3xl rounded-full bg-white/95 backdrop-blur-xl border border-neutral-200/90 shadow-2xl px-3.5 sm:px-5 py-1.5 sm:py-2 transition-all duration-300 ease-out"
+            className="pointer-events-auto mx-auto mt-3 sm:mt-4 w-[95vw] sm:w-fit sm:min-w-[580px] md:min-w-[640px] max-w-3xl rounded-full bg-white/75 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-3.5 sm:px-5 py-1.5 sm:py-2 transition-all duration-300 ease-out"
             style={{
-              backdropFilter: 'blur(24px) saturate(200%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
             }}
           >
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2.5 sm:gap-4 h-11 sm:h-12 w-full">
@@ -327,7 +327,7 @@ const Header = () => {
 
               {/* Center Column: EXACT DEAD CENTER Navigation Icons */}
               <div className="flex items-center justify-center shrink-0">
-                <nav className="flex items-center gap-1 sm:gap-1.5 px-1.5 py-1 rounded-full bg-neutral-100/80 border border-neutral-200/70 shadow-2xs">
+                <nav className="flex items-center gap-1 sm:gap-1.5 px-1.5 py-1 rounded-full bg-neutral-900/5 backdrop-blur-sm border border-neutral-900/5 shadow-2xs">
                   {navItems.map((item) => (
                     <Link
                       key={item.label}
@@ -497,10 +497,10 @@ const Header = () => {
              UNSCROLLED TOP STATE: Full Navigation Header with Full Text
              ============================================================== */
           <div
-            className="pointer-events-auto w-full bg-brand-white/95 border-b border-neutral-150 px-4 sm:px-6 lg:px-8 py-0 transition-all duration-300 ease-out"
+            className="pointer-events-auto w-full bg-white/80 backdrop-blur-xl border-b border-neutral-200/60 shadow-xs px-4 sm:px-6 lg:px-8 py-0 transition-all duration-300 ease-out"
             style={{
-              backdropFilter: 'blur(24px) saturate(200%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
             }}
           >
             <div className="max-w-7xl mx-auto">

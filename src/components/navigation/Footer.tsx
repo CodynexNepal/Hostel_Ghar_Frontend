@@ -211,17 +211,32 @@ const Footer = () => {
 
   return (
     <footer ref={rootRef} className="relative overflow-hidden bg-brand-black text-white">
+      {/* Full Footer Kathmandu Pagoda Valley Backdrop */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
+        <Image
+          src="/images/static/kathmandu-temples.jpg"
+          alt="Kathmandu Pagoda Valley"
+          fill
+          className="object-cover object-center opacity-30 sm:opacity-35"
+          sizes="100vw"
+          priority
+        />
+        {/* Dark readability overlays ensuring high text contrast while showcasing the misty temples */}
+        <div className="absolute inset-0 bg-[#07080a]/75" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#07080a]/95 via-transparent to-[#07080a]/95" />
+      </div>
+
       {/* ambient orbs + grid */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
+      <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
         <div
           ref={orbARef}
-          className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-brand-lime/15 blur-3xl"
+          className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-brand-lime/10 blur-3xl"
         />
         <div
           ref={orbBRef}
-          className="absolute top-1/3 -right-28 h-[28rem] w-[28rem] rounded-full bg-brand-lime/10 blur-3xl"
+          className="absolute top-1/3 -right-28 h-[28rem] w-[28rem] rounded-full bg-brand-lime/5 blur-3xl"
         />
-        <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)]" />
+        <div className="absolute inset-0 opacity-[0.05] [background-image:linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)]" />
       </div>
       {/* top wave divider */}
       <div aria-hidden className="relative z-10 -mb-px">
@@ -487,15 +502,15 @@ const Footer = () => {
       </div>
       {/* giant watermark */}
       <div
-        className="group/watermark relative z-0 cursor-default select-none overflow-hidden"
+        className="group/watermark relative z-10 flex min-h-[160px] sm:min-h-[200px] lg:min-h-[250px] items-center justify-center cursor-default select-none overflow-hidden"
         onMouseMove={handleWatermarkGlow}
         onMouseLeave={hideWatermarkGlow}
       >
         <div
           ref={watermarkRef}
-          className="watermark-glow whitespace-nowrap text-center text-[18vw] font-extrabold leading-none tracking-tighter text-transparent lg:text-[11rem]"
+          className="watermark-glow relative z-10 whitespace-nowrap text-center text-[18vw] font-extrabold leading-none tracking-tighter text-transparent lg:text-[11rem]"
         >
-          <span className="bg-gradient-to-b from-white/[0.09] to-white/[0.01] bg-clip-text transition-all duration-500 group-hover/watermark:from-brand-lime/40 group-hover/watermark:to-brand-lime/5">
+          <span className="bg-gradient-to-b from-white/[0.12] to-white/[0.02] bg-clip-text transition-all duration-500 group-hover/watermark:from-brand-lime/40 group-hover/watermark:to-brand-lime/5">
             HOSTEL GHAR
           </span>
         </div>
@@ -503,7 +518,7 @@ const Footer = () => {
         <div
           ref={watermarkLightRef}
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-0"
+          className="pointer-events-none absolute inset-0 z-10 opacity-0"
           style={{
             background:
               'radial-gradient(420px circle at var(--glow-x, 50%) var(--glow-y, 50%), rgba(185,255,102,0.22), rgba(185,255,102,0.06) 45%, transparent 70%)',
@@ -513,9 +528,9 @@ const Footer = () => {
         {/* sweeping shine on hover */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-1000 ease-out group-hover/watermark:translate-x-full"
+          className="pointer-events-none absolute inset-0 z-10 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-1000 ease-out group-hover/watermark:translate-x-full"
         />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-brand-black to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-brand-black to-transparent" />
       </div>
 
       {/* bottom bar */}

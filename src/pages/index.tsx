@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
 import Seo from '@/components/seo/Seo';
@@ -34,6 +35,8 @@ import {
   ChevronRight,
   Sliders,
   MapPin,
+  Headphones,
+  Star,
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
@@ -200,111 +203,285 @@ export default function Home() {
            ======================================================== */}
         <section
           ref={heroRef}
-          className="relative overflow-hidden pt-12 sm:pt-16 md:pt-24 pb-16 sm:pb-20 md:pb-28 border-b border-neutral-200/90"
+          className="relative overflow-hidden pt-12 sm:pt-16 md:pt-24 pb-0 border-b border-neutral-200/90"
         >
           <div className="container-custom relative z-10">
-            <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
-              {/* Main Headline with Masked Text Reveal Animation */}
-              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-brand-black leading-[1.12]">
-                <span className="inline-block overflow-hidden pb-1">
-                  <span className="animate-text-reveal">Find Your Place.</span>
-                </span>{' '}
-                <span className="inline-block overflow-hidden pb-1">
-                  <span className="animate-text-reveal-delay-1 relative inline-block mt-1 sm:mt-0">
-                    <span className="relative z-10 px-2.5 py-0.5 rounded-xl bg-brand-lime/90 text-brand-black shadow-lime">
-                      Manage Your Space.
+            {/* 2-Column Hero: Left Text Content, Right High-Resolution Condo Facade */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Left Column: Headlines, Lead Text & Actions */}
+              <div className="lg:col-span-7 space-y-6 sm:space-y-7 text-left">
+                {/* Main Headline with Masked Text Reveal Animation */}
+                <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-brand-black leading-[1.12]">
+                  <span className="inline-block overflow-hidden pb-1">
+                    <span className="animate-text-reveal">Find Your Place.</span>
+                  </span>{' '}
+                  <span className="inline-block overflow-hidden pb-1">
+                    <span className="animate-text-reveal-delay-1 relative inline-block mt-1 sm:mt-0">
+                      <span className="relative z-10 px-2.5 py-0.5 rounded-xl bg-brand-lime/90 text-brand-black shadow-lime">
+                        Manage Your Space.
+                      </span>
                     </span>
                   </span>
-                </span>
-              </h1>
+                </h1>
 
-              {/* Subtitle / Lead Paragraph with Masked Text Reveal */}
-              <div className="space-y-3.5 max-w-2xl sm:max-w-3xl mx-auto text-neutral-600 px-2">
-                <p className="font-semibold text-neutral-900 text-base sm:text-lg md:text-xl leading-snug animate-text-reveal-delay-2">
-                  Finding a hostel should feel exciting, not overwhelming. Managing one should feel
-                  organized, not exhausting.
-                </p>
-                <p className="text-xs sm:text-sm md:text-base text-neutral-600 leading-relaxed max-w-2xl mx-auto">
-                  Hostel Ghar brings hostel discovery, room enquiries, resident management, and
-                  hostel operations into one connected platform—making it easier for residents to
-                  find their next place to call home and for hostel owners to run their businesses
-                  with confidence.
-                </p>
+                {/* Subtitle / Lead Paragraph with Masked Text Reveal */}
+                <div className="space-y-3.5 text-neutral-600 max-w-xl">
+                  <p className="font-semibold text-neutral-900 text-base sm:text-lg md:text-xl leading-snug animate-text-reveal-delay-2">
+                    Finding a hostel should feel exciting, not overwhelming. Managing one should
+                    feel organized, not exhausting.
+                  </p>
+                  <p className="text-xs sm:text-sm md:text-base text-neutral-600 leading-relaxed">
+                    Hostel Ghar brings hostel discovery, room enquiries, resident management, and
+                    hostel operations into one connected platform—making it easier for residents to
+                    find their next place to call home and for hostel owners to run their businesses
+                    with confidence.
+                  </p>
+                </div>
+
+                {/* Hero Action CTAs */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 pt-1 max-w-md sm:max-w-none">
+                  <CTAButton
+                    href="/hostels"
+                    variant="dark"
+                    arrow="right"
+                    className="w-full sm:w-auto text-sm sm:text-base py-3.5 sm:py-4 px-7 sm:px-8 font-bold shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                  >
+                    Find Your Hostel
+                  </CTAButton>
+                  <CTAButton
+                    href="/for-owners"
+                    variant="lime"
+                    arrow="right"
+                    className="w-full sm:w-auto text-sm sm:text-base py-3.5 sm:py-4 px-7 sm:px-8 font-extrabold text-brand-black shadow-lime hover:shadow-lime-lg transition-all duration-300 text-center"
+                  >
+                    Manage Your Hostel
+                  </CTAButton>
+                </div>
               </div>
 
-              {/* Hero Action CTAs */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 pt-2 px-4 max-w-md mx-auto sm:max-w-none">
-                <CTAButton
-                  href="/hostels"
-                  variant="dark"
-                  arrow="right"
-                  className="w-full sm:w-auto text-sm sm:text-base py-3.5 sm:py-4 px-7 sm:px-8 font-bold shadow-lg hover:shadow-2xl transition-all duration-300"
-                >
-                  Find Your Hostel
-                </CTAButton>
-                <CTAButton
-                  href="/for-owners"
-                  variant="lime"
-                  arrow="right"
-                  className="w-full sm:w-auto text-sm sm:text-base py-3.5 sm:py-4 px-7 sm:px-8 font-extrabold text-brand-black shadow-lime hover:shadow-lime-lg transition-all duration-300"
-                >
-                  Manage Your Hostel
-                </CTAButton>
-              </div>
+              {/* Right Column: Modern Condo Facade Visual with Organic Tangy Backdrop */}
+              <div className="lg:col-span-5 relative flex justify-center lg:justify-end mt-6 lg:mt-0">
+                <div className="relative w-full max-w-[460px]">
+                  {/* Organic Tangy Lime Backdrop SVG coming out here and there behind the image */}
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 620 540"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="absolute -top-14 sm:-top-20 -left-12 sm:-left-16 -right-6 sm:-right-8 -bottom-8 w-[126%] h-[132%] -z-0 pointer-events-none select-none"
+                  >
+                    <path
+                      d="M 320 50 C 370 15, 420 8, 470 12 C 530 16, 580 42, 600 90 C 620 140, 615 210, 595 290 C 575 370, 550 440, 490 490 C 420 530, 320 525, 230 500 C 150 480, 75 450, 45 385 C 25 330, 65 290, 85 255 C 100 220, 50 170, 58 120 C 65 65, 140 25, 220 48 C 260 60, 285 70, 320 50 Z"
+                      fill="#EAFCC6"
+                    />
+                  </svg>
 
-              {/* Quick Metrics & Pillars */}
-              <div className="pt-8 sm:pt-10">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-4 max-w-3xl mx-auto text-left">
-                  {/* Metric 1: Verified Hostels */}
-                  <div className="group p-4 sm:p-5 rounded-2xl bg-white/90 border border-neutral-200/90 shadow-xs hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm flex items-start gap-3.5">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-emerald-600 shrink-0 group-hover:scale-105 group-hover:bg-emerald-100 transition-all duration-300 shadow-2xs">
-                      <ShieldCheck size={24} strokeWidth={2.2} />
+                  {/* Subtle Lime Accent Dot from design */}
+                  <div
+                    aria-hidden
+                    className="absolute top-[52%] -left-6 sm:-left-10 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#7bb420] pointer-events-none select-none z-10"
+                  />
+
+                  {/* Hand-drawn 'Made for better stays' note with expressive curved arrow */}
+                  <div className="absolute -top-12 -left-3 sm:-left-7 z-20 flex flex-col items-start select-none pointer-events-none">
+                    <div
+                      className="rotate-[-8deg] leading-tight text-neutral-800 font-bold"
+                      style={{ fontFamily: "'Caveat', 'Comic Sans MS', cursive" }}
+                    >
+                      <span className="block text-base sm:text-lg tracking-wide">Made for</span>
+                      <span className="block text-base sm:text-lg tracking-wide -mt-1">
+                        better stays
+                      </span>
+                    </div>
+
+                    {/* Expressive hand-drawn curled arrow pointing at the hostel building */}
+                    <svg
+                      width="58"
+                      height="50"
+                      viewBox="0 0 58 50"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="text-neutral-800 ml-6 -mt-1"
+                    >
+                      {/* Graceful curved sweeping shaft */}
+                      <path
+                        d="M6 4 C6 22, 16 40, 46 38"
+                        stroke="currentColor"
+                        strokeWidth="2.4"
+                        strokeLinecap="round"
+                        fill="none"
+                      />
+                      {/* Hand-drawn arrow barbs */}
+                      <path
+                        d="M34 29 C38 33, 44 37, 49 38 C 43 41, 37 44, 33 48"
+                        stroke="currentColor"
+                        strokeWidth="2.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                      />
+                    </svg>
+                  </div>
+
+                  {/* Modern Condo Card */}
+                  <div className="relative z-10 w-full aspect-[4/3] sm:aspect-[1.12/1] rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white">
+                    <Image
+                      src="/images/static/modern-condo-facade.png"
+                      alt="Modern Condo Facade Amid Lush Greenery"
+                      fill
+                      className="object-cover object-center"
+                      priority
+                      quality={100}
+                      unoptimized
+                      sizes="(max-width: 768px) 100vw, 480px"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Metrics & Pillars */}
+            <div className="pt-10 sm:pt-14">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-4 max-w-5xl mx-auto text-left">
+                {/* Metric 1: Verified Hostels */}
+                <div className="group p-4 sm:p-5 rounded-2xl bg-white/90 border border-neutral-200/90 shadow-xs hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm flex items-start gap-3.5">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-emerald-600 shrink-0 group-hover:scale-105 group-hover:bg-emerald-100 transition-all duration-300 shadow-2xs">
+                    <ShieldCheck size={24} strokeWidth={2.2} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight leading-none">
+                      {stats.hostels}
+                    </p>
+                    <p className="text-xs sm:text-sm text-neutral-700 font-bold mt-1">
+                      Verified Hostels
+                    </p>
+                    <p className="text-[11px] text-neutral-400 font-medium truncate">
+                      Physically inspected
+                    </p>
+                  </div>
+                </div>
+
+                {/* Metric 2: Cities Across Nepal */}
+                <div className="group p-4 sm:p-5 rounded-2xl bg-white/90 border border-neutral-200/90 shadow-xs hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm flex items-start gap-3.5">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-sky-50 border border-sky-200/70 flex items-center justify-center text-sky-600 shrink-0 group-hover:scale-105 group-hover:bg-sky-100 transition-all duration-300 shadow-2xs">
+                    <MapPin size={24} strokeWidth={2.2} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight leading-none">
+                      {stats.cities}
+                    </p>
+                    <p className="text-xs sm:text-sm text-neutral-700 font-bold mt-1">
+                      Cities Across Nepal
+                    </p>
+                    <p className="text-[11px] text-neutral-400 font-medium truncate">
+                      Kathmandu, Pokhara &amp; more
+                    </p>
+                  </div>
+                </div>
+
+                {/* Metric 3: Students & Travelers */}
+                <div className="group col-span-1 sm:col-span-2 md:col-span-1 p-4 sm:p-5 rounded-2xl bg-white/90 border border-neutral-200/90 shadow-xs hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm flex items-start gap-3.5">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-brand-lime/30 border border-brand-black/10 flex items-center justify-center text-brand-black shrink-0 group-hover:scale-105 group-hover:bg-brand-lime/50 transition-all duration-300 shadow-2xs">
+                    <Users size={24} strokeWidth={2.2} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight leading-none">
+                      {stats.students}
+                    </p>
+                    <p className="text-xs sm:text-sm text-neutral-700 font-bold mt-1">
+                      Students &amp; Travelers
+                    </p>
+                    <p className="text-[11px] text-neutral-400 font-medium truncate">
+                      Active residents &amp; reviews
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Full Width Panoramic Temple Panorama with Floating Feature Trust Badges */}
+          <div className="relative w-full mt-6 sm:mt-8 overflow-hidden select-none">
+            {/* Temple Background Image - 100% Crisp 4640px Master */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              <Image
+                src="/images/static/image2.png"
+                alt="Kathmandu Valley Temples Panorama"
+                fill
+                className="object-cover object-bottom"
+                priority
+                quality={100}
+                unoptimized
+                sizes="100vw"
+              />
+              {/* Subtle top & bottom soft gradient blend for contrast */}
+              <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-transparent to-white/35 pointer-events-none" />
+            </div>
+
+            {/* Floating Trust Feature Badges */}
+            <div className="relative z-10 w-full py-5 sm:py-6 md:py-8 px-4 sm:px-6">
+              <div className="container-custom max-w-5xl mx-auto">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4">
+                  {/* Card 1: Fast Booking */}
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-white/95 backdrop-blur-md border border-neutral-200/80 shadow-xs hover:shadow-md hover:border-brand-black/20 transition-all duration-300 flex items-center gap-3">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0">
+                      <Zap size={22} className="fill-[#7bb420] text-[#7bb420]" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight leading-none">
-                        {stats.hostels}
+                      <p className="text-xs sm:text-sm font-bold text-brand-black tracking-tight leading-snug">
+                        Fast Booking
                       </p>
-                      <p className="text-xs sm:text-sm text-neutral-700 font-bold mt-1">
+                      <p className="text-[11px] sm:text-xs text-neutral-500 font-medium leading-tight">
+                        in Minutes
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Card 2: Verified Hostels */}
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-white/95 backdrop-blur-md border border-neutral-200/80 shadow-xs hover:shadow-md hover:border-brand-black/20 transition-all duration-300 flex items-center gap-3">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0">
+                      <ShieldCheck
+                        size={22}
+                        className="fill-[#7bb420]/25 text-[#7bb420]"
+                        strokeWidth={2.2}
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-bold text-brand-black tracking-tight leading-snug">
                         Verified Hostels
                       </p>
-                      <p className="text-[11px] text-neutral-400 font-medium truncate">
-                        Physically inspected
+                      <p className="text-[11px] sm:text-xs text-neutral-500 font-medium leading-tight">
+                        &amp; Owners
                       </p>
                     </div>
                   </div>
 
-                  {/* Metric 2: Cities Across Nepal */}
-                  <div className="group p-4 sm:p-5 rounded-2xl bg-white/90 border border-neutral-200/90 shadow-xs hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm flex items-start gap-3.5">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-sky-50 border border-sky-200/70 flex items-center justify-center text-sky-600 shrink-0 group-hover:scale-105 group-hover:bg-sky-100 transition-all duration-300 shadow-2xs">
-                      <MapPin size={24} strokeWidth={2.2} />
+                  {/* Card 3: 24/7 Support */}
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-white/95 backdrop-blur-md border border-neutral-200/80 shadow-xs hover:shadow-md hover:border-brand-black/20 transition-all duration-300 flex items-center gap-3">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0">
+                      <Headphones size={22} className="text-[#7bb420]" strokeWidth={2.2} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight leading-none">
-                        {stats.cities}
+                      <p className="text-xs sm:text-sm font-bold text-brand-black tracking-tight leading-snug">
+                        24/7 Support
                       </p>
-                      <p className="text-xs sm:text-sm text-neutral-700 font-bold mt-1">
-                        Cities Across Nepal
-                      </p>
-                      <p className="text-[11px] text-neutral-400 font-medium truncate">
-                        Kathmandu, Pokhara &amp; more
+                      <p className="text-[11px] sm:text-xs text-neutral-500 font-medium leading-tight">
+                        Always Here
                       </p>
                     </div>
                   </div>
 
-                  {/* Metric 3: Students & Travelers */}
-                  <div className="group col-span-1 sm:col-span-2 md:col-span-1 p-4 sm:p-5 rounded-2xl bg-white/90 border border-neutral-200/90 shadow-xs hover:shadow-md hover:border-brand-black/30 transition-all duration-300 backdrop-blur-sm flex items-start gap-3.5">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-brand-lime/30 border border-brand-black/10 flex items-center justify-center text-brand-black shrink-0 group-hover:scale-105 group-hover:bg-brand-lime/50 transition-all duration-300 shadow-2xs">
-                      <Users size={24} strokeWidth={2.2} />
+                  {/* Card 4: Trusted by */}
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-white/95 backdrop-blur-md border border-neutral-200/80 shadow-xs hover:shadow-md hover:border-brand-black/20 transition-all duration-300 flex items-center gap-3">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0">
+                      <Star size={22} className="fill-[#7bb420] text-[#7bb420]" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-2xl sm:text-3xl font-extrabold text-brand-black tracking-tight leading-none">
-                        {stats.students}
+                      <p className="text-xs sm:text-sm font-bold text-brand-black tracking-tight leading-snug">
+                        Trusted by
                       </p>
-                      <p className="text-xs sm:text-sm text-neutral-700 font-bold mt-1">
-                        Students &amp; Travelers
-                      </p>
-                      <p className="text-[11px] text-neutral-400 font-medium truncate">
-                        Active residents &amp; reviews
+                      <p className="text-[11px] sm:text-xs text-neutral-500 font-medium leading-tight">
+                        Students
                       </p>
                     </div>
                   </div>
