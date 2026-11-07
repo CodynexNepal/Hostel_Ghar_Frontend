@@ -9,7 +9,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import { breadcrumbJsonLd, howToJsonLd } from '@/lib/seo/jsonLd';
 import { getPageMeta } from '@/lib/seo/metadata';
 import { CTAButton } from '@/components/ui/Section';
-import { DashboardInsightShowcase, WorkflowPileUp } from '@/components/sections';
+import { DashboardInsightShowcase, WorkflowPileUp, FlightStoryScroll } from '@/components/sections';
 import LottieAnimation from '@/components/lottie/LottieAnimation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -328,52 +328,9 @@ export default function Home() {
         </section>
 
         {/* ========================================================
-            KINETIC MARQUEE BANNER
+            FULL-PAGE PINNED 3D FLIGHT STORY SEQUENCE
            ======================================================== */}
-        <div className="bg-brand-black text-brand-lime py-3 sm:py-3.5 border-y border-neutral-800 overflow-hidden relative shadow-inner select-none">
-          <div className="animate-kinetic-marquee flex items-center gap-8 text-xs sm:text-sm font-mono font-bold tracking-widest uppercase">
-            <span>NEPAL&apos;S HOSTEL DISCOVERY &amp; MANAGEMENT PLATFORM</span>
-            <span className="text-white">✦</span>
-            <span className="text-white">KATHMANDU</span>
-            <span className="text-white">✦</span>
-            <span>POKHARA</span>
-            <span className="text-white">✦</span>
-            <span className="text-white">LALITPUR</span>
-            <span className="text-white">✦</span>
-            <span>CHITWAN</span>
-            <span className="text-white">✦</span>
-            <span className="text-white">BUTWAL</span>
-            <span className="text-white">✦</span>
-            <span>DHARAN</span>
-            <span className="text-white">✦</span>
-            <span className="text-white">100% PHYSICALLY VERIFIED PROPERTIES</span>
-            <span className="text-white">✦</span>
-            <span>ZERO BROKER COMMISSIONS</span>
-            <span className="text-white">✦</span>
-            <span className="text-white">DIRECT OWNER CONNECT</span>
-            <span className="text-white">✦</span>
-            <span>NEPAL&apos;S HOSTEL DISCOVERY &amp; MANAGEMENT PLATFORM</span>
-            <span className="text-white">✦</span>
-            <span className="text-white">KATHMANDU</span>
-            <span className="text-white">✦</span>
-            <span>POKHARA</span>
-            <span className="text-white">✦</span>
-            <span className="text-white">LALITPUR</span>
-            <span className="text-white">✦</span>
-            <span>CHITWAN</span>
-            <span className="text-white">✦</span>
-            <span className="text-white">BUTWAL</span>
-            <span className="text-white">✦</span>
-            <span>DHARAN</span>
-            <span className="text-white">✦</span>
-            <span className="text-white">100% PHYSICALLY VERIFIED PROPERTIES</span>
-            <span className="text-white">✦</span>
-            <span>ZERO BROKER COMMISSIONS</span>
-            <span className="text-white">✦</span>
-            <span className="text-white">DIRECT OWNER CONNECT</span>
-            <span className="text-white">✦</span>
-          </div>
-        </div>
+        <FlightStoryScroll />
 
         {/* ========================================================
             2. THREE CONNECTED EXPERIENCES: EXPANSIVE 3-COLUMN SHOWCASE (NO PIN)
