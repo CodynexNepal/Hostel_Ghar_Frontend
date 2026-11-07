@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Zap, ShieldCheck, Users, MapPin, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Zap, ShieldCheck, Users, MapPin, Layers, CheckCircle2 } from 'lucide-react';
 
 interface CleanStorySlide {
   id: string;
@@ -22,7 +22,7 @@ const STORY_SLIDES: CleanStorySlide[] = [
     highlightText: 'No Middlemen. No Hidden Charges.',
     description:
       'Search, compare, and connect completely free of charge. No brokers inflating rents or taking cuts. Every rupee you pay goes directly to your accommodation and peace of mind.',
-    themeColor: '#B9FF66',
+    themeColor: '#C3FF7D',
     icon: <Zap size={44} className="text-brand-lime fill-brand-lime" />,
     tags: ['NPR 0 Brokerage Fee', '100% Free for Students', 'Direct Transparent Pricing'],
   },
@@ -62,16 +62,15 @@ const STORY_SLIDES: CleanStorySlide[] = [
     highlightText: 'One Connected Experience.',
     description:
       'Bringing hostel search, verified booking enquiries, resident records, fee tracking, and day-to-day operations together into one cohesive platform for residents and owners alike.',
-    themeColor: '#B9FF66',
-    icon: <Sparkles size={44} className="text-brand-lime" />,
+    themeColor: '#C3FF7D',
+    icon: <Layers size={44} className="text-brand-lime" />,
     tags: ['Student Room Search', 'Owner Operational Suite', 'Verified Ratings & Reviews'],
   },
 ];
 
 /**
  * Minimalist FullScreen Story Scroll.
- * Pure black background, zero gradients, zero duplicated labels,
- * zero stepper/progress bars, zero bottom prompts.
+ * White square grid background, sleek black cards with high contrast.
  * Each message flies in individually, covering the whole page on scroll.
  */
 export default function FlightStoryScroll() {
@@ -175,13 +174,13 @@ export default function FlightStoryScroll() {
   return (
     <div
       ref={containerRef}
-      className="relative bg-[#0A0A0A] text-white select-none border-y border-neutral-900"
+      className="relative bg-[#FAFAFC] bg-square-grid select-none border-y border-neutral-200"
       id="platform-story"
     >
-      {/* Pinned Viewport covering full screen */}
+      {/* Pinned Viewport covering full screen with square white background */}
       <div
         ref={pinSectionRef}
-        className="h-screen w-full relative overflow-hidden flex items-center justify-center bg-[#0A0A0A]"
+        className="h-screen w-full relative overflow-hidden flex items-center justify-center bg-[#FAFAFC] bg-square-grid"
         style={{
           perspective: '1300px',
           perspectiveOrigin: '50% 50%',
@@ -201,11 +200,11 @@ export default function FlightStoryScroll() {
                 willChange: 'transform, opacity, filter',
               }}
             >
-              {/* Clean Minimalist Card Chassis (No Gradients, No Clutter) */}
-              <div className="w-full max-w-3xl rounded-3xl p-7 sm:p-11 md:p-14 border border-neutral-800 bg-[#121212] shadow-2xl space-y-5 sm:space-y-6">
+              {/* Clean Minimalist Black Card Chassis */}
+              <div className="w-full max-w-3xl rounded-3xl p-7 sm:p-11 md:p-14 border border-neutral-800 bg-[#0F0F12] text-white shadow-[0_25px_70px_-15px_rgba(0,0,0,0.45)] space-y-5 sm:space-y-6">
                 {/* Single Icon */}
                 <div className="flex items-center justify-center">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center shadow-inner">
                     {slide.icon}
                   </div>
                 </div>
@@ -224,7 +223,7 @@ export default function FlightStoryScroll() {
                 </p>
 
                 {/* Narrative Paragraph */}
-                <p className="text-neutral-400 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
+                <p className="text-neutral-400 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mx-auto font-normal">
                   {slide.description}
                 </p>
 
@@ -233,7 +232,7 @@ export default function FlightStoryScroll() {
                   {slide.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-neutral-300 font-medium"
+                      className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-xl bg-neutral-900/90 border border-neutral-800 text-xs sm:text-sm text-neutral-300 font-medium"
                     >
                       <CheckCircle2 size={13} style={{ color: slide.themeColor }} />
                       <span>{tag}</span>

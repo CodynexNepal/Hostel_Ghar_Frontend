@@ -19,7 +19,6 @@ import {
   BedDouble,
   BadgeCheck,
   Clock,
-  Sparkles,
   ChevronRight,
   ExternalLink,
 } from 'lucide-react';
@@ -82,17 +81,6 @@ const supportLinks = [
   { label: 'Privacy Policy', href: '/privacy-policy' },
   { label: 'Terms of Service', href: '/privacy-policy' },
   { label: 'Cancellation Policy', href: '/privacy-policy' },
-];
-
-const tickerItems = [
-  'Kathmandu',
-  'Pokhara',
-  'Chitwan',
-  'Butwal',
-  'Dharan',
-  'Biratnagar',
-  'Nepalgunj',
-  '500+ Verified Hostels',
 ];
 
 const socials = [
@@ -249,41 +237,11 @@ const Footer = () => {
         </svg>
       </div>
 
-      {/* marquee ticker */}
-      <div className="relative z-10 border-y border-white/10 bg-white/[0.03] py-3 backdrop-blur">
-        <div className="group relative flex overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
-          <div className="flex min-w-full shrink-0 animate-[footer-marquee_28s_linear_infinite] items-center gap-8 pr-8 group-hover:[animation-play-state:paused] motion-reduce:animate-none">
-            {[...tickerItems, ...tickerItems].map((item, i) => (
-              <span
-                key={`a-${i}`}
-                className="flex items-center gap-8 whitespace-nowrap text-[13px] font-semibold uppercase tracking-[0.22em] text-white/70"
-              >
-                {item}
-                <Sparkles size={14} className="text-brand-lime" />
-              </span>
-            ))}
-          </div>
-          <div
-            aria-hidden
-            className="flex min-w-full shrink-0 animate-[footer-marquee_28s_linear_infinite] items-center gap-8 pr-8 group-hover:[animation-play-state:paused] motion-reduce:animate-none"
-          >
-            {[...tickerItems, ...tickerItems].map((item, i) => (
-              <span
-                key={`b-${i}`}
-                className="flex items-center gap-8 whitespace-nowrap text-[13px] font-semibold uppercase tracking-[0.22em] text-white/70"
-              >
-                {item}
-                <Sparkles size={14} className="text-brand-lime" />
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* CTA banner */}
         <div ref={ctaRef} className="relative -mt-2 pt-10 sm:pt-14">
-          <div className="group relative overflow-hidden rounded-3xl border border-brand-lime/30 bg-gradient-to-br from-brand-lime via-[#d4ff7a] to-brand-lime p-7 shadow-lime-lg sm:p-10 lg:p-12">
+          <div className="group relative overflow-hidden rounded-3xl border border-brand-lime/30 bg-brand-lime p-7 shadow-lime-lg sm:p-10 lg:p-12">
             <div aria-hidden className="pointer-events-none absolute inset-0">
               <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/30 blur-2xl transition-transform duration-700 group-hover:scale-125" />
               <div className="absolute -bottom-20 -left-10 h-72 w-72 rounded-full bg-brand-black/10 blur-2xl" />

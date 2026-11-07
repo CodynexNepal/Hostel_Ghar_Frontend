@@ -459,14 +459,6 @@ const ListHostelPage = () => {
         className="relative min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-transparent text-brand-black"
       >
         <Header />
-        <div
-          aria-hidden
-          className="lh-orb pointer-events-none absolute left-0 top-[8%] z-0 h-[420px] w-[420px] -translate-x-1/3 rounded-full bg-brand-lime/25 blur-[100px]"
-        />
-        <div
-          aria-hidden
-          className="lh-orb pointer-events-none absolute right-0 top-[46%] z-0 h-[480px] w-[480px] translate-x-1/3 rounded-full bg-[#ffe27a]/40 blur-[110px]"
-        />
         <section className="relative z-10 pt-10 md:pt-16 pb-8">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
@@ -579,7 +571,7 @@ const ListHostelPage = () => {
                   +40% occupancy - Priya
                 </div>
                 <div className="lh-fade relative rotate-1 rounded-3xl border-2 border-brand-black bg-white p-3 shadow-[8px_8px_0_#010101]">
-                  <div className="overflow-hidden rounded-2xl border-2 border-brand-black bg-gradient-to-br from-[#eaffc7] via-white to-[#fff6c9]">
+                  <div className="overflow-hidden rounded-2xl border-2 border-brand-black bg-white">
                     <div className="flex items-center justify-between px-4 pt-3">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-black px-3 py-1 text-[11px] font-bold text-white">
                         <span className="h-1.5 w-1.5 rounded-full bg-brand-lime" /> LIVE PREVIEW
@@ -1637,7 +1629,7 @@ const ListHostelPage = () => {
                 );
               })}
             </div>
-            <div className="lh-reveal mt-8 rounded-3xl border-2 border-brand-black bg-gradient-to-br from-brand-lime via-[#d8ff9e] to-white p-8 text-center shadow-[7px_7px_0_#010101] md:p-10">
+            <div className="lh-reveal mt-8 rounded-3xl border-2 border-brand-black bg-brand-lime p-8 text-center shadow-[7px_7px_0_#010101] md:p-10">
               <h2 className="mx-auto max-w-xl text-3xl font-extrabold tracking-tight md:text-4xl">
                 Your next resident is already scrolling.
               </h2>

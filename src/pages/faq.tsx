@@ -39,9 +39,9 @@ export default function FaqPage() {
 
           <div className="text-center mb-10">
             <LottieAnimation variant="house-assembly" size="md" className="mx-auto mb-3" />
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-lime/20 text-brand-black text-sm font-semibold">
-              <MessageCircleQuestion size={16} aria-hidden /> {FAQS.length} expert answers
-            </span>
+            <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500">
+              {FAQS.length} expert answers
+            </p>
             <h1 className="text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight mt-4 mb-4 overflow-hidden">
               <span className="inline-block animate-text-reveal">
                 Hostel Booking in Nepal, Answered

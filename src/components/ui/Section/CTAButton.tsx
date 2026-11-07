@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
-type CTAButtonProps =
+export type CTAButtonProps =
   | {
       children: React.ReactNode;
       href: string;

@@ -250,12 +250,11 @@ const ForOwnersPage = () => {
       </Head>
       <main className="min-h-screen bg-transparent">
         <Header />
-        <section className="relative overflow-hidden bg-gradient-to-b from-brand-lime/10 via-transparent to-transparent pt-20 pb-16 md:pt-28 md:pb-24 border-b border-neutral-200/80">
+        <section className="relative overflow-hidden pt-20 pb-16 md:pt-28 md:pb-24 border-b border-neutral-200/80">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-lime/25 text-brand-black rounded-full mb-6 border border-brand-lime/50 font-bold text-xs sm:text-sm">
-              <Building2 size={16} strokeWidth={2} className="text-brand-black" />
-              <span>For Hostel Owners</span>
-            </div>
+            <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-6">
+              For Hostel Owners
+            </p>
             <h1 className="hero-title text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-black tracking-tight mb-6 leading-tight">
               <span className="inline-block overflow-hidden pb-1">
                 <span className="animate-text-reveal">Manage Your Hostel</span>
@@ -320,9 +319,9 @@ const ForOwnersPage = () => {
         <section ref={featuresRef} className="py-20 md:py-28 bg-neutral-900/[0.02]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-4">
                 Powerful Features
-              </span>
+              </p>
               <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-4">
                 Everything You Need
               </h2>
@@ -348,9 +347,9 @@ const ForOwnersPage = () => {
         <section ref={stepsRef} className="py-20 md:py-28 bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-4">
                 Simple Setup
-              </span>
+              </p>
               <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-4">
                 Get Started in 4 Steps
               </h2>
@@ -386,9 +385,9 @@ const ForOwnersPage = () => {
         <section className="py-20 md:py-28 bg-[#f8f8f8]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-4">
                 Testimonials
-              </span>
+              </p>
               <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-4">
                 Loved by Owners
               </h2>
@@ -427,9 +426,9 @@ const ForOwnersPage = () => {
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-4">
                 Pricing
-              </span>
+              </p>
               <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-4">
                 Simple Pricing
               </h2>

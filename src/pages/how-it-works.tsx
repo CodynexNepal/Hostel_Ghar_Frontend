@@ -185,12 +185,11 @@ const HowItWorksPage = () => {
         />
 
         <Header />
-        <section className="relative z-10 overflow-hidden bg-gradient-to-b from-brand-lime/10 via-transparent to-transparent pt-16 pb-16 md:pt-24 md:pb-24 border-b border-neutral-200/80">
+        <section className="relative z-10 overflow-hidden pt-16 pb-16 md:pt-24 md:pb-24 border-b border-neutral-200/80">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-lime/25 text-brand-black rounded-full mb-6 border border-brand-lime/50 font-bold text-xs sm:text-sm">
-              <Zap size={16} strokeWidth={2} className="text-brand-black" />
-              <span>Simple. Fast. Reliable.</span>
-            </div>
+            <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-6">
+              Simple. Fast. Reliable.
+            </p>
             <h1 className="hero-title text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-black tracking-tight mb-6 leading-tight">
               <span className="inline-block overflow-hidden pb-1">
                 <span className="animate-text-reveal">How Hostel Ghar</span>
@@ -222,17 +221,15 @@ const HowItWorksPage = () => {
               </Link>
             </div>
           </div>
-          <div className="absolute top-20 left-10 w-64 h-64 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-10 right-10 w-56 h-56 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none"></div>
         </section>
 
         {/* Steps Section */}
         <section ref={stepsRef} className="py-16 md:py-24 bg-transparent relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-4">
                 Step by Step
-              </span>
+              </p>
               <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight">
                 Your Journey With Us
               </h2>
@@ -313,9 +310,9 @@ const HowItWorksPage = () => {
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-4">
                 The Hostel Ghar Difference
-              </span>
+              </p>
               <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-4">
                 Built for Safety, Comfort &amp; Trust
               </h2>
@@ -345,9 +342,9 @@ const HowItWorksPage = () => {
         <section className="py-16 md:py-24 bg-brand-black relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-lime text-sm font-semibold rounded-full mb-4">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-brand-lime mb-4">
                 For Everyone
-              </span>
+              </p>
               <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-4">
                 How It Works for You
               </h2>
@@ -487,7 +484,7 @@ const HowItWorksPage = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-gradient-to-b from-transparent via-brand-lime/10 to-transparent relative z-10 border-t border-neutral-200/80">
+        <section className="py-16 md:py-24 bg-neutral-900/[0.02] relative z-10 border-t border-neutral-200/80">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-6">
               Ready to Get Started?

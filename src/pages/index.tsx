@@ -23,7 +23,6 @@ import {
   Search,
   SlidersHorizontal,
   MessageSquare,
-  Sparkles,
   LayoutDashboard,
   Users,
   FolderSync,
@@ -203,19 +202,9 @@ export default function Home() {
           ref={heroRef}
           className="relative overflow-hidden pt-12 sm:pt-16 md:pt-24 pb-16 sm:pb-20 md:pb-28 border-b border-neutral-200/90"
         >
-          {/* Subtle Ambient Radial Lighting */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] md:w-[900px] h-[350px] bg-gradient-to-b from-brand-lime/20 via-brand-lime/5 to-transparent blur-3xl pointer-events-none -z-0" />
-          <div className="absolute top-1/4 -right-24 w-80 h-80 bg-brand-lime/15 rounded-full blur-3xl pointer-events-none -z-0" />
 
           <div className="container-custom relative z-10">
             <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
-              {/* Clean, Elegant Brand Eyebrow Badge (No "NEPAL REGION // LIVE", No Blinking Dot) */}
-              <div className="flex items-center justify-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-lime/25 text-brand-black text-xs sm:text-sm font-bold tracking-tight border border-brand-lime/50 shadow-sm transition-all duration-300 hover:bg-brand-lime/35">
-                  <Sparkles size={15} className="text-brand-black" />
-                  <span>Nepal&apos;s hostel discovery and management platform.</span>
-                </div>
-              </div>
 
               {/* Main Headline with Masked Text Reveal Animation */}
               <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-brand-black leading-[1.12]">
@@ -339,10 +328,9 @@ export default function Home() {
           <div className="container-custom">
             {/* Section Header with Text Reveal */}
             <div className="max-w-3xl mx-auto text-center space-y-3 mb-12 sm:mb-16">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-lime/30 text-brand-black text-xs font-mono font-bold uppercase tracking-wider border border-brand-lime/60">
-                <Sparkles size={13} />
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500">
                 Three Connected Experiences
-              </span>
+              </p>
               <h2 className="scroll-reveal-heading text-2xl sm:text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight leading-tight">
                 More Than a Hostel. A Better Way to Live and Manage.
               </h2>
@@ -420,7 +408,6 @@ export default function Home() {
 
               {/* Card 2: For Hostel Owners (Sleek Obsidian Chassis) */}
               <div className="experience-card-item flex flex-col justify-between rounded-3xl bg-[#0F0F10] text-white p-7 sm:p-8 border border-neutral-800 hover:shadow-2xl hover:border-brand-lime/60 transition-all duration-300 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="space-y-5 relative z-10">
                   <div className="flex items-center justify-between">
@@ -577,10 +564,9 @@ export default function Home() {
         >
           <div className="container-custom relative z-10">
             <div className="max-w-3xl mx-auto text-center space-y-3 mb-10 sm:mb-14">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-brand-lime text-xs font-mono font-bold uppercase tracking-wider border border-white/10">
-                <TrendingUp size={13} />
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-brand-lime">
                 The Advantages
-              </span>
+              </p>
               <h2 className="scroll-reveal-heading text-2xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">
                 Why Hostel Ghar?
               </h2>
@@ -674,9 +660,9 @@ export default function Home() {
         <section id="get-started" className="py-16 sm:py-20 md:py-24 relative">
           <div className="container-custom max-w-5xl">
             <div className="text-center mb-10 sm:mb-12">
-              <span className="inline-block px-4 py-1.5 text-xs sm:text-sm font-mono font-bold rounded-full bg-brand-lime/30 text-brand-black mb-3 border border-brand-lime/60">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-3">
                 Get Started
-              </span>
+              </p>
               <h2 className="scroll-reveal-heading text-2xl sm:text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight">
                 Your Hostel Journey Starts Here.
               </h2>
@@ -714,7 +700,6 @@ export default function Home() {
 
               {/* Owner Choice */}
               <div className="p-7 sm:p-10 rounded-3xl bg-neutral-900 text-white flex flex-col justify-between hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-lime/10 rounded-full blur-2xl pointer-events-none" />
                 <div className="space-y-4 relative z-10">
                   <div className="flex items-center justify-between">
                     <div className="w-12 h-12 rounded-xl bg-brand-lime text-brand-black flex items-center justify-center font-bold shadow-lime">

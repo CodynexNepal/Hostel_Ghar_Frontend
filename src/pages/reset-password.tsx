@@ -220,10 +220,9 @@ export default function ResetPasswordPage() {
             </div>
           </Link>
 
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-lime/25 text-brand-black text-xs font-bold border border-brand-lime/40 mb-2">
-            <ShieldCheck size={13} className="text-brand-black" />
+          <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-2">
             Account Security
-          </span>
+          </p>
 
           <h1 className="text-2xl font-bold tracking-tight text-brand-black sm:text-3xl">
             Create New Password

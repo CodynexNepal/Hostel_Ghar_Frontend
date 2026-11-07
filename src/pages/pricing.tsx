@@ -248,14 +248,11 @@ const PricingPage = () => {
       </Head>
       <main className="min-h-screen bg-transparent">
         <Header />
-        <section className="relative overflow-hidden bg-gradient-to-b from-brand-lime/10 via-transparent to-transparent pt-20 pb-16 md:pt-28 md:pb-20">
+        <section className="relative overflow-hidden pt-20 pb-16 md:pt-28 md:pb-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-lime/20 rounded-full mb-6">
-              <Shield size={16} strokeWidth={2} className="text-brand-black" />
-              <span className="text-sm font-semibold text-brand-black">
-                Simple, Transparent Pricing
-              </span>
-            </div>
+            <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-6">
+              Simple, Transparent Pricing
+            </p>
             <h1 className="hero-title text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-black tracking-tight mb-6 overflow-hidden">
               <span className="inline-block animate-text-reveal">
                 Plans That Grow{' '}
@@ -400,9 +397,9 @@ const PricingPage = () => {
         <section className="py-20 md:py-28 bg-[#f8f8f8]">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-4">
                 Compare Plans
-              </span>
+              </p>
               <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-4">
                 Feature Comparison
               </h2>
@@ -481,9 +478,9 @@ const PricingPage = () => {
         <section className="py-20 md:py-28 bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-4">
                 Testimonials
-              </span>
+              </p>
               <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-4">
                 Trusted by Hostel Owners
               </h2>
@@ -523,9 +520,9 @@ const PricingPage = () => {
         <section ref={faqRef} className="py-20 md:py-28 bg-neutral-900/[0.02]">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-brand-lime/20 text-brand-black text-sm font-semibold rounded-full mb-4">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-4">
                 FAQ
-              </span>
+              </p>
               <h2 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-4">
                 Frequently Asked Questions
               </h2>
@@ -561,10 +558,9 @@ const PricingPage = () => {
         <section className="py-20 md:py-28 bg-brand-black">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <LottieAnimation variant="success-check" size="lg" className="mx-auto mb-6" />
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-lime/20 rounded-full mb-6">
-              <Users size={16} strokeWidth={2} className="text-brand-lime" />
-              <span className="text-sm font-semibold text-brand-lime">Join 500+ Hostels</span>
-            </div>
+            <p className="text-xs font-mono font-bold uppercase tracking-widest text-brand-lime mb-6">
+              Join 500+ Hostels
+            </p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-6">
               Ready to Get Started?
             </h2>

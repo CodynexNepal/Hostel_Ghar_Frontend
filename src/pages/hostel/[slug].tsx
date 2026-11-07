@@ -580,7 +580,7 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
               </div>
 
               {/* Price Display Card */}
-              <div className="p-5 rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-100/70 border border-neutral-200">
+              <div className="p-5 rounded-2xl bg-neutral-50 border border-neutral-200">
                 <div className="flex items-baseline justify-between mb-1">
                   <div>
                     <span className="text-xs uppercase font-bold text-neutral-500 tracking-wider">
@@ -740,7 +740,7 @@ export default function HostelDetail({ hostel: initialHostel }: { hostel: Hostel
                   residents.
                 </p>
               </div>
-              <span className="px-3.5 py-1.5 rounded-full bg-brand-lime/20 text-brand-black text-xs font-bold border border-brand-lime/40">
+              <span className="px-3 py-1 rounded-md bg-neutral-100 text-neutral-800 text-xs font-semibold border border-neutral-200">
                 4 Daily Meals Included
               </span>
             </div>

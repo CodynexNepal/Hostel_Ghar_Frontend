@@ -185,17 +185,13 @@ export default function DashboardInsightShowcase({
 
   return (
     <section id={id} className={cn('py-16 sm:py-20 md:py-28 relative overflow-hidden', className)}>
-      {/* Background Accent Gradients */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] md:w-[1100px] h-[450px] bg-gradient-to-b from-brand-lime/15 via-brand-lime/5 to-transparent blur-3xl pointer-events-none -z-0" />
-      <div className="absolute bottom-10 left-10 w-80 h-80 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none -z-0" />
 
       <div className="container-custom relative z-10">
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center space-y-3.5 mb-10 sm:mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-lime/25 text-brand-black text-xs font-mono font-bold uppercase tracking-wider border border-brand-lime/60 shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Interactive Platform Insight</span>
-          </div>
+          <p className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500">
+            Interactive Platform Insight
+          </p>
 
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-brand-black tracking-tight leading-tight">
             {title || 'See the Dashboards in Action'}
@@ -342,16 +338,12 @@ export default function DashboardInsightShowcase({
         {/* ========================================================
             INTERACTIVE DEVICE SHOWCASE STAGE
            ======================================================== */}
-        <div className="relative max-w-5xl mx-auto rounded-3xl bg-gradient-to-b from-neutral-900 via-neutral-950 to-[#0A0A0C] p-4 sm:p-7 md:p-10 border border-neutral-800 shadow-2xl overflow-hidden">
-          {/* Ambient Lighting in Showcase Stage */}
-          <div className="absolute top-0 right-1/4 w-96 h-96 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative max-w-5xl mx-auto rounded-3xl bg-neutral-950 p-4 sm:p-7 md:p-10 border border-neutral-800 shadow-2xl overflow-hidden">
 
           {/* Action Bar inside Showcase Header */}
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-4 sm:pb-6 border-b border-neutral-800/80 mb-6">
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 text-brand-lime font-mono text-[11px] font-bold">
-                <Sparkles size={12} />
                 LIVE PREVIEW
               </span>
               <span className="text-neutral-400 text-xs hidden sm:inline">

@@ -472,7 +472,7 @@ const HostelsPage = () => {
       </Head>
       <main className="min-h-screen bg-transparent">
         <Header />
-        <section className="bg-gradient-to-b from-brand-lime/10 via-transparent to-transparent pt-8 pb-12">
+        <section className="pt-8 pb-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-3xl md:text-4xl font-extrabold text-brand-black tracking-tight mb-2 overflow-hidden">
               <span className="inline-block animate-text-reveal">Find Your Perfect Hostel</span>
