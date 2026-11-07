@@ -268,9 +268,7 @@ export default function WorkflowPileUp() {
                             </span>
                           </div>
                           <div className="p-2.5 rounded-xl border border-neutral-800 bg-neutral-900/80 shadow-2xs">
-                            <p className="font-bold text-white truncate">
-                              ABC Hostel PVT LTD
-                            </p>
+                            <p className="font-bold text-white truncate">ABC Hostel PVT LTD</p>
                             <p className="text-[11px] text-neutral-400">Boys · Rs. 11.2k</p>
                             <span className="inline-flex items-center gap-1 text-brand-lime font-bold mt-1">
                               <CheckCircle2 size={11} /> 1 Bed Left
@@ -314,9 +312,7 @@ export default function WorkflowPileUp() {
 
                         <div className="rounded-xl border border-neutral-800 bg-neutral-900/90 p-3 space-y-1.5 shadow-xs">
                           <div className="flex justify-between items-center text-xs">
-                            <span className="font-bold text-white">
-                              2-Seater (Shared Balcony)
-                            </span>
+                            <span className="font-bold text-white">2-Seater (Shared Balcony)</span>
                             <span className="font-mono font-bold text-brand-lime">
                               Rs. 10,500/mo
                             </span>

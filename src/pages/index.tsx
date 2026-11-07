@@ -202,10 +202,8 @@ export default function Home() {
           ref={heroRef}
           className="relative overflow-hidden pt-12 sm:pt-16 md:pt-24 pb-16 sm:pb-20 md:pb-28 border-b border-neutral-200/90"
         >
-
           <div className="container-custom relative z-10">
             <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
-
               {/* Main Headline with Masked Text Reveal Animation */}
               <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-brand-black leading-[1.12]">
                 <span className="inline-block overflow-hidden pb-1">
@@ -408,7 +406,6 @@ export default function Home() {
 
               {/* Card 2: For Hostel Owners (Sleek Obsidian Chassis) */}
               <div className="experience-card-item flex flex-col justify-between rounded-3xl bg-[#0F0F10] text-white p-7 sm:p-8 border border-neutral-800 hover:shadow-2xl hover:border-brand-lime/60 transition-all duration-300 relative overflow-hidden">
-
                 <div className="space-y-5 relative z-10">
                   <div className="flex items-center justify-between">
                     <div className="w-13 h-13 rounded-2xl bg-brand-lime text-brand-black flex items-center justify-center font-bold shadow-lime">

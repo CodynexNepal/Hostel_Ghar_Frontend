@@ -185,7 +185,6 @@ export default function DashboardInsightShowcase({
 
   return (
     <section id={id} className={cn('py-16 sm:py-20 md:py-28 relative overflow-hidden', className)}>
-
       <div className="container-custom relative z-10">
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center space-y-3.5 mb-10 sm:mb-14">
@@ -339,7 +338,6 @@ export default function DashboardInsightShowcase({
             INTERACTIVE DEVICE SHOWCASE STAGE
            ======================================================== */}
         <div className="relative max-w-5xl mx-auto rounded-3xl bg-neutral-950 p-4 sm:p-7 md:p-10 border border-neutral-800 shadow-2xl overflow-hidden">
-
           {/* Action Bar inside Showcase Header */}
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-4 sm:pb-6 border-b border-neutral-800/80 mb-6">
             <div className="flex items-center gap-2">

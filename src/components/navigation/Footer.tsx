@@ -237,7 +237,6 @@ const Footer = () => {
         </svg>
       </div>
 
-
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* CTA banner */}
         <div ref={ctaRef} className="relative -mt-2 pt-10 sm:pt-14">
